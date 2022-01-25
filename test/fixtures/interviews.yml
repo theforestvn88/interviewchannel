@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  note: MyString
+  start_time: 2022-01-25 22:05:00
+  end_time: 2022-01-25 22:05:00
+  code: MyText
+  result: false
+
+two:
+  note: MyString
+  start_time: 2022-01-25 22:05:00
+  end_time: 2022-01-25 22:05:00
+  code: MyText
+  result: false

@@ -1,0 +1,32 @@
+<div id="<%= dom_id interview %>">
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Note:</strong>
+    <%= interview.note %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Start time:</strong>
+    <%= interview.start_time %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">End time:</strong>
+    <%= interview.end_time %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Code:</strong>
+    <%= interview.code %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Result:</strong>
+    <%= interview.result %>
+  </p>
+
+  <% if action_name != "show" %>
+    <%= link_to "Show this interview", interview, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    <%= link_to 'Edit this interview', edit_interview_path(interview), class: "rounded-lg py-3 ml-2 px-5 bg-gray-100 inline-block font-medium" %>
+    <hr class="mt-6">
+  <% end %>
+</div>
