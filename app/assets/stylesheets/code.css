@@ -1,0 +1,58 @@
+ /* for block of numbers */
+ .hljs-ln-numbers {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  text-align: center;
+  color: #ccc;
+  border-right: 1px solid #CCC;
+  vertical-align: top;
+  padding-right: 5px;
+}
+
+/* for block of code */
+.hljs-ln-code {
+  padding-left: 10px;
+}
+
+
+.input-transparent {
+  background-color: transparent;
+  color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none !important;
+  width: 700px;
+  height: 500px !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-top: 16px;
+  margin-left: 19px;
+  caret-color: red;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.9em !important;
+  line-height: 1.5;
+  padding-left: 0.15em;
+  padding-top: 0.15em;
+  overflow: -moz-hidden-unscrollable;
+}
+
+.code-editor {
+  width: 700px;
+  height: 500px;
+  position: relative;
+  overflow: -moz-hidden-unscrollable;
+}
+
+.code-hl {
+  width: 700px;
+  height: 500px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
