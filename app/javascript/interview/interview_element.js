@@ -9,29 +9,22 @@ class InterviewElement extends HTMLElement {
     });
 
     let codeInput = this.querySelector("textarea");
-    console.log(codeInput);
-
     let codeEditor = this.querySelector(".code-editor");
-    console.log(codeEditor);
     let codeHighlight = this.querySelector(".code-hl");
-    console.log(codeHighlight);
-    codeInput.value = codeHighlight.firstChild.textContent;
 
-    highlightCode(codeEditor);
+    codeInput.value = codeHighlight.firstChild.textContent;
+    highlightCode(codeEditor, "ruby");
     
     codeInput.addEventListener('input', (e) => {
       let codeText = e.target.value;
-      console.log(codeText);
-      this.subscription.send({"code": codeText});
-      codeHighlight.firstChild.textContent = codeText;//.replace(/\r\n/g, '\n');
-      highlightCode(codeEditor);
-      // codeInput.selectionEnd = codeText.length;
+      this.subscription.send({
+        "code": codeText, 
+        "id": this.getAttribute("interview-id"),
+        "user": this.getAttribute("user")
+      });
+      codeHighlight.firstChild.textContent = codeText;
+      highlightCode(codeEditor, "ruby");
     });
-
-    // setTimeout(() => {
-    //   console.log("CLIENT send a message");
-    //   this.subscription.send({"code": this.innerText});
-    // }, 5000);
   }
 
   disconnectedCallback() {
@@ -41,6 +34,14 @@ class InterviewElement extends HTMLElement {
 
   dispatchMessageEvent(data) {
     const event = new MessageEvent("message", { data });
+
+    if (data.user != this.getAttribute("user")) {
+      let codeEditor = this.querySelector(".code-editor");
+      let codeHighlight = this.querySelector(".code-hl");
+      codeHighlight.firstChild.textContent = data.code;
+      highlightCode(codeEditor, "ruby", true);
+    }
+
     return this.dispatchEvent(event);
   }
 
