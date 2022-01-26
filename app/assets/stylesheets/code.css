@@ -19,7 +19,6 @@
   padding-left: 10px;
 }
 
-
 .input-transparent {
   background-color: transparent;
   color: transparent;
@@ -31,22 +30,25 @@
   position: absolute;
   top: 0;
   left: 0;
-  margin-top: 16px;
-  margin-left: 19px;
+  margin-top: 0px;
+  margin-left: 0px;
   caret-color: red;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-  font-size: 0.9em !important;
-  line-height: 1.5;
-  padding-left: 0.15em;
-  padding-top: 0.15em;
+  font-size: 1em !important;
+  line-height: inherit;
+  padding-left: 1em;
+  padding-top: 1em;
   overflow: -moz-hidden-unscrollable;
 }
 
 .code-editor {
+  margin-top: 10px;
   width: 700px;
   height: 500px;
   position: relative;
   overflow: -moz-hidden-unscrollable;
+  border-width: 3px;
+  border-color: #f3f3f3;
 }
 
 .code-hl {
@@ -55,4 +57,5 @@
   position: absolute;
   top: 0;
   left: 0;
+  background-color: #f3f3f3;
 }
