@@ -1,5 +1,5 @@
 class InterviewsController < ApplicationController
-  before_action :set_interview, only: %i[ show edit update destroy ]
+  before_action :set_interview, only: %i[ show room edit update destroy ]
 
   # GET /interviews or /interviews.json
   def index
@@ -8,6 +8,9 @@ class InterviewsController < ApplicationController
 
   # GET /interviews/1 or /interviews/1.json
   def show
+  end
+
+  def room
   end
 
   # GET /interviews/new
