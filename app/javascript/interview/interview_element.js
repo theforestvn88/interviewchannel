@@ -1,5 +1,6 @@
 import { Turbo, cable } from "@hotwired/turbo-rails";
-import { highlightCode } from "formatter"
+import { highlightCode } from "formatter";
+import P2pVideo from "./p2p_video";
 
 class InterviewElement extends HTMLElement {
   async connectedCallback() {
@@ -9,13 +10,13 @@ class InterviewElement extends HTMLElement {
     });
 
     let langSelect = this.querySelector("#lang");
-    langSelect.addEventListener('change', (e) => {
+    langSelect.addEventListener("change", e => {
       this.lang = e.target.value;
       highlightCode(codeEditor, this.lang);
     });
 
     let styleSelect = this.querySelector("#style");
-    styleSelect.addEventListener('change', (e) => {
+    styleSelect.addEventListener("change", e => {
       this.style = e.target.value;
       for (let link of document.querySelectorAll(".codestyle")) {
         link.disabled = !link.href.match(this.style + "\\.min.css$");
@@ -29,17 +30,24 @@ class InterviewElement extends HTMLElement {
 
     codeInput.value = codeHighlight.firstChild.textContent;
     highlightCode(codeEditor, this.lang);
-    
-    codeInput.addEventListener('input', (e) => {
+
+    codeInput.addEventListener("input", e => {
       let codeText = e.target.value;
       this.subscription.send({
-        "code": codeText, 
-        "id": this.getAttribute("interview-id"),
-        "user": this.getAttribute("user")
+        component: "code",
+        code: codeText,
+        id: this.getAttribute("interview-id"),
+        user: this.getAttribute("user")
       });
       codeHighlight.firstChild.textContent = codeText;
       highlightCode(codeEditor, this.lang);
     });
+
+    this.videoHandler = new P2pVideo(
+      this.getAttribute("interview-id"),
+      this.getAttribute("user"),
+      this.subscription
+    );
   }
 
   disconnectedCallback() {
@@ -50,11 +58,20 @@ class InterviewElement extends HTMLElement {
   dispatchMessageEvent(data) {
     const event = new MessageEvent("message", { data });
 
-    if (data.user != this.getAttribute("user")) {
-      let codeEditor = this.querySelector(".code-editor");
-      let codeHighlight = this.querySelector(".code-hl");
-      codeHighlight.firstChild.textContent = data.code;
-      highlightCode(codeEditor, this.lang, true);
+    switch (data.component) {
+      case "code":
+        if (data.user != this.getAttribute("user")) {
+          let codeEditor = this.querySelector(".code-editor");
+          let codeHighlight = this.querySelector(".code-hl");
+          codeHighlight.firstChild.textContent = data.code;
+          highlightCode(codeEditor, this.lang, true);
+        }
+        break;
+      case "video":
+        this.videoHandler.receive(data);
+        break;
+      default:
+        break;
     }
 
     return this.dispatchEvent(event);
