@@ -17,21 +17,16 @@ export default class P2pVideo {
   #pcPeers = {};
   #localstream;
 
-  constructor(interviewId, user, broadcaster) {
-    this.interview = interviewId;
-    this.currentUser = user;
-    this.broadcaster = broadcaster;
+  constructor(interview) {
+    this.interview = interview;
 
-    this.#localVideo = document.getElementById("local-video");
-    this.#remoteVideoContainer = document.getElementById("remote-video-container");
+    this.#localVideo = this.interview.querySelector("#local-video");
+    this.#remoteVideoContainer = this.interview.querySelector("#remote-video-container");
 
-    this.openLocalVideo();
-    document.getElementById("open-video").onclick = () => {
-      this.requestRemoteVideo();
-    }
+    this.openVideos();
   }
 
-  openLocalVideo() {
+  openVideos() {
     navigator.mediaDevices
       .getUserMedia({
         audio: true,
@@ -41,27 +36,28 @@ export default class P2pVideo {
         this.#localstream = stream;
         this.#localVideo.srcObject = stream;
         this.#localVideo.muted = true;
+
+        this.requestRemoteVideo();
       })
       .catch(logError);
   }
 
   requestRemoteVideo() {
-    this.broadcaster.send({
+    this.interview.sync({
       component: "video",
-      id: this.interview,
+      id: this.interview.id,
       type: OPEN_VIDEO,
-      from: this.currentUser
+      from: this.interview.user
     });
   }
 
   receive(data) {
-    console.log("received", data);
-    // if (data.from === this.currentUser) return;
+    if (data.from === this.interview.user) return;
     switch (data.type) {
       case OPEN_VIDEO:
         return this.createPC(data.from, true);
       case EXCHANGE:
-        if (data.to !== this.currentUser) return;
+        if (data.to !== this.interview.user) return;
         return this.exchange(data);
       case CLOSE_VIDEO:
         return this.removeUser(data);
@@ -75,6 +71,7 @@ export default class P2pVideo {
     const element = document.createElement("video");
     element.id = `remoteVideoContainer+${userId}`;
     element.autoplay = "autoplay";
+    element.classList.add("p2p-video");
     this.#remoteVideoContainer.appendChild(element);
 
     this.#pcPeers[userId] = pc;
@@ -90,11 +87,11 @@ export default class P2pVideo {
           return pc.setLocalDescription(offer);
         })
         .then(() => {
-          this.broadcaster.send({
+          this.interview.sync({
             component: "video",
-            id: this.interview,
+            id: this.interview.id,
             type: EXCHANGE,
-            from: this.currentUser,
+            from: this.interview.user,
             to: userId,
             sdp: JSON.stringify(pc.localDescription)
           });
@@ -103,11 +100,11 @@ export default class P2pVideo {
 
     pc.onicecandidate = event => {
       event.candidate &&
-        this.broadcaster.send({
+        this.interview.sync({
           component: "video",
-          id: this.interview,
+          id: this.interview.id,
           type: EXCHANGE,
-          from: this.currentUser,
+          from: this.interview.user,
           to: userId,
           candidate: JSON.stringify(event.candidate)
         });
@@ -124,10 +121,9 @@ export default class P2pVideo {
 
     pc.oniceconnectionstatechange = () => {
       if (pc.iceConnectionState == "disconnected") {
-        console.log("Disconnected:", userId);
-        this.broadcaster.send({
+        this.interview.sync({
           component: "video",
-          id: this.interview,
+          id: this.interview.id,
           type: CLOSE_VIDEO,
           from: userId
         });
@@ -162,11 +158,11 @@ export default class P2pVideo {
                 return pc.setLocalDescription(answer);
               })
               .then(() => {
-                this.broadcaster.send({
+                this.interview.sync({
                   component: "video",
-                  id: this.interview,
+                  id: this.interview.id,
                   type: EXCHANGE,
-                  from: this.currentUser,
+                  from: this.interview.user,
                   to: data.from,
                   sdp: JSON.stringify(pc.localDescription)
                 });
@@ -185,17 +181,16 @@ export default class P2pVideo {
 
     this.#remoteVideoContainer.innerHTML = "";
 
-    this.broadcaster.send({
+    this.interview.sync({
       component: "video",
-      id: this.interview,
+      id: this.interview.id,
       type: CLOSE_VIDEO,
-      from: this.currentUser
+      from: this.interview.user
     });
   }
 
   removeUser(data) {
-    console.log("removing user", data.from);
-    let video = document.getElementById(`remoteVideoContainer+${data.from}`);
+    let video = this.interview.querySelector(`#remoteVideoContainer+${data.from}`);
     video && video.remove();
     delete this.#pcPeers[data.from];
   }

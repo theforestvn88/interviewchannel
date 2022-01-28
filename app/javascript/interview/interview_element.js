@@ -1,5 +1,5 @@
 import { Turbo, cable } from "@hotwired/turbo-rails";
-import { highlightCode } from "formatter";
+import CodeEditor from "./code_editor";
 import P2pVideo from "./p2p_video";
 
 class InterviewElement extends HTMLElement {
@@ -9,45 +9,8 @@ class InterviewElement extends HTMLElement {
       received: this.dispatchMessageEvent.bind(this)
     });
 
-    let langSelect = this.querySelector("#lang");
-    langSelect.addEventListener("change", e => {
-      this.lang = e.target.value;
-      highlightCode(codeEditor, this.lang);
-    });
-
-    let styleSelect = this.querySelector("#style");
-    styleSelect.addEventListener("change", e => {
-      this.style = e.target.value;
-      for (let link of document.querySelectorAll(".codestyle")) {
-        link.disabled = !link.href.match(this.style + "\\.min.css$");
-      }
-      highlightCode(codeEditor, this.lang);
-    });
-
-    let codeInput = this.querySelector("textarea");
-    let codeEditor = this.querySelector(".code-editor");
-    let codeHighlight = this.querySelector(".code-hl");
-
-    codeInput.value = codeHighlight.firstChild.textContent;
-    highlightCode(codeEditor, this.lang);
-
-    codeInput.addEventListener("input", e => {
-      let codeText = e.target.value;
-      this.subscription.send({
-        component: "code",
-        code: codeText,
-        id: this.getAttribute("interview-id"),
-        user: this.getAttribute("user")
-      });
-      codeHighlight.firstChild.textContent = codeText;
-      highlightCode(codeEditor, this.lang);
-    });
-
-    this.videoHandler = new P2pVideo(
-      this.getAttribute("interview-id"),
-      this.getAttribute("user"),
-      this.subscription
-    );
+    this.codeEditor = new CodeEditor(this);
+    this.videoHandler = new P2pVideo(this);
   }
 
   disconnectedCallback() {
@@ -60,12 +23,7 @@ class InterviewElement extends HTMLElement {
 
     switch (data.component) {
       case "code":
-        if (data.user != this.getAttribute("user")) {
-          let codeEditor = this.querySelector(".code-editor");
-          let codeHighlight = this.querySelector(".code-hl");
-          codeHighlight.firstChild.textContent = data.code;
-          highlightCode(codeEditor, this.lang, true);
-        }
+        this.codeEditor.receive(data);
         break;
       case "video":
         this.videoHandler.receive(data);
@@ -77,34 +35,22 @@ class InterviewElement extends HTMLElement {
     return this.dispatchEvent(event);
   }
 
+  sync(data) {
+    this.subscription.send(data);
+  }
+
   get channel() {
     const channel = this.getAttribute("channel");
     const signed_stream_name = this.getAttribute("signed-stream-name");
     return { channel, signed_stream_name };
   }
 
-  get lang() {
-    if (!this.selectedLang) {
-      this.selectedLang = this.getAttribute("language") || "ruby";
-    }
-
-    return this.selectedLang;
+  get id() {
+    return this.getAttribute("interview-id");
   }
 
-  set lang(language) {
-    this.selectedLang = language;
-  }
-
-  get style() {
-    if (!this.selectedStyle) {
-      this.selectedStyle = this.getAttribute("style") || "default";
-    }
-
-    return this.selectedStyle;
-  }
-
-  set style(_style) {
-    this.selectedStyle = _style;
+  get user() {
+    return this.getAttribute("user");
   }
 }
 
