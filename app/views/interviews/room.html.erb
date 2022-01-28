@@ -1,11 +1,1 @@
-<h6>Room Interview for: </h6>
-<%= @interview.note %>
-
-<div class="mx-auto md:w-2/3 w-full flex">
-  <div class="mx-auto">
-    <%= interview_stream @interview %>
-    <div id="remote-video-container"></div>
-    <video id="local-video" class="p2p-video" autoplay></video>
-    <button id="open-video">Open Camera</button>
-  </div>
-</div>
+<%= interview_stream @interview %>

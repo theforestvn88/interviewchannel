@@ -42,15 +42,23 @@ module InterviewsHelper
     attributes[:"interview-id"] = interviews.first.id
     attributes[:"user"] = SecureRandom.hex(6) # TODO: replace by User model
 
-    tag.interview_stream(**attributes) do |tag|
-      tag.label("Lang: ").concat select_tag('lang', options_for_select(SUPPORT_LANGS, "ruby")).concat(
-        tag.label("   Style: ").concat select_tag('style', options_for_select(SUPPORT_STYLES, "default")).concat(
-          tag.div(class: "code-editor") { |tag|
-            tag.pre("# in code we trust !!!", class: "code-hl")
-              .concat tag.textarea(class: "input-transparent", spellcheck: "false")
-          }
+    tag.interview_stream(**attributes, class: "mx-auto w-full") do |tag|
+      tag.div { |tag|
+        tag.h1(interviews.first.note).concat tag.label("Lang: ").concat select_tag('lang', options_for_select(SUPPORT_LANGS, "ruby")).concat(
+          tag.label("   Style: ").concat select_tag('style', options_for_select(SUPPORT_STYLES, "default")).concat(
+            tag.div(class: "code-editor") { |tag|
+              tag.pre("# in code we trust !!!", class: "code-hl")
+                .concat tag.textarea(class: "input-transparent", spellcheck: "false")
+            }
+          )
         )
-      )
+      }
+      .concat(tag.div(class: "w-full flex justify-end sticky bottom-0 right-10") { |tag|
+        tag.div { |tag|
+          tag.div(id: "remote-video-container")
+            .concat(tag.video(id: "local-video", class: "p2p-video", autoplay: true))
+        }
+      })
     end
   end
 end
