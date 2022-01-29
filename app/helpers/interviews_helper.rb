@@ -62,7 +62,7 @@ module InterviewsHelper
                   end
                   lines
                 })
-                .concat(tag.textarea(class: "input-transparent", spellcheck: "false"))
+                .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
             }
           )
         )

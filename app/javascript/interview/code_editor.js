@@ -115,6 +115,16 @@ export default class CodeEditor {
     }
   }
 
+  expandHeight() {
+    this.codeInput.rows = this.totalLines;
+
+    this.codeEditor.style.height = 'auto';
+    this.codeEditor.style.height = this.codeEditor.scrollHeight + 'px';
+
+    this.codeHighlight.style.height = 'auto';
+    this.codeHighlight.style.height = this.codeHighlight.scrollHeight + 'px';
+  }
+  
   addEditorRules() {
     this.codeInput.addEventListener("keyup", e => {
       switch (e.key) {
@@ -129,6 +139,7 @@ export default class CodeEditor {
               this.highlightLineOfCode(this.totalLines);
               this.currNumLine = this.totalLines;
             }
+            this.expandHeight();
           }
           break;
 
