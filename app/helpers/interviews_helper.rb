@@ -40,15 +40,29 @@ module InterviewsHelper
     attributes[:channel] = attributes[:channel]&.to_s || "InterviewStreamsChannel"
     attributes[:"signed-stream-name"] = Turbo::StreamsChannel.signed_stream_name(interviews)
     attributes[:"interview-id"] = interviews.first.id
-    attributes[:"user"] = SecureRandom.hex(6) # TODO: replace by User model
+    attributes[:"user"] = SecureRandom.hex(6) # TODO:   replace by User model
 
     tag.interview_stream(**attributes, class: "mx-auto w-full") do |tag|
       tag.div { |tag|
         tag.h1(interviews.first.note).concat tag.label("Lang: ").concat select_tag('lang', options_for_select(SUPPORT_LANGS, "ruby")).concat(
           tag.label("   Style: ").concat select_tag('style', options_for_select(SUPPORT_STYLES, "default")).concat(
             tag.div(class: "code-editor") { |tag|
-              tag.pre("# in code we trust !!!", class: "code-hl")
-                .concat tag.textarea(class: "input-transparent", spellcheck: "false")
+              tag.pre(" ", class: "code-hl")
+                .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
+                  lines = tag.div(class: "pt-4")
+                  (1..10).each do |row_id|
+                    lines = lines.concat(
+                      tag.div(id: "row-#{row_id}", class: "code-line") {
+                        tag.div(class: "w-6 flex justify-end") {
+                          tag.label("#{row_id}", class: "text-xs")
+                            .concat tag.label("|")
+                        }
+                      }
+                    )
+                  end
+                  lines
+                })
+                .concat(tag.textarea(class: "input-transparent", spellcheck: "false"))
             }
           )
         )

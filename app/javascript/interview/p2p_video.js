@@ -39,7 +39,7 @@ export default class P2pVideo {
 
         this.requestRemoteVideo();
       })
-      .catch(logError);
+      .catch(logError); // TODO: require permission, candidate has to show video.
   }
 
   requestRemoteVideo() {
@@ -53,6 +53,7 @@ export default class P2pVideo {
 
   receive(data) {
     if (data.from === this.interview.user) return;
+
     switch (data.type) {
       case OPEN_VIDEO:
         return this.createPC(data.from, true);
@@ -173,6 +174,7 @@ export default class P2pVideo {
     }
   }
 
+  // TODO: 
   userOut() {
     for (let user in this.#pcPeers) {
       this.#pcPeers[user].close();
