@@ -1,5 +1,7 @@
 import { highlightCode } from "formatter";
 
+const InitNumOfLines = 10;
+
 export default class CodeEditor {
   constructor(interview) {
     this.interview = interview;
@@ -36,7 +38,16 @@ export default class CodeEditor {
 
   receive(data) {
     if (data.user != this.interview.user) {
+      let before = this.countNumOfLines();
       this.codeHighlight.firstChild.textContent = data.code;
+      this.codeInput.value = data.code;
+      let after = this.countNumOfLines();
+      while (after > before && after > InitNumOfLines) {
+        before += 1;
+        this.addLines(before);
+        this.expandHeight();
+      }
+
       this.formatCode();
     }
   }
@@ -57,7 +68,7 @@ export default class CodeEditor {
       this.formatCode();
     });
 
-    this.codeInput = this.interview.querySelector("textarea");
+    this.codeInput = this.interview.querySelector(".input-transparent");
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
 
@@ -77,7 +88,7 @@ export default class CodeEditor {
       this.formatCode();
     });
 
-    this.totalLines = 10;
+    this.totalLines = InitNumOfLines;
     this.addEditorRules();
   }
 
@@ -99,6 +110,11 @@ export default class CodeEditor {
 
     lineView.appendChild(numView);
     codeOverlay.appendChild(lineView);
+  }
+
+  countNumOfLines(from = 0, to = undefined) {
+    let codeText = this.codeInput.value;
+    return (codeText.substring(from, to).match(/\n/g) || []).length + 1;
   }
 
   highlightLineOfCode(numLine) {
@@ -168,12 +184,13 @@ export default class CodeEditor {
       }
     });
 
-    this.codeInput.addEventListener("selectionchange", () => {
-      let codeText = this.codeInput.value;
-      let selectStart = this.codeInput.selectionStart;
-      let numLine =
-        (codeText.substring(0, selectStart).match(/\n/g) || []).length + 1;
-      this.highlightLineOfCode(numLine);
+    document.addEventListener("selectionchange", () => {
+      let activeElement = document.activeElement;
+      if (activeElement && activeElement == this.codeInput) {
+        let selectStart = this.codeInput.selectionStart;
+        let numLine = this.countNumOfLines(0, selectStart);
+        this.highlightLineOfCode(numLine);
+      }
     });
   }
 }
