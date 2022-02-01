@@ -48,12 +48,13 @@ module InterviewsHelper
           tag.label("   Style: ").concat select_tag('style', options_for_select(SUPPORT_STYLES, "default")).concat(
             tag.div(class: "code-editor") { |tag|
               tag.pre(" ", class: "code-hl")
+                .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
                 .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
                   lines = tag.div(class: "pt-4")
                   (1..10).each do |row_id|
                     lines = lines.concat(
                       tag.div(id: "row-#{row_id}", class: "code-line") {
-                        tag.div(class: "w-6 flex justify-end") {
+                        tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer hover:bg-red-100") {
                           tag.label("#{row_id}", class: "text-xs")
                             .concat tag.label("|")
                         }
@@ -62,7 +63,6 @@ module InterviewsHelper
                   end
                   lines
                 })
-                .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
             }
           )
         )

@@ -44,7 +44,7 @@ export default class CodeEditor {
       let after = this.countNumOfLines();
       while (after > before && after > InitNumOfLines) {
         before += 1;
-        this.addLines(before);
+        this.addLine(before);
         this.expandHeight();
       }
 
@@ -88,21 +88,29 @@ export default class CodeEditor {
       this.formatCode();
     });
 
+    this.currLineIndex = 2;
+    this.currMarkLineIndexes = [];
     this.totalLines = InitNumOfLines;
+    for(let i = 1; i <= this.totalLines; i++) {
+      this.addOnLineNumberClickListener(i);
+    }
+
     this.addEditorRules();
   }
 
-  addLines(numLine) {
+  addLine(lineIndex) {
     let codeOverlay = this.interview.querySelector(".code-editor-overlay");
     let lineView = document.createElement("div");
-    lineView.id = `row-${numLine}`;
+    lineView.id = `row-${lineIndex}`;
     lineView.classList.add("code-line");
     let numView = document.createElement("div");
+
+    numView.id = `row-lineindex-${lineIndex}`;
     numView.classList.add("w-6", "flex", "justify-end");
 
     let numLabel = document.createElement("label");
     numLabel.classList.add("text-xs");
-    numLabel.textContent = `${numLine}`;
+    numLabel.textContent = `${lineIndex}`;
     let sepLabel = document.createElement("label");
     sepLabel.textContent = "|";
     numView.appendChild(numLabel);
@@ -110,6 +118,8 @@ export default class CodeEditor {
 
     lineView.appendChild(numView);
     codeOverlay.appendChild(lineView);
+
+    this.addOnLineNumberClickListener(lineIndex, numView);
   }
 
   countNumOfLines(from = 0, to = undefined) {
@@ -117,17 +127,35 @@ export default class CodeEditor {
     return (codeText.substring(from, to).match(/\n/g) || []).length + 1;
   }
 
-  highlightLineOfCode(numLine) {
-    if (this.currNumLine) {
+  highlightLineOfCode(lineIndex) {
+    if (this.currLineIndex) {
       this.interview
-        .querySelector(`#row-${this.currNumLine}`)
+        .querySelector(`#row-${this.currLineIndex}`)
         .classList.remove("current-code-line");
     }
 
-    let curLineView = this.interview.querySelector(`#row-${numLine}`);
+    let curLineView = this.interview.querySelector(`#row-${lineIndex}`);
     if (curLineView) {
       curLineView.classList.add("current-code-line");
-      this.currNumLine = numLine;
+      this.currLineIndex = lineIndex;
+    }
+  }
+
+  resetMarkLinesOfCode() {
+    for(let markLineIndex of this.currMarkLineIndexes) {
+      this.interview
+        .querySelector(`#row-${markLineIndex}`)
+        .classList.remove("current-code-line", "bg-red-100");
+    }
+
+    this.currMarkLineIndexes = [];
+  }
+
+  markLineOfCode(lineIndex) {
+    let curLineView = this.interview.querySelector(`#row-${lineIndex}`);
+    if (curLineView) {
+      curLineView.classList.add("bg-red-100");
+      this.currMarkLineIndexes.push(lineIndex);
     }
   }
 
@@ -140,6 +168,28 @@ export default class CodeEditor {
     this.codeHighlight.style.height = 'auto';
     this.codeHighlight.style.height = this.codeHighlight.scrollHeight + 'px';
   }
+
+  addOnLineNumberClickListener(lineIndex, _lineNumView = null) {
+    let lineNumView = _lineNumView || this.interview.querySelector(`#row-lineindex-${lineIndex}`);
+    lineNumView.addEventListener('click', event => {
+      if (event.shiftKey) {
+        const minMarkLineIndex = Math.min(...this.currMarkLineIndexes);
+        const maxMarkLineIndex = Math.max(...this.currMarkLineIndexes);
+        if (lineIndex < minMarkLineIndex) {
+          for(let i = lineIndex; i < minMarkLineIndex; i++) {
+            this.markLineOfCode(i);
+          }
+        } else if(lineIndex > maxMarkLineIndex) {
+          for(let i = maxMarkLineIndex + 1; i <= lineIndex; i++) {
+            this.markLineOfCode(i);
+          }
+        }
+      } else {
+        this.resetMarkLinesOfCode();
+        this.markLineOfCode(lineIndex);
+      }
+    });
+  }
   
   addEditorRules() {
     this.codeInput.addEventListener("keyup", e => {
@@ -149,11 +199,11 @@ export default class CodeEditor {
           let codeText = this.codeInput.value;
           let numLines = (codeText.match(/\n/g) || []).length + 1;
           if (this.totalLines < numLines) {
-            this.addLines(numLines);
+            this.addLine(numLines);
             this.totalLines = numLines;
-            if (this.currNumLine == this.totalLines - 1) {
+            if (this.currLineIndex == this.totalLines - 1) {
               this.highlightLineOfCode(this.totalLines);
-              this.currNumLine = this.totalLines;
+              this.currLineIndex = this.totalLines;
             }
             this.expandHeight();
           }
@@ -184,7 +234,7 @@ export default class CodeEditor {
       }
     });
 
-    document.addEventListener("selectionchange", () => {
+    document.addEventListener("selectionchange", event => {
       let activeElement = document.activeElement;
       if (activeElement && activeElement == this.codeInput) {
         let selectStart = this.codeInput.selectionStart;
