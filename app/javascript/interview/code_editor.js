@@ -3,8 +3,9 @@ import { highlightCode } from "formatter";
 const InitNumOfLines = 10;
 
 export default class CodeEditor {
-  constructor(interview) {
+  constructor(interview, component) {
     this.interview = interview;
+    this.component = component;
     this.setupEditor();
   }
 
@@ -73,11 +74,8 @@ export default class CodeEditor {
 
     this.codeInput.addEventListener("input", e => {
       let codeText = e.target.value;
-      this.interview.sync({
-        component: "code",
+      this.interview.sync(this.component, {
         code: codeText,
-        id: this.interview.id,
-        user: this.interview.user
       });
       this.codeHighlight.firstChild.textContent = codeText;
       this.formatCode();
@@ -206,13 +204,10 @@ export default class CodeEditor {
         this.markLineOfCode(lineIndex);
       }
 
-      this.interview.sync({
-        component: "code",
+      this.interview.sync(this.component, {
         feedback: [
           { marklines: this.currMarkLineIndexes }
-        ],
-        id: this.interview.id,
-        user: this.interview.user
+        ]
       });
     });
   }

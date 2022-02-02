@@ -17,8 +17,9 @@ export default class P2pVideo {
   #pcPeers = {};
   #localstream;
 
-  constructor(interview) {
+  constructor(interview, component) {
     this.interview = interview;
+    this.component = component;
 
     this.#localVideo = this.interview.querySelector("#local-video");
     this.#remoteVideoContainer = this.interview.querySelector("#remote-video-container");
@@ -43,9 +44,7 @@ export default class P2pVideo {
   }
 
   requestRemoteVideo() {
-    this.interview.sync({
-      component: "video",
-      id: this.interview.id,
+    this.interview.sync(this.component, {
       type: OPEN_VIDEO,
       from: this.interview.user
     });
@@ -88,9 +87,7 @@ export default class P2pVideo {
           return pc.setLocalDescription(offer);
         })
         .then(() => {
-          this.interview.sync({
-            component: "video",
-            id: this.interview.id,
+          this.interview.sync(this.component, {
             type: EXCHANGE,
             from: this.interview.user,
             to: userId,
@@ -101,9 +98,7 @@ export default class P2pVideo {
 
     pc.onicecandidate = event => {
       event.candidate &&
-        this.interview.sync({
-          component: "video",
-          id: this.interview.id,
+        this.interview.sync(this.component, {
           type: EXCHANGE,
           from: this.interview.user,
           to: userId,
@@ -122,9 +117,7 @@ export default class P2pVideo {
 
     pc.oniceconnectionstatechange = () => {
       if (pc.iceConnectionState == "disconnected") {
-        this.interview.sync({
-          component: "video",
-          id: this.interview.id,
+        this.interview.sync(this.component, {
           type: CLOSE_VIDEO,
           from: userId
         });
@@ -159,9 +152,7 @@ export default class P2pVideo {
                 return pc.setLocalDescription(answer);
               })
               .then(() => {
-                this.interview.sync({
-                  component: "video",
-                  id: this.interview.id,
+                this.interview.sync(this.component, {
                   type: EXCHANGE,
                   from: this.interview.user,
                   to: data.from,
@@ -183,9 +174,7 @@ export default class P2pVideo {
 
     this.#remoteVideoContainer.innerHTML = "";
 
-    this.interview.sync({
-      component: "video",
-      id: this.interview.id,
+    this.interview.sync(this.component, {
       type: CLOSE_VIDEO,
       from: this.interview.user
     });

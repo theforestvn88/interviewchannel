@@ -2,6 +2,9 @@ import { Turbo, cable } from "@hotwired/turbo-rails";
 import CodeEditor from "./code_editor";
 import P2pVideo from "./p2p_video";
 
+const CodeComponent = "code";
+const VideoComponent = "video";
+
 class InterviewElement extends HTMLElement {
   async connectedCallback() {
     Turbo.connectStreamSource(this);
@@ -9,8 +12,8 @@ class InterviewElement extends HTMLElement {
       received: this.dispatchMessageEvent.bind(this)
     });
 
-    this.codeEditor = new CodeEditor(this);
-    this.videoHandler = new P2pVideo(this);
+    this.codeEditor = new CodeEditor(this, CodeComponent);
+    this.videoHandler = new P2pVideo(this, VideoComponent);
   }
 
   disconnectedCallback() {
@@ -22,10 +25,10 @@ class InterviewElement extends HTMLElement {
     const event = new MessageEvent("message", { data });
 
     switch (data.component) {
-      case "code":
+      case CodeComponent:
         this.codeEditor.receive(data);
         break;
-      case "video":
+      case VideoComponent:
         this.videoHandler.receive(data);
         break;
       default:
@@ -35,8 +38,13 @@ class InterviewElement extends HTMLElement {
     return this.dispatchEvent(event);
   }
 
-  sync(data) {
-    this.subscription.send(data);
+  sync(component, data) {
+    this.subscription.send({
+      id: this.id,
+      user: this.user,
+      component: component,
+      ...data
+    });
   }
 
   get channel() {
