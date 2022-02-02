@@ -32,23 +32,18 @@ export default class CodeEditor {
     this.selectedStyle = _style;
   }
 
-  formatCode() {
-    highlightCode(this.codeEditor, this.lang);
-  }
-
   receive(data) {
     if (data.user != this.interview.user) {
-      let before = this.countNumOfLines();
-      this.codeHighlight.firstChild.textContent = data.code;
-      this.codeInput.value = data.code;
-      let after = this.countNumOfLines();
-      while (after > before && after > InitNumOfLines) {
-        before += 1;
-        this.addLine(before);
-        this.expandHeight();
+      if (data.code) {
+        this.codeHighlight.firstChild.textContent = data.code;
+        this.codeInput.value = data.code;
+        this.updateCodeOverlay(data);
+        this.formatCode();
       }
 
-      this.formatCode();
+      if (data.feedback) {
+        this.showFeedback(data.feedback);
+      }
     }
   }
 
@@ -98,6 +93,28 @@ export default class CodeEditor {
     this.addEditorRules();
   }
 
+  formatCode() {
+    highlightCode(this.codeEditor, this.lang);
+  }
+
+  updateCodeOverlay() {
+    let updateTotalLines = this.countNumOfLines();
+    while (updateTotalLines > this.totalLines) {
+      this.totalLines += 1;
+      this.addLine(this.totalLines);
+      this.expandHeight();
+    }
+  }
+
+  showFeedback(feedback) {
+    this.resetMarkLinesOfCode();
+    for(let fb of feedback) {
+      for(let i of fb.marklines) {
+        this.markLineOfCode(i);
+      }
+    }
+  }
+
   addLine(lineIndex) {
     let codeOverlay = this.interview.querySelector(".code-editor-overlay");
     let lineView = document.createElement("div");
@@ -125,6 +142,16 @@ export default class CodeEditor {
   countNumOfLines(from = 0, to = undefined) {
     let codeText = this.codeInput.value;
     return (codeText.substring(from, to).match(/\n/g) || []).length + 1;
+  }
+
+  expandHeight() {
+    this.codeInput.rows = this.totalLines;
+
+    this.codeEditor.style.height = 'auto';
+    this.codeEditor.style.height = this.codeEditor.scrollHeight + 'px';
+
+    this.codeHighlight.style.height = 'auto';
+    this.codeHighlight.style.height = this.codeHighlight.scrollHeight + 'px';
   }
 
   highlightLineOfCode(lineIndex) {
@@ -159,16 +186,6 @@ export default class CodeEditor {
     }
   }
 
-  expandHeight() {
-    this.codeInput.rows = this.totalLines;
-
-    this.codeEditor.style.height = 'auto';
-    this.codeEditor.style.height = this.codeEditor.scrollHeight + 'px';
-
-    this.codeHighlight.style.height = 'auto';
-    this.codeHighlight.style.height = this.codeHighlight.scrollHeight + 'px';
-  }
-
   addOnLineNumberClickListener(lineIndex, _lineNumView = null) {
     let lineNumView = _lineNumView || this.interview.querySelector(`#row-lineindex-${lineIndex}`);
     lineNumView.addEventListener('click', event => {
@@ -188,6 +205,15 @@ export default class CodeEditor {
         this.resetMarkLinesOfCode();
         this.markLineOfCode(lineIndex);
       }
+
+      this.interview.sync({
+        component: "code",
+        feedback: [
+          { marklines: this.currMarkLineIndexes }
+        ],
+        id: this.interview.id,
+        user: this.interview.user
+      });
     });
   }
   
