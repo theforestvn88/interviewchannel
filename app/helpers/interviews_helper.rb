@@ -44,27 +44,29 @@ module InterviewsHelper
 
     tag.interview_stream(**attributes, class: "mx-auto w-full") do |tag|
       tag.div { |tag|
-        tag.h1(interviews.first.note).concat tag.label("Lang: ").concat select_tag('lang', options_for_select(SUPPORT_LANGS, "ruby")).concat(
-          tag.label("   Style: ").concat select_tag('style', options_for_select(SUPPORT_STYLES, "default")).concat(
-            tag.div(class: "code-editor") { |tag|
-              tag.pre(" ", class: "code-hl")
-                .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
-                .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
-                  lines = tag.div(class: "pt-4")
-                  (1..10).each do |row_id|
-                    lines = lines.concat(
-                      tag.div(id: "row-#{row_id}", class: "code-line") {
-                        tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer hover:bg-red-100") {
-                          tag.label("#{row_id}", class: "text-xs")
-                            .concat tag.label("|")
-                        }
+        tag.h1(interviews.first.note).concat(
+          tag.div(class: "w-1/2 flex justify-end") {
+            dropdown('#', 'lang', SUPPORT_LANGS).concat dropdown('@', 'style', SUPPORT_STYLES)
+          }
+        ).concat(
+          tag.div(class: "code-editor w-1/2 mt-1") { |tag|
+            tag.pre(" ", class: "code-hl")
+              .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
+              .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
+                lines = tag.div(class: "pt-4")
+                (1..10).each do |row_id|
+                  lines = lines.concat(
+                    tag.div(id: "row-#{row_id}", class: "code-line") {
+                      tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer hover:bg-red-100") {
+                        tag.label("#{row_id}", class: "text-xs")
+                          .concat tag.label("|")
                       }
-                    )
-                  end
-                  lines
-                })
-            }
-          )
+                    }
+                  )
+                end
+                lines
+              })
+          }
         )
       }
       .concat(tag.div(class: "w-full flex justify-end sticky bottom-0 right-10") { |tag|
@@ -74,5 +76,27 @@ module InterviewsHelper
         }
       })
     end
+  end
+
+  def dropdown(prefix, name, items)
+    tag.div { |tag|
+      tag.div(class: "dropdown relative inline-block") { |tag|
+        tag.button(
+          class: "bg-gray-100 text-gray-700 py-1 px-3 inline-flex items-center border border-gray-300"
+        ) { |tag|
+          tag.span("#{prefix}#{name}", id: "selected-#{name}", class: "mr-1", prefix: prefix)
+        }.concat(
+          tag.ul(
+            class: "dropdown-menu absolute hidden text-gray-700 pt-1 border border-gray-300"
+          ) { |tag|
+            options = tag.hr
+            items.each do |item|
+              options = options.concat tag.li(item, class: "bg-gray-100 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap #{name}-option")
+            end
+            options
+          }
+        )
+      }
+    }
   end
 end

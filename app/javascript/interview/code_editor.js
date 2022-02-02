@@ -49,20 +49,32 @@ export default class CodeEditor {
   }
 
   setupEditor() {
-    let langSelect = this.interview.querySelector("#lang");
-    langSelect.addEventListener("change", e => {
-      this.lang = e.target.value;
-      this.formatCode();
-    });
+    const selectedLang = this.interview.querySelector("#selected-lang");
+    const prefixLang = selectedLang.getAttribute("prefix");
+    const langOptions = this.interview.querySelectorAll("li.lang-option");
+    for(let langOpt of langOptions) {
+      langOpt.addEventListener("click", e => {
+        this.lang = e.target.textContent;
+        selectedLang.textContent = `${prefixLang}${this.lang}`;
 
-    let styleSelect = this.interview.querySelector("#style");
-    styleSelect.addEventListener("change", e => {
-      this.style = e.target.value;
-      for (let link of document.querySelectorAll(".codestyle")) {
-        link.disabled = !link.href.match(this.style + "\\.min.css$");
-      }
-      this.formatCode();
-    });
+        this.formatCode();
+      })
+    }
+
+    const selectedStyle = this.interview.querySelector("#selected-style");
+    const prefixStyle = selectedStyle.getAttribute("prefix");
+    const styleOptions = this.interview.querySelectorAll("li.style-option");
+    for(let styleOpt of styleOptions) {
+      styleOpt.addEventListener("click", e => {
+        this.style = e.target.textContent;
+        selectedStyle.textContent = `${prefixStyle}${this.style}`;
+
+        for (let link of document.querySelectorAll(".codestyle")) {
+          link.disabled = !link.href.match(this.style + "\\.min.css$");
+        }
+        this.formatCode();
+      })
+    }
 
     this.codeInput = this.interview.querySelector(".input-transparent");
     this.codeEditor = this.interview.querySelector(".code-editor");

@@ -23,8 +23,6 @@
 }
 
 .code-editor {
-  margin-top: 10px;
-  width: 700px;
   height: 300px;
   position: relative;
   overflow: -moz-hidden-unscrollable;
@@ -61,3 +59,22 @@
 html {
   tab-size: 3;
 }
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+  z-index: 10;
+  cursor: pointer;
+  max-height: 200px;
+  overflow: auto;
+}
+
+ /* Hide scrollbar for Chrome, Safari and Opera */
+.dropdown-menu::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.dropdown-menu {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+} 
