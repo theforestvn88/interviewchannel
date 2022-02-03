@@ -1,4 +1,4 @@
-import { highlightCode } from "formatter";
+import { highlightCode, countIndent } from "formatter";
 
 const InitNumOfLines = 10;
 
@@ -83,15 +83,6 @@ export default class CodeEditor {
     this.codeHighlight.firstChild.textContent = "# in code we trust !!!";
     this.codeInput.value = "# in code we trust !!!";
     this.formatCode();
-
-    this.codeInput.addEventListener("input", e => {
-      let codeText = e.target.value;
-      this.interview.sync(this.component, {
-        code: codeText,
-      });
-      this.codeHighlight.firstChild.textContent = codeText;
-      this.formatCode();
-    });
 
     this.currLineIndex = 2;
     this.currMarkLineIndexes = [];
@@ -223,22 +214,75 @@ export default class CodeEditor {
       });
     });
   }
+
+  addTabs(start, end, numOfTabs) {
+    // set textarea value to: text before caret + tab + text after caret
+    this.codeInput.value =
+      this.codeInput.value.substring(0, start) +
+      "\t".repeat(numOfTabs) +
+      this.codeInput.value.substring(end);
+
+    // put caret at right position again
+    this.codeInput.selectionStart = this.codeInput.selectionEnd = start + numOfTabs;
+  }
+
+  removeTabs(end, numOfTabs) {
+    let codeText = this.codeInput.value;
+    let lastTabIndex = codeText.substring(0, end).lastIndexOf("\t");
+    this.codeInput.value =
+      this.codeInput.value.substring(0, lastTabIndex) +
+      this.codeInput.value.substring(lastTabIndex + 1);
+    this.codeInput.selectionStart = this.codeInput.selectionEnd = end - 1;
+  }
   
   addEditorRules() {
+    this.codeInput.addEventListener("input", e => {
+      var start = e.target.selectionStart;
+      var lines = this.codeInput.value.substring(0, start).split("\n");
+      var lastLine = lines[lines.length - 1];
+      var numOfTabs = countIndent.endBlock(this.lang, lastLine);
+      if (numOfTabs < 0) {
+        this.removeTabs(start, numOfTabs);
+      }
+
+      let codeText = e.target.value;
+      this.interview.sync(this.component, {
+        code: codeText,
+      });
+      this.codeHighlight.firstChild.textContent = codeText;
+      this.formatCode();
+    });
+
     this.codeInput.addEventListener("keyup", e => {
       switch (e.key) {
         case "Enter":
           e.preventDefault();
-          let codeText = this.codeInput.value;
-          let numLines = (codeText.match(/\n/g) || []).length + 1;
-          if (this.totalLines < numLines) {
-            this.addLine(numLines);
-            this.totalLines = numLines;
-            if (this.currLineIndex == this.totalLines - 1) {
-              this.highlightLineOfCode(this.totalLines);
-              this.currLineIndex = this.totalLines;
-            }
-            this.expandHeight();
+          var start = e.target.selectionStart;
+          var end = e.target.selectionEnd;
+          var lines = this.codeInput.value.substring(0, start - 1).split("\n");
+          var aboveLine = lines[lines.length - 1];
+          var numOfTabs = countIndent.startBlock(this.lang, aboveLine);
+          this.addTabs(start, end, numOfTabs);
+
+          // special case
+          const pointerIndex = start + numOfTabs;
+          if (this.codeInput.value.charAt(pointerIndex) == "}") {
+            this.codeInput.value =
+              this.codeInput.value.substring(0, pointerIndex) +
+              "\n" +
+              "\t".repeat(numOfTabs - 1) +
+              this.codeInput.value.substring(pointerIndex);
+
+            this.codeInput.selectionStart = this.codeInput.selectionEnd = pointerIndex;
+          }
+
+          this.codeHighlight.firstChild.textContent = this.codeInput.value;
+          this.updateCodeOverlay();
+          this.formatCode();
+
+          if (this.currLineIndex == this.totalLines - 1) {
+            this.highlightLineOfCode(this.totalLines);
+            this.currLineIndex = this.totalLines;
           }
           break;
 
@@ -253,13 +297,7 @@ export default class CodeEditor {
           e.preventDefault();
           var start = e.target.selectionStart;
           var end = e.target.selectionEnd;
-          // set textarea value to: text before caret + tab + text after caret
-          e.target.value =
-            e.target.value.substring(0, start) +
-            "\t" +
-            e.target.value.substring(end);
-          // put caret at right position again
-          e.target.selectionStart = e.target.selectionEnd = start + 1;
+          this.addTabs(start, end, 1);
           break;
 
         default:

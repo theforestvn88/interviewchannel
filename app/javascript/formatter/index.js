@@ -1,7 +1,7 @@
 import { HighlightJS } from "highlight.js";
 window.hljs = HighlightJS;
 
-export function highlightCode(element, language) {
+function highlightCode(element, language) {
   element.querySelectorAll("pre").forEach(function(preElement) {
     const codeElement = document.createElement("code");
     let preElementTextNode = preElement.removeChild(preElement.firstChild);
@@ -13,3 +13,7 @@ export function highlightCode(element, language) {
     HighlightJS.highlightElement(codeElement, language);
   });
 }
+
+import countIndent from "./indent.js";
+
+export { highlightCode, countIndent };
