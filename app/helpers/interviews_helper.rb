@@ -70,7 +70,7 @@ module InterviewsHelper
           ) { |tag|
             options = tag.hr
             items.each do |item|
-              options = options.concat tag.li(item, class: "bg-gray-100 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap #{name}-option")
+              options = options.concat tag.li(item, id: "#{name}-#{item}", class: "bg-gray-100 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap #{name}-option")
             end
             options
           }

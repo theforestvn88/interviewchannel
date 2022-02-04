@@ -2,6 +2,7 @@ import { highlightCode, countIndent, commentOut } from "formatter";
 
 const SLOGAN = "in code we trust !!!";
 const InitNumOfLines = 10;
+const ItemSelectedBg = "bg-gray-300";
 
 export default class CodeEditor {
   constructor(interview, component) {
@@ -55,21 +56,31 @@ export default class CodeEditor {
     const langOptions = this.interview.querySelectorAll("li.lang-option");
     for(let langOpt of langOptions) {
       langOpt.addEventListener("click", e => {
+        this.interview.querySelector(`#lang-${this.lang}`)
+          .classList.remove(ItemSelectedBg);
         this.lang = e.target.textContent;
         selectedLang.textContent = `${prefixLang}${this.lang}`;
+        e.target.classList.add(ItemSelectedBg);
 
         this.updateSologan();
         this.formatCode();
       })
     }
 
+    selectedLang.textContent = `${prefixLang}${this.lang}`;
+    this.interview.querySelector(`#lang-${this.lang}`)
+          .classList.add(ItemSelectedBg);
+
     const selectedStyle = this.interview.querySelector("#selected-style");
     const prefixStyle = selectedStyle.getAttribute("prefix");
     const styleOptions = this.interview.querySelectorAll("li.style-option");
     for(let styleOpt of styleOptions) {
       styleOpt.addEventListener("click", e => {
+        this.interview.querySelector(`#style-${this.style}`)
+          .classList.remove(ItemSelectedBg);
         this.style = e.target.textContent;
         selectedStyle.textContent = `${prefixStyle}${this.style}`;
+        e.target.classList.add(ItemSelectedBg);
 
         for (let link of document.querySelectorAll(".codestyle")) {
           link.disabled = !link.href.match(this.style + "\\.min.css$");
@@ -77,6 +88,10 @@ export default class CodeEditor {
         this.formatCode();
       })
     }
+
+    selectedStyle.textContent = `${prefixStyle}${this.style}`;
+    this.interview.querySelector(`#style-${this.style}`)
+          .classList.add(ItemSelectedBg);
 
     this.codeInput = this.interview.querySelector(".input-transparent");
     this.codeEditor = this.interview.querySelector(".code-editor");
@@ -105,11 +120,13 @@ export default class CodeEditor {
       this.codeHighlight.firstChild.textContent = sologan;
       this.codeInput.value = sologan;
     } else {
-      let firstNewLineIndex = this.codeInput.value.indexOf("\n");
-      this.codeInput.value = 
-        commentOut(this.lang, SLOGAN) +
-        this.codeInput.value.substring(firstNewLineIndex);
-      this.codeHighlight.firstChild.textContent = this.codeInput.value;
+      if (this.codeInput.value.match(SLOGAN)) {
+        let firstNewLineIndex = this.codeInput.value.indexOf("\n");
+        this.codeInput.value = 
+          commentOut(this.lang, SLOGAN) +
+          this.codeInput.value.substring(firstNewLineIndex);
+        this.codeHighlight.firstChild.textContent = this.codeInput.value;
+      }
     }
   }
 
