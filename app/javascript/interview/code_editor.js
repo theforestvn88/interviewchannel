@@ -1,5 +1,6 @@
-import { highlightCode, countIndent } from "formatter";
+import { highlightCode, countIndent, commentOut } from "formatter";
 
+const SLOGAN = "in code we trust !!!";
 const InitNumOfLines = 10;
 
 export default class CodeEditor {
@@ -57,6 +58,7 @@ export default class CodeEditor {
         this.lang = e.target.textContent;
         selectedLang.textContent = `${prefixLang}${this.lang}`;
 
+        this.updateSologan();
         this.formatCode();
       })
     }
@@ -80,8 +82,7 @@ export default class CodeEditor {
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
 
-    this.codeHighlight.firstChild.textContent = "# in code we trust !!!";
-    this.codeInput.value = "# in code we trust !!!";
+    this.updateSologan();
     this.formatCode();
 
     this.currLineIndex = 2;
@@ -96,6 +97,20 @@ export default class CodeEditor {
 
   formatCode() {
     highlightCode(this.codeEditor, this.lang);
+  }
+
+  updateSologan() {
+    if (!this.codeInput.value) {
+      const sologan = commentOut(this.lang, `${SLOGAN}\n`);
+      this.codeHighlight.firstChild.textContent = sologan;
+      this.codeInput.value = sologan;
+    } else {
+      let firstNewLineIndex = this.codeInput.value.indexOf("\n");
+      this.codeInput.value = 
+        commentOut(this.lang, SLOGAN) +
+        this.codeInput.value.substring(firstNewLineIndex);
+      this.codeHighlight.firstChild.textContent = this.codeInput.value;
+    }
   }
 
   updateCodeOverlay() {

@@ -1,21 +1,37 @@
-const BeginBlockSymbols = {
-  "ruby": {
-    prefix: "class|def|module|begin|if|until|while",
-    suffix: "\\{|\\||o"
-  }
-}
-
-const EndBlockSymbols = {
-  "ruby": "\}|end"
-}
+import { BeginBlockSymbols, EndBlockSymbols } from "./languages"
 
 // return the #tabs needed
 function countIndent() {
+  const beginBlockPrefixRegex = function(lang) {
+    let prefix = (BeginBlockSymbols[lang] || BeginBlockSymbols["default"]).prefix;
+    if (prefix) {
+      return new RegExp(`\\t*${prefix}`);
+    }
+  }
+
+  const beginBlockSuffixRegex = function(lang) {
+    let suffix = (BeginBlockSymbols[lang] || BeginBlockSymbols["default"]).suffix;
+    if (suffix) {
+      return new RegExp(suffix);
+    }
+  }
+
+  const endBlockRegex = function(lang) {
+    if (EndBlockSymbols.hasOwnProperty(lang)) {
+      let endSymbols = EndBlockSymbols[lang];
+      if (endSymbols) {
+        return new RegExp(`\\t+${endSymbols}$`);
+      }
+    } else {
+      return new RegExp(`\\t+${EndBlockSymbols["default"]}$`);
+    }
+  }
+
   const startBlock = function(lang, lineOfCode) {
     let numOfTabs = (lineOfCode.match(/\t/g) || []).length;
-
-    let prefixBeginBlockRegex = new RegExp(`\\t*${BeginBlockSymbols[lang].prefix}`);
-    let suffixBeginBlockRegex = new RegExp(`${BeginBlockSymbols[lang].suffix}\\n$`);
+    let prefixBeginBlockRegex = beginBlockPrefixRegex(lang);
+    let suffixBeginBlockRegex = beginBlockSuffixRegex(lang);
+    
     if (lineOfCode.match(prefixBeginBlockRegex) || lineOfCode.match(suffixBeginBlockRegex)) {
       return numOfTabs + 1;
     }

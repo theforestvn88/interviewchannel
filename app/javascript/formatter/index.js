@@ -14,6 +14,12 @@ function highlightCode(element, language) {
   });
 }
 
+import { CommentPrefix } from "./languages.js";
+function commentOut(lang, str) {
+  let prefix = CommentPrefix[lang] || CommentPrefix["default"];
+  return `${prefix} ${str}`;
+}
+
 import countIndent from "./indent.js";
 
-export { highlightCode, countIndent };
+export { highlightCode, countIndent, commentOut };
