@@ -28,7 +28,8 @@ module InterviewsHelper
     "dockerfile",
     "sql",
     "r",
-    "julia"
+    "julia",
+    "other"
   ].freeze
 
   SUPPORT_STYLES = [
@@ -44,37 +45,15 @@ module InterviewsHelper
 
     tag.interview_stream(**attributes, class: "mx-auto w-full") do |tag|
       tag.div { |tag|
-        tag.h1(interviews.first.note).concat(
-          tag.div(class: "w-1/2 flex justify-end") {
-            dropdown('#', 'lang', SUPPORT_LANGS).concat dropdown('@', 'style', SUPPORT_STYLES)
-          }
-        ).concat(
-          tag.div(class: "code-editor w-1/2 mt-1") { |tag|
-            tag.pre(" ", class: "code-hl")
-              .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
-              .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
-                lines = tag.div(class: "pt-4")
-                (1..10).each do |row_id|
-                  lines = lines.concat(
-                    tag.div(id: "row-#{row_id}", class: "code-line") {
-                      tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer hover:bg-red-100") {
-                        tag.label("#{row_id}", class: "text-xs")
-                          .concat tag.label("|")
-                      }
-                    }
-                  )
-                end
-                lines
-              })
-          }
-        )
+        tag.h1(interviews.first.note)
+          .concat(
+            tag.div(class: "w-1/2 flex justify-end") {
+              dropdown('#', 'lang', SUPPORT_LANGS).concat dropdown('@', 'style', SUPPORT_STYLES)
+            }
+          )
+          .concat(code_editor)
       }
-      .concat(tag.div(class: "w-full flex justify-end sticky bottom-0 right-10") { |tag|
-        tag.div { |tag|
-          tag.div(id: "remote-video-container")
-            .concat(tag.video(id: "local-video", class: "p2p-video", autoplay: true))
-        }
-      })
+      .concat(p2p_videos)
     end
   end
 
@@ -96,6 +75,36 @@ module InterviewsHelper
             options
           }
         )
+      }
+    }
+  end
+
+  def code_editor
+    tag.div(class: "code-editor w-1/2 mt-1") { |tag|
+      tag.pre(" ", class: "code-hl")
+        .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
+        .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
+          lines = tag.div(class: "pt-4")
+          (1..10).each do |row_id|
+            lines = lines.concat(
+              tag.div(id: "row-#{row_id}", class: "code-line") {
+                tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer hover:bg-red-100") {
+                  tag.label("#{row_id}", class: "text-xs")
+                    .concat tag.label("|")
+                }
+              }
+            )
+          end
+          lines
+        })
+    }
+  end
+
+  def p2p_videos
+    tag.div(class: "w-full flex justify-end sticky bottom-0 right-10") { |tag|
+      tag.div { |tag|
+        tag.div(id: "remote-video-container")
+          .concat(tag.video(id: "local-video", class: "p2p-video", autoplay: true))
       }
     }
   end
