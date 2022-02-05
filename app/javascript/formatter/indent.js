@@ -1,4 +1,4 @@
-import { BeginBlockSymbols, EndBlockSymbols } from "./languages"
+import { BeginBlockSymbols, EndBlockSymbols } from "./languages.js"
 
 // return the #tabs needed
 function countIndent() {
