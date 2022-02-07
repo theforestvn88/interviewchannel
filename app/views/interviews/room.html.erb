@@ -1,5 +1,5 @@
 <%= stylesheet_link_tag "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/github.min.css", "data-turbo-track": "reload" %>
 <%= stylesheet_link_tag "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css", "data-turbo-track": "reload" %>
-<%= javascript_importmap_tags("interview", shim: false) %>
+<%= javascript_import_module_tag("interview") %>
 
 <%= interview_stream @interview %>
