@@ -21,5 +21,6 @@ function commentOut(lang, str) {
 }
 
 import countIndent from "./indent.js";
+import codeBlock from "./code_block.js"
 
-export { highlightCode, countIndent, commentOut };
+export { highlightCode, codeBlock, countIndent, commentOut };

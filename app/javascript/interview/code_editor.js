@@ -1,4 +1,4 @@
-import { highlightCode, countIndent, commentOut } from "formatter";
+import { highlightCode, codeBlock, countIndent, commentOut } from "formatter";
 
 const SLOGAN = "in code we trust !!!";
 const InitNumOfLines = 10;
@@ -272,9 +272,11 @@ export default class CodeEditor {
       var start = e.target.selectionStart;
       var lines = this.codeInput.value.substring(0, start).split("\n");
       var lastLine = lines[lines.length - 1];
-      var numOfTabs = countIndent.endBlock(this.lang, lastLine);
-      if (numOfTabs < 0) {
-        this.removeTabs(start, numOfTabs);
+      if (codeBlock.isBlockEnd(this.lang, lastLine)) {
+        var indentTabs = countIndent.endBlock(this.lang, lastLine);
+        if (indentTabs < 0) {
+          this.removeTabs(start, indentTabs);
+        }
       }
 
       let codeText = e.target.value;
@@ -293,16 +295,19 @@ export default class CodeEditor {
           var end = e.target.selectionEnd;
           var lines = this.codeInput.value.substring(0, start - 1).split("\n");
           var aboveLine = lines[lines.length - 1];
-          var numOfTabs = countIndent.startBlock(this.lang, aboveLine);
-          this.addTabs(start, end, numOfTabs);
+          var indentTabs = 0;
+          if (codeBlock.isBlockBegin(this.lang, aboveLine)) {
+            indentTabs = countIndent.startBlock(this.lang, aboveLine);
+            this.addTabs(start, end, indentTabs);
+          }
 
           // special case
-          const pointerIndex = start + numOfTabs;
+          const pointerIndex = start + indentTabs;
           if (this.codeInput.value.charAt(pointerIndex) == "}") {
             this.codeInput.value =
               this.codeInput.value.substring(0, pointerIndex) +
               "\n" +
-              "\t".repeat(numOfTabs - 1) +
+              "\t".repeat(indentTabs - 1) +
               this.codeInput.value.substring(pointerIndex);
 
             this.codeInput.selectionStart = this.codeInput.selectionEnd = pointerIndex;

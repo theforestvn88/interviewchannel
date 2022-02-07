@@ -19,11 +19,11 @@ export const CommentPrefix = {
 
 export const BeginBlockSymbols = {
   "default": {
-    prefix: "class",
+    prefix: "class|if|else",
     suffix: "\\{(\\n)?$"
   },
   "ruby": {
-    prefix: "class|def|module|begin|if|until|while|case|when",
+    prefix: "class|def|module|begin|if|else|until|while|case|when|begin|rescue|ensure",
     suffix: "\\{|\\||o(\\n)?$"
   },
   "elixir": {
@@ -55,4 +55,11 @@ export const EndBlockSymbols = {
   "scala": undefined,
   "clojure": undefined,
   "erlang": "end"
+}
+
+export const IndentTabs = {
+  "default": {
+    "size": 3,
+    "block": 1
+  },
 }
