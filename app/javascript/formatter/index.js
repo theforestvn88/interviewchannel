@@ -74,7 +74,6 @@ function formatBlockEnd(lang, code, position) {
   let indentTabs = 0;
 
   if (codeBlock.isBlockEnd(lang, lastLine)) {
-    console.log("end block");
     indentTabs = countIndent.endBlock(lang, lastLine);
     if (indentTabs < 0) {
       [formattedCode, selection] = removeTabs(code, position, -indentTabs);
@@ -82,6 +81,45 @@ function formatBlockEnd(lang, code, position) {
   }
 
   return [formattedCode, selection];
+}
+
+function moveLineCodeUp(code, position) {
+  let anchorPoint = 
+    code.charAt(position) == "\n" ? position - 1 : position 
+  let aboveLineEnd = code.lastIndexOf("\n", anchorPoint);
+  if (aboveLineEnd <= 0) {
+    return [code, position];
+  }
+
+  let aboveLineStart = code.lastIndexOf("\n", aboveLineEnd - 1);
+  let moveLineEnd = code.indexOf("\n", anchorPoint);
+
+  let formattedCode =
+    code.substring(0, aboveLineStart) +
+    code.substring(aboveLineEnd, moveLineEnd) +
+    code.substring(aboveLineStart, aboveLineEnd) +
+    code.substring(moveLineEnd);
+
+  return [formattedCode, aboveLineStart + position - aboveLineEnd];
+}
+
+function moveLineCodeDown(code, position) {
+  let anchorPoint = position;
+  let belowLineStart = code.indexOf("\n", anchorPoint);
+  if (belowLineStart <= 0) {
+    return [code, position];
+  }
+
+  let belowLineEnd = code.indexOf("\n", belowLineStart + 1);
+  let moveLineStart = code.lastIndexOf("\n", anchorPoint - 1);
+
+  let formattedCode =
+    code.substring(0, moveLineStart) +
+    code.substring(belowLineStart, belowLineEnd) +
+    code.substring(moveLineStart, belowLineStart) +
+    code.substring(belowLineEnd);
+
+  return [formattedCode, (belowLineEnd - belowLineStart) + position];
 }
 
 function commentOut(lang, str) {
@@ -97,5 +135,7 @@ export {
   addTabs,
   removeTabs,
   formatBlockBegin,
-  formatBlockEnd
+  formatBlockEnd,
+  moveLineCodeUp,
+  moveLineCodeDown
 };

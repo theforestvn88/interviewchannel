@@ -1,4 +1,5 @@
 import * as Formatter from "formatter";
+import { KeyInputHandler } from "./interaction";
 
 const SLOGAN = "in code we trust !!!";
 const InitNumOfLines = 10;
@@ -8,6 +9,7 @@ export default class CodeEditor {
   constructor(interview, component) {
     this.interview = interview;
     this.component = component;
+    this.keyInputHandler = new KeyInputHandler();
     this.setupEditor();
   }
 
@@ -250,7 +252,7 @@ export default class CodeEditor {
   }
   
   addEditorRules() {
-    this.codeInput.addEventListener("input", e => {
+    this.keyInputHandler.addListener("Common", (e) => {
       var [formattedCode, selection] =
         Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
       this.codeInput.value = formattedCode;
@@ -263,25 +265,51 @@ export default class CodeEditor {
       this.highlightCode(formattedCode);
     });
 
+    this.keyInputHandler.addListener("Enter", (e) => {
+      let [formattedCode, selection] =
+        Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+
+      this.highlightCode(formattedCode);
+      this.updateCodeOverlay();
+
+      if (this.currLineIndex == this.totalLines - 1) {
+        this.highlightLineOfCode(this.totalLines);
+        this.currLineIndex = this.totalLines;
+      }
+    });
+
+    this.keyInputHandler.addListener("Tab", (e) => {
+      let [formattedCode, selection] = Formatter.addTabs(e.target.value, e.target.selectionStart, 1);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+    });
+
+    this.keyInputHandler.addListener("MoveLineUp", (e) => {
+      let [formattedCode, selection] = Formatter.moveLineCodeUp(e.target.value, e.target.selectionStart);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+      this.highlightCode(formattedCode);
+    });
+
+    this.keyInputHandler.addListener("MoveLineDown", (e) => {
+      let [formattedCode, selection] = Formatter.moveLineCodeDown(e.target.value, e.target.selectionStart);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+      this.highlightCode(formattedCode);
+    });
+
+    this.codeInput.addEventListener("input", e => {
+      this.keyInputHandler.exec("Common", e);
+    });
+
     this.codeInput.addEventListener("keyup", e => {
       switch (e.key) {
         case "Enter":
           e.preventDefault();
-
-          let [formattedCode, selection] =
-            Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
-          this.codeInput.value = formattedCode;
-          this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
-
-          this.highlightCode(formattedCode);
-          this.updateCodeOverlay();
-
-          if (this.currLineIndex == this.totalLines - 1) {
-            this.highlightLineOfCode(this.totalLines);
-            this.currLineIndex = this.totalLines;
-          }
+          this.keyInputHandler.exec("Enter", e);
           break;
-
         default:
           break;
       }
@@ -291,14 +319,19 @@ export default class CodeEditor {
       switch (e.key) {
         case "Tab":
           e.preventDefault();
-
-          let start = e.target.selectionStart;
-          let end = e.target.selectionEnd;
-          let [formattedCode, selection] = Formatter.addTabs(e.target.value, start, end, 1);
-          this.codeInput.value = formattedCode;
-          this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+          this.keyInputHandler.exec("Tab", e);
           break;
-
+        case "ArrowUp":
+          if (e.altKey) {
+            e.preventDefault();
+            this.keyInputHandler.exec("MoveLineUp", e);
+          }
+          break;
+        case "ArrowDown":
+          if (e.altKey) {
+            e.preventDefault();
+            this.keyInputHandler.exec("MoveLineDown", e);
+          }
         default:
           break;
       }
