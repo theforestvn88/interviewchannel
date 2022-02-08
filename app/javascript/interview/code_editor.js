@@ -1,4 +1,4 @@
-import { highlightCode, codeBlock, countIndent, commentOut } from "formatter";
+import * as Formatter from "formatter";
 
 const SLOGAN = "in code we trust !!!";
 const InitNumOfLines = 10;
@@ -38,10 +38,9 @@ export default class CodeEditor {
   receive(data) {
     if (data.user != this.interview.user) {
       if (data.code) {
-        this.codeHighlight.firstChild.textContent = data.code;
         this.codeInput.value = data.code;
+        this.highlightCode(data.code);
         this.updateCodeOverlay(data);
-        this.formatCode();
       }
 
       if (data.feedback) {
@@ -63,7 +62,7 @@ export default class CodeEditor {
         e.target.classList.add(ItemSelectedBg);
 
         this.updateSologan();
-        this.formatCode();
+        this.highlightCode();
       })
     }
 
@@ -85,7 +84,7 @@ export default class CodeEditor {
         for (let link of document.querySelectorAll(".codestyle")) {
           link.disabled = !link.href.match(this.style + "\\.min.css$");
         }
-        this.formatCode();
+        this.highlightCode();
       })
     }
 
@@ -98,7 +97,7 @@ export default class CodeEditor {
     this.codeHighlight = this.interview.querySelector(".code-hl");
 
     this.updateSologan();
-    this.formatCode();
+    this.highlightCode();
 
     this.currLineIndex = 2;
     this.currMarkLineIndexes = [];
@@ -110,20 +109,23 @@ export default class CodeEditor {
     this.addEditorRules();
   }
 
-  formatCode() {
-    highlightCode(this.codeEditor, this.lang);
+  highlightCode(code = null) {
+    if (code) {
+      this.codeHighlight.firstChild.textContent = code;
+    }
+    Formatter.highlightCodeElement(this.codeEditor, this.lang);
   }
 
   updateSologan() {
     if (!this.codeInput.value) {
-      const sologan = commentOut(this.lang, `${SLOGAN}\n`);
+      const sologan = Formatter.commentOut(this.lang, `${SLOGAN}\n`);
       this.codeHighlight.firstChild.textContent = sologan;
       this.codeInput.value = sologan;
     } else {
       if (this.codeInput.value.match(SLOGAN)) {
         let firstNewLineIndex = this.codeInput.value.indexOf("\n");
         this.codeInput.value = 
-          commentOut(this.lang, SLOGAN) +
+          Formatter.commentOut(this.lang, SLOGAN) +
           this.codeInput.value.substring(firstNewLineIndex);
         this.codeHighlight.firstChild.textContent = this.codeInput.value;
       }
@@ -246,76 +248,33 @@ export default class CodeEditor {
       });
     });
   }
-
-  addTabs(start, end, numOfTabs) {
-    // set textarea value to: text before caret + tab + text after caret
-    this.codeInput.value =
-      this.codeInput.value.substring(0, start) +
-      "\t".repeat(numOfTabs) +
-      this.codeInput.value.substring(end);
-
-    // put caret at right position again
-    this.codeInput.selectionStart = this.codeInput.selectionEnd = start + numOfTabs;
-  }
-
-  removeTabs(end, numOfTabs) {
-    let codeText = this.codeInput.value;
-    let lastTabIndex = codeText.substring(0, end).lastIndexOf("\t");
-    this.codeInput.value =
-      this.codeInput.value.substring(0, lastTabIndex) +
-      this.codeInput.value.substring(lastTabIndex + 1);
-    this.codeInput.selectionStart = this.codeInput.selectionEnd = end - 1;
-  }
   
   addEditorRules() {
     this.codeInput.addEventListener("input", e => {
-      var start = e.target.selectionStart;
-      var lines = this.codeInput.value.substring(0, start).split("\n");
-      var lastLine = lines[lines.length - 1];
-      if (codeBlock.isBlockEnd(this.lang, lastLine)) {
-        var indentTabs = countIndent.endBlock(this.lang, lastLine);
-        if (indentTabs < 0) {
-          this.removeTabs(start, indentTabs);
-        }
-      }
+      var [formattedCode, selection] =
+        Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
 
-      let codeText = e.target.value;
       this.interview.sync(this.component, {
-        code: codeText,
+        code: formattedCode,
       });
-      this.codeHighlight.firstChild.textContent = codeText;
-      this.formatCode();
+
+      this.highlightCode(formattedCode);
     });
 
     this.codeInput.addEventListener("keyup", e => {
       switch (e.key) {
         case "Enter":
           e.preventDefault();
-          var start = e.target.selectionStart;
-          var end = e.target.selectionEnd;
-          var lines = this.codeInput.value.substring(0, start - 1).split("\n");
-          var aboveLine = lines[lines.length - 1];
-          var indentTabs = 0;
-          if (codeBlock.isBlockBegin(this.lang, aboveLine)) {
-            indentTabs = countIndent.startBlock(this.lang, aboveLine);
-            this.addTabs(start, end, indentTabs);
-          }
 
-          // special case
-          const pointerIndex = start + indentTabs;
-          if (this.codeInput.value.charAt(pointerIndex) == "}") {
-            this.codeInput.value =
-              this.codeInput.value.substring(0, pointerIndex) +
-              "\n" +
-              "\t".repeat(indentTabs - 1) +
-              this.codeInput.value.substring(pointerIndex);
+          let [formattedCode, selection] =
+            Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
+          this.codeInput.value = formattedCode;
+          this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
 
-            this.codeInput.selectionStart = this.codeInput.selectionEnd = pointerIndex;
-          }
-
-          this.codeHighlight.firstChild.textContent = this.codeInput.value;
+          this.highlightCode(formattedCode);
           this.updateCodeOverlay();
-          this.formatCode();
 
           if (this.currLineIndex == this.totalLines - 1) {
             this.highlightLineOfCode(this.totalLines);
@@ -332,9 +291,12 @@ export default class CodeEditor {
       switch (e.key) {
         case "Tab":
           e.preventDefault();
-          var start = e.target.selectionStart;
-          var end = e.target.selectionEnd;
-          this.addTabs(start, end, 1);
+
+          let start = e.target.selectionStart;
+          let end = e.target.selectionEnd;
+          let [formattedCode, selection] = Formatter.addTabs(e.target.value, start, end, 1);
+          this.codeInput.value = formattedCode;
+          this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
           break;
 
         default:
