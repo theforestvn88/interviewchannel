@@ -281,20 +281,35 @@ export default class CodeEditor {
     });
 
     this.keyInputHandler.addListener("Tab", (e) => {
-      let [formattedCode, selection] = Formatter.addTabs(e.target.value, e.target.selectionStart, 1);
-      this.codeInput.value = formattedCode;
-      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
-    });
-
-    this.keyInputHandler.addListener("MoveLineUp", (e) => {
-      let [formattedCode, selection] = Formatter.moveLineCodeUp(e.target.value, e.target.selectionStart);
+      let [formattedCode, selection] = Formatter.moveLinesRight(e.target.value, e.target.selectionStart, e.target.selectionEnd);
       this.codeInput.value = formattedCode;
       this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
       this.highlightCode(formattedCode);
     });
 
-    this.keyInputHandler.addListener("MoveLineDown", (e) => {
-      let [formattedCode, selection] = Formatter.moveLineCodeDown(e.target.value, e.target.selectionStart);
+    this.keyInputHandler.addListener("ShiftTab", (e) => {
+      let [formattedCode, selection] = Formatter.moveLinesLeft(e.target.value, e.target.selectionStart, e.target.selectionEnd);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+      this.highlightCode(formattedCode);
+    });
+
+    this.keyInputHandler.addListener("MoveLinesUp", (e) => {
+      let [formattedCode, selection] = Formatter.moveLinesUp(e.target.value, e.target.selectionStart, e.target.selectionEnd);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+      this.highlightCode(formattedCode);
+    });
+
+    this.keyInputHandler.addListener("MoveLinesDown", (e) => {
+      let [formattedCode, selection] = Formatter.moveLinesDown(e.target.value, e.target.selectionStart, e.target.selectionEnd);
+      this.codeInput.value = formattedCode;
+      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+      this.highlightCode(formattedCode);
+    });
+
+    this.keyInputHandler.addListener("CommentLines", (e) => {
+      let [formattedCode, selection] = Formatter.commentLines(this.lang, e.target.value, e.target.selectionStart, e.target.selectionEnd);
       this.codeInput.value = formattedCode;
       this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
       this.highlightCode(formattedCode);
@@ -319,19 +334,30 @@ export default class CodeEditor {
       switch (e.key) {
         case "Tab":
           e.preventDefault();
-          this.keyInputHandler.exec("Tab", e);
+          if (e.shiftKey) {
+            this.keyInputHandler.exec("ShiftTab", e);
+          } else {
+            this.keyInputHandler.exec("Tab", e);
+          }
           break;
         case "ArrowUp":
           if (e.altKey) {
             e.preventDefault();
-            this.keyInputHandler.exec("MoveLineUp", e);
+            this.keyInputHandler.exec("MoveLinesUp", e);
           }
           break;
         case "ArrowDown":
           if (e.altKey) {
             e.preventDefault();
-            this.keyInputHandler.exec("MoveLineDown", e);
+            this.keyInputHandler.exec("MoveLinesDown", e);
           }
+          break;
+        case "/":
+          if (e.ctrlKey) {
+            e.preventDefault();
+            this.keyInputHandler.exec("CommentLines", e);
+          }
+          break;
         default:
           break;
       }
