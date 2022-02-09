@@ -165,18 +165,29 @@ function commentLines(lang, code, selectionStart, selectionEnd) {
   let anchorPos = code.lastIndexOf("\n", selectionStart - 1);
   let anchorEndPos = selectionEnd;
   let formattedCode = code;
-
+  let selection;
+  
   while (anchorPos > -1 && anchorPos < anchorEndPos) {
-    formattedCode =
-      formattedCode.substring(0, anchorPos + 1) +
-      prefix + " " +
-      formattedCode.substring(anchorPos + 1);
-    
-    anchorPos = formattedCode.indexOf("\n", anchorPos + 1);
-    anchorEndPos += 1;
+    let lineStart = anchorPos + 1;
+    if (formattedCode.charAt(lineStart) == prefix) { // uncomment
+      let cutPos = formattedCode.charAt(lineStart + 1) == " " ? lineStart + 2 : lineStart + 1;
+      formattedCode =
+        formattedCode.substring(0, lineStart) +
+        formattedCode.substring(cutPos);
+      if (!selection) selection = selectionStart - (cutPos - lineStart);
+      anchorEndPos -= cutPos - lineStart;
+    } else { // comment
+      formattedCode =
+        formattedCode.substring(0, lineStart) +
+        prefix + " " +
+        formattedCode.substring(lineStart);
+      if (!selection) selection = selectionStart + 2;
+      anchorEndPos += 1;
+    }
+    anchorPos = formattedCode.indexOf("\n", lineStart);
   }
 
-  return [formattedCode, selectionStart + 1];
+  return [formattedCode, selection];
 }
 
 function commentOut(lang, str) {
