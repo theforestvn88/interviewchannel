@@ -17,9 +17,9 @@ export default class CodeEditor {
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
     this.keyInputHandler.after(
       ["Tab", "ShiftTab", "MoveLinesUp", "MoveLinesDown", "CommentLines"], 
-      ([formattedCode, selection]) => {
+      ([formattedCode, selectionStart, selectionEnd]) => {
         this.codeInput.value = formattedCode;
-        this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
+        this.codeInput.setSelectionRange(selectionStart, selectionEnd);
         this.highlightCode(formattedCode);
       }
     );

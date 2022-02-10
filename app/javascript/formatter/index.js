@@ -17,6 +17,31 @@ function highlightCodeElement(element, language) {
   });
 }
 
+function trim(code) {
+  let lastNewLineIndex = code.lastIndexOf("\n");
+  let trimPosition = lastNewLineIndex == code.length - 1 ? lastNewLineIndex : -1;
+  while (trimPosition > 0 && code.charAt(trimPosition - 1) == "\n") {
+    trimPosition -= 1;
+  }
+
+  if (trimPosition > 0) {
+    return code.substring(0, trimPosition + 1);
+  } else {
+    return code;
+  }
+}
+
+function standardSelection(code, selectionStart, selectionEnd) {
+  let fitCode = trim(code);
+  fitCode = fitCode + "\n";
+
+  while (fitCode.charAt(selectionEnd - 1) == "\n") {
+    selectionEnd -= 1;
+  }
+
+  return [fitCode, selectionStart, selectionEnd];
+}
+
 // return [formatted code, selection position]
 function addTabs(code, position, numOfTabs) {
   let formattedCode =
@@ -86,47 +111,60 @@ function formatBlockEnd(lang, code, position) {
 }
 
 function moveLinesUp(code, selectionStart, selectionEnd) {
+  let [fitCode, _, fitEnd] = standardSelection(code, selectionStart, selectionEnd);
+  selectionEnd = fitEnd;
+
   let anchorPointStart = 
-    code.charAt(selectionStart) == "\n" ? selectionStart - 1 : selectionStart;
-  let aboveLineEnd = code.lastIndexOf("\n", anchorPointStart);
+    fitCode.charAt(selectionStart) == "\n" ? selectionStart - 1 : selectionStart;
+  let aboveLineEnd = fitCode.lastIndexOf("\n", anchorPointStart);
   if (aboveLineEnd <= 0) {
-    return [code, selectionStart];
+    return [fitCode, selectionStart, selectionEnd];
   }
 
-  let aboveLineStart = code.lastIndexOf("\n", aboveLineEnd - 1);
-  let moveLineEnd = code.indexOf("\n", selectionEnd - 1);
+  let aboveLineStart = fitCode.lastIndexOf("\n", aboveLineEnd - 1);
+  let moveLineEnd = fitCode.indexOf("\n", selectionEnd - 1);
 
   let formattedCode =
-    code.substring(0, aboveLineStart) +
-    code.substring(aboveLineEnd, moveLineEnd) +
-    code.substring(aboveLineStart, aboveLineEnd) +
-    code.substring(moveLineEnd);
+    fitCode.substring(0, aboveLineStart + 1) +
+    fitCode.substring(aboveLineEnd + 1, moveLineEnd + 1) +
+    fitCode.substring(aboveLineStart + 1, aboveLineEnd + 1) +
+    fitCode.substring(moveLineEnd + 1);
 
-  return [formattedCode, aboveLineStart + selectionStart - aboveLineEnd];
+  let newStartPos = aboveLineStart + selectionStart - aboveLineEnd;
+  let newEndPos = newStartPos + (selectionEnd - selectionStart);
+  return [formattedCode, newStartPos, newEndPos];
 }
 
 function moveLinesDown(code, selectionStart, selectionEnd) {
-  let belowLineStart = code.indexOf("\n", selectionEnd);
+  let [fitCode, _, fitEnd] = standardSelection(code, selectionStart, selectionEnd);
+  selectionEnd = fitEnd;
+
+  let belowLineStart = fitCode.indexOf("\n", selectionEnd);
   if (belowLineStart <= 0) {
-    return [code, selectionStart];
+    return [fitCode, selectionStart, selectionEnd];
   }
 
-  let belowLineEnd = code.indexOf("\n", belowLineStart + 1);
-  let moveLineStart = code.lastIndexOf("\n", selectionStart - 1);
+  let belowLineEnd = fitCode.indexOf("\n", belowLineStart + 1);
+  let moveLineStart = fitCode.lastIndexOf("\n", selectionStart - 1);
 
   let formattedCode =
-    code.substring(0, moveLineStart) +
-    code.substring(belowLineStart, belowLineEnd) +
-    code.substring(moveLineStart, belowLineStart) +
-    code.substring(belowLineEnd);
+    fitCode.substring(0, moveLineStart + 1) +
+    fitCode.substring(belowLineStart + 1, belowLineEnd + 1) +
+    fitCode.substring(moveLineStart + 1, belowLineStart + 1) +
+    fitCode.substring(belowLineEnd + 1);
 
-  return [formattedCode, (belowLineEnd - belowLineStart) + selectionStart];
+  let newStartPos = (belowLineEnd - belowLineStart) + selectionStart;
+  let newEndPos = newStartPos + (selectionEnd - selectionStart);
+  return [formattedCode, newStartPos, newEndPos];
 }
 
 function moveLinesLeft(code, selectionStart, selectionEnd) {
-  let anchorPos = code.lastIndexOf("\n", selectionStart);
+  let [fitCode, _, fitEnd] = standardSelection(code, selectionStart, selectionEnd);
+  selectionEnd = fitEnd;
+
+  let anchorPos = fitCode.lastIndexOf("\n", selectionStart);
   let anchorEndPos = selectionEnd;
-  let formattedCode = code;
+  let formattedCode = fitCode;
   while (anchorPos < anchorEndPos) {
     let lineStart = anchorPos + 1;
     if (formattedCode.charAt(lineStart) == "\t") {
@@ -139,13 +177,22 @@ function moveLinesLeft(code, selectionStart, selectionEnd) {
     anchorEndPos -= 1;
   }
 
-  return [formattedCode, selectionStart - 1];
+  return [formattedCode, selectionStart - 1, anchorEndPos];
 }
 
 function moveLinesRight(code, selectionStart, selectionEnd) {
-  let anchorPos = code.lastIndexOf("\n", selectionStart - 1);
+  if (selectionStart == selectionEnd) {
+    let [formattedCode, position] = addTabs(code, selectionStart, 1);
+    return [formattedCode, position, position];
+  }
+
+  let [fitCode, _, fitEnd] = standardSelection(code, selectionStart, selectionEnd);
+  selectionEnd = fitEnd;
+
+
+  let anchorPos = fitCode.lastIndexOf("\n", selectionStart - 1);
   let anchorEndPos = selectionEnd;
-  let formattedCode = code;
+  let formattedCode = fitCode;
 
   while (anchorPos > -1 && anchorPos < anchorEndPos) {
     formattedCode =
@@ -157,7 +204,7 @@ function moveLinesRight(code, selectionStart, selectionEnd) {
     anchorEndPos += 1;
   }
 
-  return [formattedCode, selectionStart + 1];
+  return [formattedCode, selectionStart + 1, anchorEndPos];
 }
 
 function commentLines(lang, code, selectionStart, selectionEnd) {
@@ -187,7 +234,7 @@ function commentLines(lang, code, selectionStart, selectionEnd) {
     anchorPos = formattedCode.indexOf("\n", lineStart);
   }
 
-  return [formattedCode, selection];
+  return [formattedCode, selection, anchorEndPos];
 }
 
 function commentOut(lang, str) {
