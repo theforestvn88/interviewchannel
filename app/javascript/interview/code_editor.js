@@ -16,7 +16,7 @@ export default class CodeEditor {
 
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
     this.keyInputHandler.after(
-      ["Tab", "ShiftTab", "MoveLinesUp", "MoveLinesDown", "CommentLines", "DeleteLines"], 
+      ["Tab", "ShiftTab", "MoveLinesUp", "MoveLinesDown", "CommentLines", "DeleteLines", "CopyPasteLine"], 
       ([formattedCode, selectionStart, selectionEnd]) => {
         this.codeInput.value = formattedCode;
         this.codeInput.setSelectionRange(selectionStart, selectionEnd);
@@ -308,6 +308,10 @@ export default class CodeEditor {
 
     this.keyInputHandler.addListener("DeleteLines", (e) => {
       return Formatter.deleteLines(e.target.value, e.target.selectionStart, e.target.selectionEnd);
+    });
+
+    this.keyInputHandler.addListener("CopyPasteLine", (e) => {
+      return Formatter.copyPasteLine(e.target.value, e.target.selectionStart);
     });
 
     this.keyInputHandler.addListener("CommentLines", (e) => {

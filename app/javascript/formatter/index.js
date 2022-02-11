@@ -223,6 +223,21 @@ function deleteLines(code, selectionStart, selectionEnd) {
   return [formattedCode, startLineBegin, startLineBegin];
 }
 
+function copyPasteLine(code, selection) {
+  let [fitCode, fitStart, fitEnd] = standardSelection(code, selection, selection);
+  let startLine = Math.max(fitCode.lastIndexOf("\n", selection - 1), 0);
+  let endLine = fitCode.indexOf("\n", startLine + 1);
+
+  let formattedCode =
+    fitCode.substring(0, startLine) +
+    fitCode.substring(startLine, endLine) +
+    fitCode.substring(startLine, endLine) +
+    fitCode.substring(endLine);
+
+  let newSelection = endLine + endLine - startLine;
+  return [formattedCode, newSelection, newSelection];
+}
+
 function commentLines(lang, code, selectionStart, selectionEnd) {
   let prefix = CommentPrefix[lang] || CommentPrefix["default"];
   let anchorPos = code.lastIndexOf("\n", selectionStart - 1);
@@ -265,6 +280,7 @@ export {
   commentOut,
   commentLines,
   deleteLines,
+  copyPasteLine,
   formatBlockBegin,
   formatBlockEnd,
   moveLinesUp,

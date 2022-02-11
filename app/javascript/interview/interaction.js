@@ -2,6 +2,7 @@ class KeyInputHandler {
   constructor(sourceElement) {
     this.listerners = {};
     this.callbacks = {};
+    this.commands = [];
 
     sourceElement.addEventListener("input", e => {
       this.exec("Common", e);
@@ -50,6 +51,22 @@ class KeyInputHandler {
           if (e.shiftKey) {
             e.preventDefault();
             this.exec("DeleteLines", e);
+          }
+          break;
+        case "c":
+          if (e.ctrlKey) {
+            if (e.target.selectionStart == e.target.selectionEnd) {
+              e.preventDefault();
+              this.commands.push("CopyLine");
+            } else if (this.commands[this.commands.length - 1] == "CopyLine"){
+              this.commands.pop();
+            }
+          }
+          break;
+        case "v":
+          if (e.ctrlKey && this.commands[this.commands.length - 1] == "CopyLine") {
+            e.preventDefault();
+            this.exec("CopyPasteLine", e);
           }
           break;
         default:
