@@ -82,7 +82,7 @@ module InterviewsHelper
   def code_editor
     tag.div(class: "code-editor w-1/2 mt-1") { |tag|
       tag.pre(" ", class: "code-hl")
-        .concat(tag.textarea(class: "input-transparent", rows: "10", spellcheck: "false"))
+        .concat(tag.textarea(class: "code-input", rows: "10", spellcheck: "false"))
         .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
           lines = tag.div(class: "pt-4")
           (1..10).each do |row_id|

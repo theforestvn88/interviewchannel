@@ -10,7 +10,7 @@ export default class CodeEditor {
     this.interview = interview;
     this.component = component;
 
-    this.codeInput = this.interview.querySelector(".input-transparent");
+    this.codeInput = this.interview.querySelector(".code-input");
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
 

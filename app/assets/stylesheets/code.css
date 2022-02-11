@@ -1,4 +1,4 @@
-.input-transparent {
+.code-input {
   border: none;
   outline: none;
   box-shadow: none !important;
@@ -21,6 +21,12 @@
   resize: none;
   z-index: 2;
 }
+
+.code-input::selection {
+  text-shadow: none;
+  background: rgb(248, 231, 220);
+}
+
 
 .code-editor {
   height: 300px;
