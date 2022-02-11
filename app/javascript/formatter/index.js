@@ -207,6 +207,22 @@ function moveLinesRight(code, selectionStart, selectionEnd) {
   return [formattedCode, selectionStart + 1, anchorEndPos];
 }
 
+function deleteLines(code, selectionStart, selectionEnd) {
+  let [fitCode, _, fitEnd] = standardSelection(code, selectionStart, selectionEnd);
+  selectionEnd = fitEnd;
+
+  let anchorPointStart = 
+    fitCode.charAt(selectionStart) == "\n" ? selectionStart - 1 : selectionStart;
+  let startLineBegin = fitCode.lastIndexOf("\n", anchorPointStart);
+  let endLineEnd = fitCode.indexOf("\n", selectionEnd - 1);
+
+  let formattedCode =
+    fitCode.substring(0, startLineBegin) +
+    fitCode.substring(endLineEnd);
+
+  return [formattedCode, startLineBegin, startLineBegin];
+}
+
 function commentLines(lang, code, selectionStart, selectionEnd) {
   let prefix = CommentPrefix[lang] || CommentPrefix["default"];
   let anchorPos = code.lastIndexOf("\n", selectionStart - 1);
@@ -248,6 +264,7 @@ export {
   countIndent, 
   commentOut,
   commentLines,
+  deleteLines,
   formatBlockBegin,
   formatBlockEnd,
   moveLinesUp,

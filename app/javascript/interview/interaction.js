@@ -46,6 +46,12 @@ class KeyInputHandler {
             this.exec("CommentLines", e);
           }
           break;
+        case "Delete":
+          if (e.shiftKey) {
+            e.preventDefault();
+            this.exec("DeleteLines", e);
+          }
+          break;
         default:
           break;
       }
