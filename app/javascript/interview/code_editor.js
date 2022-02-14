@@ -1,26 +1,30 @@
 import * as Formatter from "formatter";
 import { KeyInputHandler } from "./interaction";
+import History from "./history";
 
-const SLOGAN = "in code we trust !!!";
-const InitNumOfLines = 10;
-const ItemSelectedBg = "bg-gray-300";
 
 export default class CodeEditor {
+  static SLOGAN = "in code we trust !!!";
+  static InitNumOfLines = 10;
+  static ItemSelectedBg = "bg-gray-300";
+  static ModifyCodeEvents = ["Tab", "ShiftTab", "MoveLinesUp", "MoveLinesDown", "CommentLines", "DeleteLines", "CopyPasteLine"];
+
   constructor(interview, component) {
     this.interview = interview;
     this.component = component;
+    this.history = new History();
 
     this.codeInput = this.interview.querySelector(".code-input");
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
 
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
-    this.keyInputHandler.after(
-      ["Tab", "ShiftTab", "MoveLinesUp", "MoveLinesDown", "CommentLines", "DeleteLines", "CopyPasteLine"], 
+    this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, 
       ([formattedCode, selectionStart, selectionEnd]) => {
         this.codeInput.value = formattedCode;
         this.codeInput.setSelectionRange(selectionStart, selectionEnd);
         this.highlightCode(formattedCode);
+        this.history.push(formattedCode);
       }
     );
 
@@ -72,10 +76,10 @@ export default class CodeEditor {
     for(let langOpt of langOptions) {
       langOpt.addEventListener("click", e => {
         this.interview.querySelector(`#lang-${this.lang}`)
-          .classList.remove(ItemSelectedBg);
+          .classList.remove(CodeEditor.ItemSelectedBg);
         this.lang = e.target.textContent;
         selectedLang.textContent = `${prefixLang}${this.lang}`;
-        e.target.classList.add(ItemSelectedBg);
+        e.target.classList.add(CodeEditor.ItemSelectedBg);
 
         this.updateSologan();
         this.highlightCode();
@@ -84,7 +88,7 @@ export default class CodeEditor {
 
     selectedLang.textContent = `${prefixLang}${this.lang}`;
     this.interview.querySelector(`#lang-${this.lang}`)
-          .classList.add(ItemSelectedBg);
+          .classList.add(CodeEditor.ItemSelectedBg);
 
     const selectedStyle = this.interview.querySelector("#selected-style");
     const prefixStyle = selectedStyle.getAttribute("prefix");
@@ -92,10 +96,10 @@ export default class CodeEditor {
     for(let styleOpt of styleOptions) {
       styleOpt.addEventListener("click", e => {
         this.interview.querySelector(`#style-${this.style}`)
-          .classList.remove(ItemSelectedBg);
+          .classList.remove(CodeEditor.ItemSelectedBg);
         this.style = e.target.textContent;
         selectedStyle.textContent = `${prefixStyle}${this.style}`;
-        e.target.classList.add(ItemSelectedBg);
+        e.target.classList.add(CodeEditor.ItemSelectedBg);
 
         for (let link of document.querySelectorAll(".codestyle")) {
           link.disabled = !link.href.match(this.style + "\\.min.css$");
@@ -106,14 +110,14 @@ export default class CodeEditor {
 
     selectedStyle.textContent = `${prefixStyle}${this.style}`;
     this.interview.querySelector(`#style-${this.style}`)
-          .classList.add(ItemSelectedBg);
+          .classList.add(CodeEditor.ItemSelectedBg);
 
     this.updateSologan();
     this.highlightCode();
 
     this.currLineIndex = 2;
     this.currMarkLineIndexes = [];
-    this.totalLines = InitNumOfLines;
+    this.totalLines = CodeEditor.InitNumOfLines;
     for(let i = 1; i <= this.totalLines; i++) {
       this.addOnLineNumberClickListener(i);
     }
@@ -130,14 +134,14 @@ export default class CodeEditor {
 
   updateSologan() {
     if (!this.codeInput.value) {
-      const sologan = Formatter.commentOut(this.lang, `${SLOGAN}\n`);
+      const sologan = Formatter.commentOut(this.lang, `${CodeEditor.SLOGAN}\n`);
       this.codeHighlight.firstChild.textContent = sologan;
       this.codeInput.value = sologan;
     } else {
-      if (this.codeInput.value.match(SLOGAN)) {
+      if (this.codeInput.value.match(CodeEditor.SLOGAN)) {
         let firstNewLineIndex = this.codeInput.value.indexOf("\n");
         this.codeInput.value = 
-          Formatter.commentOut(this.lang, SLOGAN) +
+          Formatter.commentOut(this.lang, CodeEditor.SLOGAN) +
           this.codeInput.value.substring(firstNewLineIndex);
         this.codeHighlight.firstChild.textContent = this.codeInput.value;
       }
@@ -273,6 +277,7 @@ export default class CodeEditor {
       });
 
       this.highlightCode(formattedCode);
+      this.history.push(formattedCode);
     });
 
     this.keyInputHandler.addListener("Enter", (e) => {
@@ -316,6 +321,18 @@ export default class CodeEditor {
 
     this.keyInputHandler.addListener("CommentLines", (e) => {
       return Formatter.commentLines(this.lang, e.target.value, e.target.selectionStart, e.target.selectionEnd);
+    });
+
+    this.keyInputHandler.addListener("ForwardCode", (e) => {
+      let forwardCode = this.history.forward();
+      this.codeInput.value = forwardCode;
+      this.highlightCode(forwardCode);
+    });
+
+    this.keyInputHandler.addListener("BackwardCode", (e) => {
+      let backwardCode = this.history.backward();
+      this.codeInput.value = backwardCode;
+      this.highlightCode(backwardCode);
     });
 
     document.addEventListener("selectionchange", event => {
