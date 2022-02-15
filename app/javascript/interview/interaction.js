@@ -7,7 +7,7 @@ class KeyInputHandler {
     this.combineKeys = {}; // TODO: bit
 
     sourceElement.addEventListener("input", e => {
-      this.exec("Common", e);
+      this.exec("Input", e);
     });
 
     sourceElement.addEventListener("keyup", e => {

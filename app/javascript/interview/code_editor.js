@@ -7,7 +7,23 @@ export default class CodeEditor {
   static SLOGAN = "in code we trust !!!";
   static InitNumOfLines = 10;
   static ItemSelectedBg = "bg-gray-300";
-  static ModifyCodeEvents = ["Tab", "ShiftTab", "MoveLinesUp", "MoveLinesDown", "CommentLines", "DeleteLines", "CopyPasteLine"];
+  static ModifyCodeEvents = [
+	  "Input", 
+	  "Enter", 
+	  "Tab", 
+	  "ShiftTab", 
+	  "MoveLinesUp", 
+	  "MoveLinesDown", 
+	  "CommentLines", 
+	  "DeleteLines", 
+	  "CopyPasteLine"
+  ];
+  static DecoratingEvents = [
+	  "Enter"
+  ];
+  static SyncCodeEvents = [
+  	  "Input"
+  ];	
 
   constructor(interview, component) {
     this.interview = interview;
@@ -19,6 +35,7 @@ export default class CodeEditor {
     this.codeHighlight = this.interview.querySelector(".code-hl");
 
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
+	// after modifying code callbacks  
     this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, 
       ([formattedCode, selectionStart, selectionEnd]) => {
         this.codeInput.value = formattedCode;
@@ -27,6 +44,21 @@ export default class CodeEditor {
         this.history.push(formattedCode);
       }
     );
+	// decorating editor callbacks
+	this.keyInputHandler.after(CodeEditor.DecoratingEvents, ([formattedCode, s, e]) => {
+      this.updateCodeOverlay();
+
+      if (this.currLineIndex == this.totalLines - 1) {
+        this.highlightLineOfCode(this.totalLines);
+        this.currLineIndex = this.totalLines;
+      }
+	});
+	// sync code callbacks
+	this.keyInputHandler.after(CodeEditor.SyncCodeEvents, ([formattedCode, s, e]) => {
+		this.interview.sync(this.component, {
+			code: formattedCode
+		})
+	});
 
     this.setupEditor();
   }
@@ -266,33 +298,16 @@ export default class CodeEditor {
   }
   
   addEditorRules() {
-    this.keyInputHandler.addListener("Common", (e) => {
-      var [formattedCode, selection] =
+    this.keyInputHandler.addListener("Input", (e) => {
+      let [formattedCode, selection] =
         Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
-      this.codeInput.value = formattedCode;
-      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
-
-      this.interview.sync(this.component, {
-        code: formattedCode,
-      });
-
-      this.highlightCode(formattedCode);
-      this.history.push(formattedCode);
+	  return [formattedCode, selection, selection];
     });
 
     this.keyInputHandler.addListener("Enter", (e) => {
       let [formattedCode, selection] =
         Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
-      this.codeInput.value = formattedCode;
-      this.codeInput.selectionStart = this.codeInput.selectionEnd = selection;
-
-      this.highlightCode(formattedCode);
-      this.updateCodeOverlay();
-
-      if (this.currLineIndex == this.totalLines - 1) {
-        this.highlightLineOfCode(this.totalLines);
-        this.currLineIndex = this.totalLines;
-      }
+      return [formattedCode, selection, selection];			
     });
 
     this.keyInputHandler.addListener("Tab", (e) => {
