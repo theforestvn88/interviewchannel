@@ -2,11 +2,11 @@ import * as Formatter from "formatter";
 import { KeyInputHandler } from "./interaction";
 import History from "./history";
 
-
 export default class CodeEditor {
   static SLOGAN = "in code we trust !!!";
   static InitNumOfLines = 10;
   static ItemSelectedBg = "bg-gray-300";
+	static LOCKTIME = 3000; // 3s
   static ModifyCodeEvents = [
 	  "Input", 
 	  "Enter", 
@@ -22,7 +22,7 @@ export default class CodeEditor {
 	  "Enter"
   ];
   static SyncCodeEvents = [
-  	  "Input"
+		...CodeEditor.ModifyCodeEvents
   ];	
 
   constructor(interview, component) {
@@ -35,33 +35,39 @@ export default class CodeEditor {
     this.codeHighlight = this.interview.querySelector(".code-hl");
 
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
-	// after modifying code callbacks  
-    this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, 
-      ([formattedCode, selectionStart, selectionEnd]) => {
+		// after modifying code callbacks  
+    this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, ([formattedCode, selectionStart, selectionEnd]) => {
         this.codeInput.value = formattedCode;
         this.codeInput.setSelectionRange(selectionStart, selectionEnd);
         this.highlightCode(formattedCode);
         this.history.push(formattedCode);
-      }
-    );
-	// decorating editor callbacks
-	this.keyInputHandler.after(CodeEditor.DecoratingEvents, ([formattedCode, s, e]) => {
-      this.updateCodeOverlay();
+    });
+		// decorating editor callbacks
+		this.keyInputHandler.after(CodeEditor.DecoratingEvents, ([formattedCode, s, e]) => {
+			this.updateCodeOverlay();
 
-      if (this.currLineIndex == this.totalLines - 1) {
-        this.highlightLineOfCode(this.totalLines);
-        this.currLineIndex = this.totalLines;
-      }
-	});
-	// sync code callbacks
-	this.keyInputHandler.after(CodeEditor.SyncCodeEvents, ([formattedCode, s, e]) => {
-		this.interview.sync(this.component, {
-			code: formattedCode
-		})
-	});
+			if (this.currLineIndex == this.totalLines - 1) {
+				this.highlightLineOfCode(this.totalLines);
+				this.currLineIndex = this.totalLines;
+			}
+		});
+		// sync code callbacks
+		this.keyInputHandler.after(CodeEditor.SyncCodeEvents, ([formattedCode, s, e]) => {
+			if (this.lockTime && this.lockTime > Date.now()) return;
 
-    this.setupEditor();
-  }
+			this.lockTime = null;
+			this.interview.sync(this.component, {
+				code: formattedCode
+			})
+		});
+
+		this.setupEditor();
+
+		// lockTime
+		// 	update when someone is coding
+		// 	expired when longtime no one coding or release lock
+		this.lockTime = null; // default no lock
+	}
 
   get lang() {
     if (!this.selectedLang) {
@@ -95,9 +101,16 @@ export default class CodeEditor {
         this.updateCodeOverlay(data);
       }
 
-      if (data.feedback) {
-        this.showFeedback(data.feedback);
+      if (data.actions) {
+        this.showActions(data.actions);
       }
+			
+			if (data.lockTime) { // manual release lock (press ESC) - set locktime < now
+				this.lockTime = data.lockTime;
+			} else {
+				// set lock expire-time
+				this.lockTime = Date.now() + CodeEditor.LOCKTIME;
+			}
     }
   }
 
@@ -189,13 +202,15 @@ export default class CodeEditor {
     }
   }
 
-  showFeedback(feedback) {
-    this.resetMarkLinesOfCode();
-    for(let fb of feedback) {
-      for(let i of fb.marklines) {
-        this.markLineOfCode(i);
-      }
-    }
+  showActions(actions) {
+    for(let act of actions) {
+			if (act.marklines) {
+				this.resetMarkLinesOfCode();
+				for(let i of act.marklines) {
+					this.markLineOfCode(i);
+				}
+			}	
+		}
   }
 
   addLine(lineIndex) {
@@ -290,7 +305,7 @@ export default class CodeEditor {
       }
 
       this.interview.sync(this.component, {
-        feedback: [
+        actions: [
           { marklines: this.currMarkLineIndexes }
         ]
       });
@@ -301,7 +316,7 @@ export default class CodeEditor {
     this.keyInputHandler.addListener("Input", (e) => {
       let [formattedCode, selection] =
         Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
-	  return [formattedCode, selection, selection];
+	  	return [formattedCode, selection, selection];
     });
 
     this.keyInputHandler.addListener("Enter", (e) => {
@@ -309,6 +324,12 @@ export default class CodeEditor {
         Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
       return [formattedCode, selection, selection];			
     });
+
+		this.keyInputHandler.addListener("ReleaseLock", (e) => {
+			this.interview.sync(this.component, {
+				lockTime: Date.now()  
+			})
+		});
 
     this.keyInputHandler.addListener("Tab", (e) => {
       return Formatter.moveLinesRight(e.target.value, e.target.selectionStart, e.target.selectionEnd);
