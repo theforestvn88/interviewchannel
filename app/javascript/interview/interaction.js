@@ -18,6 +18,9 @@ class KeyInputHandler {
           e.preventDefault();
           this.exec("Enter", e);
           break;
+				case "Escape":
+					e.preventDefault();
+					this.exec("ReleaseLock", e);
         default:
           break;
       }
