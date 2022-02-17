@@ -83,7 +83,7 @@ export default class CodeEditor {
 
   get style() {
     if (!this.selectedStyle) {
-      this.selectedStyle = this.interview.getAttribute("style") || "default";
+      this.selectedStyle = this.interview.getAttribute("style") || "github";
     }
 
     return this.selectedStyle;
@@ -224,9 +224,10 @@ export default class CodeEditor {
     numView.classList.add("w-6", "flex", "justify-end");
 
     let numLabel = document.createElement("label");
-    numLabel.classList.add("text-xs");
+    numLabel.classList.add("text-xs", "text-white");
     numLabel.textContent = `${lineIndex}`;
     let sepLabel = document.createElement("label");
+    sepLabel.classList.add("text-white");
     sepLabel.textContent = "|";
     numView.appendChild(numLabel);
     numView.appendChild(sepLabel);
@@ -256,12 +257,12 @@ export default class CodeEditor {
     if (this.currLineIndex) {
       this.interview
         .querySelector(`#row-${this.currLineIndex}`)
-        .classList.remove("current-code-line");
+        .classList.remove("bg-sky-600");
     }
 
     let curLineView = this.interview.querySelector(`#row-${lineIndex}`);
     if (curLineView) {
-      curLineView.classList.add("current-code-line");
+      curLineView.classList.add("bg-sky-600");
       this.currLineIndex = lineIndex;
     }
   }
@@ -270,7 +271,7 @@ export default class CodeEditor {
     for(let markLineIndex of this.currMarkLineIndexes) {
       this.interview
         .querySelector(`#row-${markLineIndex}`)
-        .classList.remove("current-code-line", "bg-red-100");
+        .classList.remove("bg-cyan-200", "bg-red-100");
     }
 
     this.currMarkLineIndexes = [];
