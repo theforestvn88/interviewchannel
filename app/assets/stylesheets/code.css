@@ -27,14 +27,10 @@
   background: rgb(248, 231, 220);
 }
 
-
 .code-editor {
-  height: 300px;
+  height: 100%;
   position: relative;
   overflow: -moz-hidden-unscrollable;
-  border-width: 2px;
-  border-color: #bbb8b8;
-  background-color: #f3f3f3;
 }
 
 .code-hl {
@@ -58,8 +54,13 @@
   font-size: 1em !important;
 }
 
-.current-code-line {
-  background-color: rgb(221, 250, 250);
+textarea.interview-info {
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none !important;
+  width: 100%;
+  min-height: 100px;
 }
 
 html {
