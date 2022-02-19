@@ -20,7 +20,7 @@ class KeyInputHandler {
           break;
 				case "Escape":
 					e.preventDefault();
-					this.exec("ReleaseLock", e);
+					this.exec("Escape", e);
         default:
           break;
       }
@@ -90,6 +90,12 @@ class KeyInputHandler {
             this.exec("ForwardCode", e);
           }
           break;
+        case ":":
+          if (e.shiftKey) {
+            e.preventDefault();
+            this.exec("InputCommand", e);
+          }
+          break;
         default:
           break;
       }
@@ -128,6 +134,7 @@ class KeyInputHandler {
         });
 
         let result = handler(event);
+        if (!result) return;
 
         [key, "all"].forEach(x => {
           if (this.afterCallbacks[x]) {
@@ -141,6 +148,32 @@ class KeyInputHandler {
   }
 }
 
+// client side command executor
+// parsing input then dispatch commands
+class Commander {
+  constructor(clientExecutor, serverExecutor) {
+    this.clientExecutor = clientExecutor;
+    this.serverExecutor = serverExecutor;
+  }
+
+  exec(input) {
+    let [cmd, ...cmdArguments] = input.split(" ");
+    switch (cmd) {
+      case ":theme":
+        this.clientExecutor.switchTheme(cmdArguments[0]);
+        break;
+      
+      default:
+        break;
+    }
+  }
+}
+
+// run code remote from server
+class Runner {}
+
 export {
-  KeyInputHandler
+  KeyInputHandler,
+  Commander,
+  Runner
 }

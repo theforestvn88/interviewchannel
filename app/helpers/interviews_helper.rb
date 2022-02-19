@@ -32,30 +32,30 @@ module InterviewsHelper
     "other"
   ].freeze
 
-  SUPPORT_STYLES = [
-    "default", 
-    "github"
-  ].freeze
-
   def interview_stream(*interviews, **attributes)
     attributes[:channel] = attributes[:channel]&.to_s || "InterviewStreamsChannel"
     attributes[:"signed-stream-name"] = Turbo::StreamsChannel.signed_stream_name(interviews)
     attributes[:"interview-id"] = interviews.first.id
     attributes[:"user"] = SecureRandom.hex(6) # TODO:   replace by User model
+    attributes[:"theme"] = 'blues-rock'
+
+    # styles
+    editor_main_style = %W( w-full pt-0 #{attributes[:"theme"]}-main )
+    editor_header_style = %W( flex justify-between sticky top-0 mt-2 p-1 #{attributes[:"theme"]}-header text-xs )
+    editor_command_style = %W( w-full sticky bottom-0 #{attributes[:"theme"]}-command border-0 text-xs pl-5 invisible )
+    interview_intro_style = %W( #{attributes[:"theme"]}-intro text-xs )
 
     tag.interview_stream(**attributes, class: "w-full min-h-screen") do |tag|
-      tag.div(class: "w-full bg-sky-800 pt-5") { |tag|
-        tag.textarea("/*\n #{interviews.first.note}\n reviewer: xyz@gmail.com\n candidate: abc@gmail.com\n*/", class: "interview-info text-xs text-white")
-        .concat(tag.div(id: "editor-header", class: "flex justify-between sticky top-0 mt-2 bg-cyan-600 text-xs text-white") { |tag|
+      tag.div(class: editor_main_style) { |tag|
+        tag.textarea("/*\n #{interviews.first.note}\n reviewer: xyz@gmail.com\n candidate: abc@gmail.com\n*/", class: interview_intro_style)
+        .concat(tag.div(id: "editor-header", class: editor_header_style) { |tag|
           tag.label(">> interview >> ./we_code.rb")
-          .concat(tag.div(class: "flex justify-end") {
-            dropdown('#', 'lang', SUPPORT_LANGS).concat dropdown('@', 'style', SUPPORT_STYLES)
-          })
+          .concat(tag.div(id: "editor-theme", class: "flex justify-end") { "@#{attributes[:"theme"]}" })
         })
-        .concat(code_editor)
-        .concat(tag.input(id: "editor-command", class: "w-full sticky bottom-0 bg-cyan-300 border-0 text-xs text-white pl-5"))
+        .concat(code_editor(attributes))
+        .concat(tag.p(":", id: "editor-command", class: editor_command_style))
       }
-      .concat(p2p_videos)
+      .concat(p2p_videos(attributes))
     end
   end
 
@@ -81,18 +81,17 @@ module InterviewsHelper
     }
   end
 
-  def code_editor
+  def code_editor(attributes)
     tag.div(class: "code-editor w-full") { |tag|
       tag.pre(" ", class: "code-hl")
-        .concat(tag.textarea(class: "code-input", rows: "100", spellcheck: "false"))
+        .concat(tag.textarea(class: "code-input #{attributes[:"theme"]}-caret", rows: "100", spellcheck: "false"))
         .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
           lines = tag.div(class: "pt-4")
           (1..100).each do |row_id|
             lines = lines.concat(
-              tag.div(id: "row-#{row_id}", class: "code-line") {
-                tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer hover:bg-red-100") {
-                  tag.label("#{row_id}", class: "text-xs text-white")
-                    .concat tag.label("|", class: "text-white")
+              tag.div(id: "row-#{row_id}", class: "code-line #{attributes[:"theme"]}-numline") {
+                tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer") {
+                  tag.label("#{row_id}", class: "text-xs").concat tag.label("|")
                 }
               }
             )
@@ -102,7 +101,7 @@ module InterviewsHelper
     }
   end
 
-  def p2p_videos
+  def p2p_videos(attributes)
     tag.div(class: "w-full flex justify-end sticky bottom-0 right-10") { |tag|
       tag.div { |tag|
         tag.div(id: "remote-video-container")

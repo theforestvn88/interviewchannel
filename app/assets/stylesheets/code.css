@@ -1,3 +1,13 @@
+html {
+  tab-size: 3;
+}
+
+@keyframes cursor-blink {
+  0% {
+    opacity: 0;
+  }
+}
+
 .code-input {
   border: none;
   outline: none;
@@ -13,7 +23,6 @@
   line-height: inherit;
   background-color: transparent;
   color: transparent;
-  caret-color: red;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-size: 1em !important;
   /* overflow: -moz-hidden-unscrollable; */
@@ -54,19 +63,6 @@
   font-size: 1em !important;
 }
 
-textarea.interview-info {
-  background: transparent;
-  border: none;
-  outline: none;
-  box-shadow: none !important;
-  width: 100%;
-  min-height: 100px;
-}
-
-html {
-  tab-size: 3;
-}
-
 .dropdown:hover .dropdown-menu {
   display: block;
   z-index: 10;
@@ -85,3 +81,119 @@ html {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 } 
+
+/* BLUES ROCK THEME */
+.blues-rock-main {
+  background-color: #075985;
+}
+
+.blues-rock-header {
+  background-color:  #0891B2;
+  color: white;
+}
+
+.blues-rock-command {
+  background-color: #0891B2;
+  color: white;
+}
+
+.blues-rock-command::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: blue;
+  display: inline-block;
+  animation: cursor-blink 1.5s steps(2) infinite;
+}
+
+.blues-rock-codeline-hl {
+  background-color: #0284C7;
+}
+
+.blues-rock-codeline-marked {
+  background-color: #F87171;
+}
+
+.blues-rock-numline {
+  color: white;
+}
+
+.blues-rock-numline > button > label {
+  color: white;
+}
+
+.blues-rock-numline > button:hover {
+  background-color: #F87171;
+}
+
+.blues-rock-caret {
+  caret-color: blue;
+}
+
+textarea.blues-rock-intro {
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none !important;
+  width: 100%;
+  min-height: 100px;
+  color: white;
+}
+
+/* POP THEME */
+.pop-main {
+  background-color: white;
+}
+
+.pop-header {
+  background-color: #f6f8fa;
+  color: #24292f;
+}
+
+.pop-command {
+  background-color: #f6f8fa;
+  color: #24292f;
+}
+
+.pop-command::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: red;
+  display: inline-block;
+  animation: cursor-blink 1.5s steps(2) infinite;
+}
+
+.pop-codeline-hl {
+  background-color: #F3F4F6;
+}
+
+.pop-codeline-marked {
+  background-color: #F87171;
+}
+
+.pop-numline {
+  color: #24292f;
+}
+
+.pop-numline > button > label {
+  color: #24292f;
+}
+
+.pop-numline > button:hover {
+  background-color: #F87171;
+}
+
+.pop-caret {
+  caret-color: black;
+}
+
+textarea.pop-intro {
+  background: #f6f8fa;
+  border: none;
+  outline: none;
+  box-shadow: none !important;
+  width: 100%;
+  min-height: 100px;
+  color: #24292f;
+}
