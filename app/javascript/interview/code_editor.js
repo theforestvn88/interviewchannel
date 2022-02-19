@@ -1,12 +1,17 @@
 import * as Formatter from "formatter";
-import { KeyInputHandler } from "./interaction";
+import { KeyInputHandler, Commander } from "./interaction";
 import History from "./history";
+import Theme from "./theme";
 
 export default class CodeEditor {
   static SLOGAN = "in code we trust !!!";
   static InitNumOfLines = 10;
-  static ItemSelectedBg = "bg-gray-300";
 	static LOCKTIME = 3000; // 3s
+  static States = {
+    Code: "Code",
+    Cmd: "Command",
+    Run: "Run"
+  };
   static ModifyCodeEvents = [
 	  "Input", 
 	  "Enter", 
@@ -23,29 +28,34 @@ export default class CodeEditor {
   ];
   static SyncCodeEvents = [
 		...CodeEditor.ModifyCodeEvents
-  ];	
+  ];
 
   constructor(interview, component) {
     this.interview = interview;
     this.component = component;
     this.history = new History();
+    this.commander = new Commander(this, this);
 
     this.codeInput = this.interview.querySelector(".code-input");
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
+    this.commandLine = this.interview.querySelector("#editor-command");
 
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
 		// after modifying code callbacks  
     this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, ([formattedCode, selectionStart, selectionEnd]) => {
-        this.codeInput.value = formattedCode;
-        this.codeInput.setSelectionRange(selectionStart, selectionEnd);
-        this.highlightCode(formattedCode);
-        this.history.push(formattedCode);
+      if (this.currentState !== CodeEditor.States.Code) return;
+
+      this.codeInput.value = formattedCode;
+      this.codeInput.setSelectionRange(selectionStart, selectionEnd);
+      this.highlightCode(formattedCode);
+      this.history.push(formattedCode);
     });
 		// decorating editor callbacks
 		this.keyInputHandler.after(CodeEditor.DecoratingEvents, ([formattedCode, s, e]) => {
-			this.updateCodeOverlay();
+      if (this.currentState !== CodeEditor.States.Code) return;
 
+			this.updateCodeOverlay();
 			if (this.currLineIndex == this.totalLines - 1) {
 				this.highlightLineOfCode(this.totalLines);
 				this.currLineIndex = this.totalLines;
@@ -81,16 +91,41 @@ export default class CodeEditor {
     this.selectedLang = language;
   }
 
-  get style() {
-    if (!this.selectedStyle) {
-      this.selectedStyle = this.interview.getAttribute("style") || "github";
+  get theme() {
+    if (!this.currentTheme) {
+      this.currentTheme = Theme.instanceOf(this.interview.getAttribute("theme"));
     }
 
-    return this.selectedStyle;
+    return this.currentTheme;
   }
 
-  set style(_style) {
-    this.selectedStyle = _style;
+  set theme(theme) {
+    this.currentTheme = theme;
+  }
+
+  switchTheme(theme) {
+    if (theme == this.theme.name) return;
+
+    let oldTheme = this.theme;
+    let newTheme = Theme.instanceOf(theme);
+    if (!newTheme) return;
+
+    this.theme = newTheme;
+    
+    this.switchHighlightTheme();
+
+    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline"].forEach(part => {
+      let oldCssClass = `${oldTheme.name}-${part}`;
+      let newCssClass = `${newTheme.name}-${part}`;
+      for (let element of document.querySelectorAll(`.${oldCssClass}`)) {
+        element.classList.remove(oldCssClass);
+        element.classList.add(newCssClass);
+      }
+    })
+
+    this.codeInput.classList.remove(`${oldTheme.name}-caret`);
+    this.codeInput.classList.add(`${newTheme.name}-caret`);
+    this.interview.querySelector("#editor-theme").textContent = `@${theme}`;
   }
 
   receive(data) {
@@ -115,50 +150,12 @@ export default class CodeEditor {
   }
 
   setupEditor() {
-    const selectedLang = this.interview.querySelector("#selected-lang");
-    const prefixLang = selectedLang.getAttribute("prefix");
-    const langOptions = this.interview.querySelectorAll("li.lang-option");
-    for(let langOpt of langOptions) {
-      langOpt.addEventListener("click", e => {
-        this.interview.querySelector(`#lang-${this.lang}`)
-          .classList.remove(CodeEditor.ItemSelectedBg);
-        this.lang = e.target.textContent;
-        selectedLang.textContent = `${prefixLang}${this.lang}`;
-        e.target.classList.add(CodeEditor.ItemSelectedBg);
+    // TODO: allow user create file then detecting @lang by the file extension.
 
-        this.updateSologan();
-        this.highlightCode();
-      })
-    }
-
-    selectedLang.textContent = `${prefixLang}${this.lang}`;
-    this.interview.querySelector(`#lang-${this.lang}`)
-          .classList.add(CodeEditor.ItemSelectedBg);
-
-    const selectedStyle = this.interview.querySelector("#selected-style");
-    const prefixStyle = selectedStyle.getAttribute("prefix");
-    const styleOptions = this.interview.querySelectorAll("li.style-option");
-    for(let styleOpt of styleOptions) {
-      styleOpt.addEventListener("click", e => {
-        this.interview.querySelector(`#style-${this.style}`)
-          .classList.remove(CodeEditor.ItemSelectedBg);
-        this.style = e.target.textContent;
-        selectedStyle.textContent = `${prefixStyle}${this.style}`;
-        e.target.classList.add(CodeEditor.ItemSelectedBg);
-
-        for (let link of document.querySelectorAll(".codestyle")) {
-          link.disabled = !link.href.match(this.style + "\\.min.css$");
-        }
-        this.highlightCode();
-      })
-    }
-
-    selectedStyle.textContent = `${prefixStyle}${this.style}`;
-    this.interview.querySelector(`#style-${this.style}`)
-          .classList.add(CodeEditor.ItemSelectedBg);
-
+    this.switchHighlightTheme();
     this.updateSologan();
     this.highlightCode();
+    this.focusCoding();
 
     this.currLineIndex = 2;
     this.currMarkLineIndexes = [];
@@ -168,6 +165,19 @@ export default class CodeEditor {
     }
 
     this.addEditorRules();
+  }
+
+  focusCoding() {
+    this.currentState = CodeEditor.States.Code;
+    this.codeInput.classList.remove("caret-transparent");
+    this.codeInput.classList.add(`${this.currentTheme.name}-caret`);
+    this.codeInput.focus();
+  }
+
+  switchHighlightTheme() {
+    for (let link of document.querySelectorAll(".codestyle")) {
+      link.disabled = !link.href.match(this.theme.config.highlight + "\\.min.css$");
+    }
   }
 
   highlightCode(code = null) {
@@ -224,10 +234,9 @@ export default class CodeEditor {
     numView.classList.add("w-6", "flex", "justify-end");
 
     let numLabel = document.createElement("label");
-    numLabel.classList.add("text-xs", "text-white");
+    numLabel.classList.add("text-xs");
     numLabel.textContent = `${lineIndex}`;
     let sepLabel = document.createElement("label");
-    sepLabel.classList.add("text-white");
     sepLabel.textContent = "|";
     numView.appendChild(numLabel);
     numView.appendChild(sepLabel);
@@ -257,12 +266,12 @@ export default class CodeEditor {
     if (this.currLineIndex) {
       this.interview
         .querySelector(`#row-${this.currLineIndex}`)
-        .classList.remove("bg-sky-600");
+        .classList.remove(`${this.theme.name}-codeline-hl`);
     }
 
     let curLineView = this.interview.querySelector(`#row-${lineIndex}`);
     if (curLineView) {
-      curLineView.classList.add("bg-sky-600");
+      curLineView.classList.add(`${this.theme.name}-codeline-hl`);
       this.currLineIndex = lineIndex;
     }
   }
@@ -271,7 +280,7 @@ export default class CodeEditor {
     for(let markLineIndex of this.currMarkLineIndexes) {
       this.interview
         .querySelector(`#row-${markLineIndex}`)
-        .classList.remove("bg-cyan-200", "bg-red-100");
+        .classList.remove(`${this.theme.name}-codeline-hl`, `${this.theme.name}-codeline-marked`);
     }
 
     this.currMarkLineIndexes = [];
@@ -280,7 +289,7 @@ export default class CodeEditor {
   markLineOfCode(lineIndex) {
     let curLineView = this.interview.querySelector(`#row-${lineIndex}`);
     if (curLineView) {
-      curLineView.classList.add("bg-red-100");
+      curLineView.classList.add(`${this.theme.name}-codeline-marked`);
       this.currMarkLineIndexes.push(lineIndex);
     }
   }
@@ -315,21 +324,53 @@ export default class CodeEditor {
   
   addEditorRules() {
     this.keyInputHandler.addListener("Input", (e) => {
-      let [formattedCode, selection] =
-        Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
-	  	return [formattedCode, selection, selection];
+      switch (this.currentState) {
+        case CodeEditor.States.Code:
+          let [formattedCode, selection] =
+            Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
+          return [formattedCode, selection, selection];
+        case CodeEditor.States.Cmd:
+          this.codeInput.value = this.codeInput.value.slice(0, -1);
+          if (e.data) {
+            this.commandLine.textContent += e.data;
+          }
+          break;
+      }
     });
 
     this.keyInputHandler.addListener("Enter", (e) => {
-      let [formattedCode, selection] =
-        Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
-      return [formattedCode, selection, selection];			
+      switch (this.currentState) {
+        case CodeEditor.States.Code:
+          let [formattedCode, selection] =
+            Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
+          return [formattedCode, selection, selection];		
+        case CodeEditor.States.Cmd:
+          this.commander.exec(this.commandLine.textContent);
+          this.commandLine.style.visibility = "hidden";
+          this.commandLine.textContent = ":";
+          this.focusCoding();
+          break;
+        default:
+          break;
+      }
     });
 
-		this.keyInputHandler.addListener("ReleaseLock", (e) => {
-			this.interview.sync(this.component, {
-				lockTime: Date.now()  
-			})
+		this.keyInputHandler.addListener("Escape", (e) => {
+      switch (this.currentState) {
+        case CodeEditor.States.Code:
+          // release lock
+          this.interview.sync(this.component, {
+            lockTime: Date.now()  
+          })
+          break;
+        case CodeEditor.States.Cmd:
+          this.commandLine.style.visibility = "hidden";
+          this.commandLine.textContent = ":";
+          this.focusCoding();
+          break;
+        default:
+          break;
+      }
 		});
 
     this.keyInputHandler.addListener("Tab", (e) => {
@@ -370,6 +411,14 @@ export default class CodeEditor {
       let backwardCode = this.history.backward();
       this.codeInput.value = backwardCode;
       this.highlightCode(backwardCode);
+    });
+
+    this.keyInputHandler.addListener("InputCommand", (e) => {
+      this.currentState = CodeEditor.States.Cmd;
+      this.codeInput.classList.remove(`${this.theme.name}-caret`);
+      this.codeInput.classList.add("caret-transparent");
+      this.commandLine.style.visibility = "visible";
+      this.commandLine.focus();
     });
 
     document.addEventListener("selectionchange", event => {
