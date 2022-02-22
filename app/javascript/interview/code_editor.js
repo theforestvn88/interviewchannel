@@ -8,16 +8,10 @@ export default class CodeEditor {
   static SLOGAN = "in code we trust !!!";
   static InitNumOfLines = 10;
 	static LOCKTIME = 3000; // 3s
-  static States = {
-    Code: "Code",
-    SearchFile: "SearchFile",
-    Cmd: "Command",
-    Run: "Run"
-  };
   static ModifyCodeEvents = [
-	  "Input",
-    "Backspace", 
-	  "Enter", 
+	  "InputCode",
+    "DeleteCodeChar", 
+	  "BreakLineCode",
 	  "Tab", 
 	  "ShiftTab", 
 	  "MoveLinesUp", 
@@ -53,8 +47,6 @@ export default class CodeEditor {
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
 		// after modifying code callbacks  
     this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, ([formattedCode, selectionStart, selectionEnd]) => {
-      if (this.currentState !== CodeEditor.States.Code) return;
-
       this.codeInput.value = formattedCode;
       this.codeInput.setSelectionRange(selectionStart, selectionEnd);
       this.highlightCode(formattedCode);
@@ -62,8 +54,6 @@ export default class CodeEditor {
     });
 		// decorating editor callbacks
 		this.keyInputHandler.after(CodeEditor.DecoratingEvents, ([formattedCode, s, e]) => {
-      if (this.currentState !== CodeEditor.States.Code) return;
-
 			this.updateCodeOverlay();
 			if (this.currLineIndex == this.totalLines - 1) {
 				this.highlightLineOfCode(this.totalLines);
@@ -189,8 +179,6 @@ export default class CodeEditor {
     this.codeInput.classList.remove("caret-transparent");
     this.codeInput.classList.add(`${this.currentTheme.name}-caret`);
     this.codeInput.focus();
-
-    this.currentState = CodeEditor.States.Code;
   }
 
   focusCommand() {
@@ -391,78 +379,63 @@ export default class CodeEditor {
   }
   
   addEditorRules() {
-    this.keyInputHandler.addListener("Input", (e) => {
-      switch (this.currentState) {
-        case CodeEditor.States.Code:
-          return this.inputCode(e.data);
-        case CodeEditor.States.SearchFile:
-          if (e.data) {
-            this.inputCommand(e.data);
-            this.searchFile(this.commandLine.textContent.slice(1));
-          }
-          break;
-        case CodeEditor.States.Cmd:
-          if (e.data) {
-            this.inputCommand(e.data);
-          }
-          break;
+    this.keyInputHandler.addListener("InputCode", (e) => {
+      if (e.data) {
+        return this.inputCode(e.data);
       }
     });
 
-    this.keyInputHandler.addListener("Enter", (e) => {
-      switch (this.currentState) {
-        case CodeEditor.States.Code:
-          return this.inputCode("Enter");
-
-        case CodeEditor.States.SearchFile:
-          this.loadFile(this.selectedFile);
-          this.focusCoding();
-          break;
-
-        case CodeEditor.States.Cmd:
-          this.commander.exec(this.commandLine.textContent);
-          this.commandLine.style.visibility = "hidden";
-          this.commandLine.textContent = ":";
-          this.focusCoding();
-          break;
-
-        default:
-          break;
+    this.keyInputHandler.addListener("InputCommand", (e) => {
+      if (e.data) {
+        this.inputCommand(e.data);
       }
     });
 
-    this.keyInputHandler.addListener("Backspace", (e) => {
-      switch (this.currentState) {
-        case CodeEditor.States.Code:
-          return this.inputCode("Backspace");
-        case CodeEditor.States.SearchFile:
-          this.inputCommand("Backspace");
-          this.searchFile(this.commandLine.textContent.slice(1));
-          break;		
-        case CodeEditor.States.Cmd:
-          this.inputCommand("Backspace");
-          break;
-        default:
-          break;
+    this.keyInputHandler.addListener("SearchFile", (e) => {
+      if (e.data) {
+        this.inputCommand(e.data);
+        this.searchFile(this.commandLine.textContent.slice(1));
       }
     });
 
-		this.keyInputHandler.addListener("Escape", (e) => {
-      switch (this.currentState) {
-        case CodeEditor.States.Code:
-          // release lock
-          this.interview.sync(this.component, {
-            lockTime: Date.now()  
-          })
-          break;
-        case CodeEditor.States.SearchFile:
-        case CodeEditor.States.Cmd:
-          this.focusCoding();
-          break;
-        default:
-          break;
-      }
+    this.keyInputHandler.addListener("BreakLineCode", (e) => {
+      return this.inputCode("Enter");
+    });
+
+    this.keyInputHandler.addListener("LoadSelectedFile", (e) => {
+      this.loadFile(this.selectedFile);
+      this.focusCoding();
+    });
+
+    this.keyInputHandler.addListener("ExecCommand", (e) => {
+      this.commander.exec(this.commandLine.textContent);
+      this.commandLine.style.visibility = "hidden";
+      this.commandLine.textContent = ":";
+      this.focusCoding();
+    });
+ 
+    this.keyInputHandler.addListener("DeleteCodeChar", (e) => {
+      return this.inputCode("Backspace");
+    });
+
+    this.keyInputHandler.addListener("DeleteSearchChar", (e) => {
+      this.inputCommand("Backspace");
+      this.searchFile(this.commandLine.textContent.slice(1));
+    });
+
+    this.keyInputHandler.addListener("DeleteCommandChar", (e) => {
+      this.inputCommand("Backspace");
+    });
+
+		this.keyInputHandler.addListener("ReleaseLock", (e) => {
+      this.interview.sync(this.component, {
+        lockTime: Date.now()  
+      })
 		});
+    
+    this.keyInputHandler.addListener("FocusCoding", (e) => {
+      this.focusCoding();
+    });
 
     this.keyInputHandler.addListener("Tab", (e) => {
       return Formatter.moveLinesRight(e.target.value, e.target.selectionStart, e.target.selectionEnd);
@@ -476,30 +449,16 @@ export default class CodeEditor {
       return Formatter.moveLinesUp(e.target.value, e.target.selectionStart, e.target.selectionEnd);
     });
 
-    this.keyInputHandler.addListener("ArrowUp", (e) => {
-      switch (this.currentState) {
-        case CodeEditor.States.SearchFile:
-          this.willSelectFile(this.selectedFileIndex - 1);
-          break;
-
-        default:
-          break;
-      }
+    this.keyInputHandler.addListener("SelectAboveFile", (e) => {
+      this.willSelectFile(this.selectedFileIndex - 1);
     });
 
     this.keyInputHandler.addListener("MoveLinesDown", (e) => {
       return Formatter.moveLinesDown(e.target.value, e.target.selectionStart, e.target.selectionEnd);
     });
 
-    this.keyInputHandler.addListener("ArrowDown", (e) => {
-      switch (this.currentState) {
-        case CodeEditor.States.SearchFile:
-          this.willSelectFile(this.selectedFileIndex + 1);
-          break;
-          
-        default:
-          break;
-      }
+    this.keyInputHandler.addListener("SelectBelowFile", (e) => {
+      this.willSelectFile(this.selectedFileIndex + 1);
     });
 
     this.keyInputHandler.addListener("DeleteLines", (e) => {
@@ -526,13 +485,11 @@ export default class CodeEditor {
       this.highlightCode(backwardCode);
     });
 
-    this.keyInputHandler.addListener("InputCommand", (e) => {
-      this.currentState = CodeEditor.States.Cmd;
+    this.keyInputHandler.addListener("OpenCommand", (e) => {
       this.focusCommand();
     });
 
-    this.keyInputHandler.addListener("SearchFile", (e) => {
-      this.currentState = CodeEditor.States.SearchFile;
+    this.keyInputHandler.addListener("OpenSearchFile", (e) => {
       this.resultView.style.visibility = "visible";
       this.resultView.value = `* ${this.currentFile.path}`;
       this.focusCommand();
