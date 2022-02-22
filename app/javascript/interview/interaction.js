@@ -21,6 +21,7 @@ class KeyInputHandler {
 				case "Escape":
 					e.preventDefault();
 					this.exec("Escape", e);
+          break;
         default:
           break;
       }
@@ -42,12 +43,16 @@ class KeyInputHandler {
           if (e.altKey) {
             e.preventDefault();
             this.exec("MoveLinesUp", e);
+          } else {
+            this.exec("ArrowUp", e);
           }
           break;
         case "ArrowDown":
           if (e.altKey) {
             e.preventDefault();
             this.exec("MoveLinesDown", e);
+          } else {
+            this.exec("ArrowDown", e);
           }
           break;
         case "/":
@@ -95,6 +100,16 @@ class KeyInputHandler {
             e.preventDefault();
             this.exec("InputCommand", e);
           }
+          break;
+        case "p":
+          if (e.ctrlKey) {
+            e.preventDefault();
+            this.exec("SearchFile", e);
+          }
+          break;
+        case "Backspace":
+          e.preventDefault();
+          this.exec("Backspace", e);
           break;
         default:
           break;
@@ -156,13 +171,17 @@ class Commander {
     this.serverExecutor = serverExecutor;
   }
 
-  exec(input) {
-    let [cmd, ...cmdArguments] = input.split(" ");
-    switch (cmd) {
+  exec(command) {
+    let [cmdName, ...cmdArguments] = command.split(" ");
+    switch (cmdName) {
       case ":theme":
         this.clientExecutor.switchTheme(cmdArguments[0]);
         break;
-      
+      case ":touch":
+        cmdArguments.forEach(file => {
+          this.clientExecutor.createFile(file);
+        });
+        break;
       default:
         break;
     }

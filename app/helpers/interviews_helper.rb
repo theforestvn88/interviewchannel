@@ -35,24 +35,26 @@ module InterviewsHelper
   def interview_stream(*interviews, **attributes)
     attributes[:channel] = attributes[:channel]&.to_s || "InterviewStreamsChannel"
     attributes[:"signed-stream-name"] = Turbo::StreamsChannel.signed_stream_name(interviews)
-    attributes[:"interview-id"] = interviews.first.id
+    attributes[:"interview-id"] = interviews.first.id # TODO: uuid -> short link
     attributes[:"user"] = SecureRandom.hex(6) # TODO:   replace by User model
     attributes[:"theme"] = 'blues-rock'
 
     # styles
     editor_main_style = %W( w-full pt-0 #{attributes[:"theme"]}-main )
     editor_header_style = %W( flex justify-between sticky top-0 mt-2 p-1 #{attributes[:"theme"]}-header text-xs )
-    editor_command_style = %W( w-full sticky bottom-0 #{attributes[:"theme"]}-command border-0 text-xs pl-5 invisible )
+    editor_command_style = %W( w-full sticky bottom-0 #{attributes[:"theme"]}-command border-0 text-xs pl-2 invisible )
     interview_intro_style = %W( #{attributes[:"theme"]}-intro text-xs )
+    result_view_style = %W( #{attributes[:"theme"]}-result sticky bottom-0 h-200 pb-20 pl-2 w-full text-xs text-white invisible )
 
     tag.interview_stream(**attributes, class: "w-full min-h-screen") do |tag|
       tag.div(class: editor_main_style) { |tag|
         tag.textarea("/*\n #{interviews.first.note}\n reviewer: xyz@gmail.com\n candidate: abc@gmail.com\n*/", class: interview_intro_style)
         .concat(tag.div(id: "editor-header", class: editor_header_style) { |tag|
-          tag.label(">> interview >> ./we_code.rb")
+          tag.label(">> interview >> ./we_code.rb", id: "code-filename")
           .concat(tag.div(id: "editor-theme", class: "flex justify-end") { "@#{attributes[:"theme"]}" })
         })
         .concat(code_editor(attributes))
+        .concat(tag.textarea(id: "editor-result", class: result_view_style, disabled: true))
         .concat(tag.p(":", id: "editor-command", class: editor_command_style))
       }
       .concat(p2p_videos(attributes))

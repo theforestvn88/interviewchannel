@@ -2,6 +2,7 @@ import * as Formatter from "formatter";
 import { KeyInputHandler, Commander } from "./interaction";
 import History from "./history";
 import Theme from "./theme";
+import { CodeFileManagement, CodeFile } from "./file";
 
 export default class CodeEditor {
   static SLOGAN = "in code we trust !!!";
@@ -9,11 +10,13 @@ export default class CodeEditor {
 	static LOCKTIME = 3000; // 3s
   static States = {
     Code: "Code",
+    SearchFile: "SearchFile",
     Cmd: "Command",
     Run: "Run"
   };
   static ModifyCodeEvents = [
-	  "Input", 
+	  "Input",
+    "Backspace", 
 	  "Enter", 
 	  "Tab", 
 	  "ShiftTab", 
@@ -36,10 +39,16 @@ export default class CodeEditor {
     this.history = new History();
     this.commander = new Commander(this, this);
 
+    this.codeFileName = this.interview.querySelector("#code-filename");
     this.codeInput = this.interview.querySelector(".code-input");
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
     this.commandLine = this.interview.querySelector("#editor-command");
+    this.resultView = this.interview.querySelector("#editor-result");
+
+    // files
+    this.fileManagement = new CodeFileManagement(`interview-${this.interview.getAttribute("interview-id")}`);
+    this.loadSession();
 
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
 		// after modifying code callbacks  
@@ -128,12 +137,16 @@ export default class CodeEditor {
     this.interview.querySelector("#editor-theme").textContent = `@${theme}`;
   }
 
+  switchHighlightTheme() {
+    for (let link of document.querySelectorAll(".codestyle")) {
+      link.disabled = !link.href.match(this.theme.config.highlight + "\\.min.css$");
+    }
+  }
+
   receive(data) {
     if (data.user != this.interview.user) {
       if (data.code) {
-        this.codeInput.value = data.code;
-        this.highlightCode(data.code);
-        this.updateCodeOverlay(data);
+        this.setCode(data.code);
       }
 
       if (data.actions) {
@@ -168,15 +181,70 @@ export default class CodeEditor {
   }
 
   focusCoding() {
-    this.currentState = CodeEditor.States.Code;
+    this.resultView.textContent = "";
+    this.resultView.style.visibility = "hidden";
+    this.commandLine.style.visibility = "hidden";
+    this.commandLine.textContent = ":";
+
     this.codeInput.classList.remove("caret-transparent");
     this.codeInput.classList.add(`${this.currentTheme.name}-caret`);
     this.codeInput.focus();
+
+    this.currentState = CodeEditor.States.Code;
   }
 
-  switchHighlightTheme() {
-    for (let link of document.querySelectorAll(".codestyle")) {
-      link.disabled = !link.href.match(this.theme.config.highlight + "\\.min.css$");
+  focusCommand() {
+    this.codeInput.classList.remove(`${this.theme.name}-caret`);
+    this.codeInput.classList.add("caret-transparent");
+    this.commandLine.style.visibility = "visible";
+    this.commandLine.focus();
+  }
+
+  setCode(code) {
+    this.codeFileName.textContent = `>> interview >> ./${this.currentFile.path}`;
+    this.codeInput.value = code;
+    this.highlightCode(code);
+    this.updateCodeOverlay();
+  }
+
+  revertInputCode() {
+    let start = this.codeInput.selectionStart - 1;
+    let end = this.codeInput.selectionEnd;
+    this.codeInput.value = this.codeInput.value.substring(0, start) + this.codeInput.value.substring(end);
+    this.codeInput.setSelectionRange(start, start);
+  }
+
+  inputCode(keyCode) {
+    let blockBegin = false;
+
+    switch (keyCode) {
+      case "Backspace":
+        this.revertInputCode();
+        break;
+      case "Enter":
+        blockBegin = true;
+        break;
+      default:
+        break;
+    }
+
+    let [formattedCode, selection] = 
+      blockBegin ? Formatter.formatBlockBegin(this.lang, this.codeInput.value, this.codeInput.selectionEnd) : Formatter.formatBlockEnd(this.lang, this.codeInput.value, this.codeInput.selectionEnd);
+    this.currentFile.content = formattedCode;
+    this.fileManagement.saveCodeFile(this.currentFile);
+
+    return [formattedCode, selection, selection];
+  }
+
+  inputCommand(keyCode) {
+    switch (keyCode) {
+      case "Backspace":
+        this.commandLine.textContent = this.commandLine.textContent.slice(0, -1);
+        break;
+      default:
+        this.commandLine.textContent += keyCode;
+        this.revertInputCode();
+        break;
     }
   }
 
@@ -326,13 +394,16 @@ export default class CodeEditor {
     this.keyInputHandler.addListener("Input", (e) => {
       switch (this.currentState) {
         case CodeEditor.States.Code:
-          let [formattedCode, selection] =
-            Formatter.formatBlockEnd(this.lang, e.target.value, e.target.selectionEnd);
-          return [formattedCode, selection, selection];
-        case CodeEditor.States.Cmd:
-          this.codeInput.value = this.codeInput.value.slice(0, -1);
+          return this.inputCode(e.data);
+        case CodeEditor.States.SearchFile:
           if (e.data) {
-            this.commandLine.textContent += e.data;
+            this.inputCommand(e.data);
+            this.searchFile(this.commandLine.textContent.slice(1));
+          }
+          break;
+        case CodeEditor.States.Cmd:
+          if (e.data) {
+            this.inputCommand(e.data);
           }
           break;
       }
@@ -341,14 +412,35 @@ export default class CodeEditor {
     this.keyInputHandler.addListener("Enter", (e) => {
       switch (this.currentState) {
         case CodeEditor.States.Code:
-          let [formattedCode, selection] =
-            Formatter.formatBlockBegin(this.lang, e.target.value, e.target.selectionEnd);
-          return [formattedCode, selection, selection];		
+          return this.inputCode("Enter");
+
+        case CodeEditor.States.SearchFile:
+          this.loadFile(this.selectedFile);
+          this.focusCoding();
+          break;
+
         case CodeEditor.States.Cmd:
           this.commander.exec(this.commandLine.textContent);
           this.commandLine.style.visibility = "hidden";
           this.commandLine.textContent = ":";
           this.focusCoding();
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    this.keyInputHandler.addListener("Backspace", (e) => {
+      switch (this.currentState) {
+        case CodeEditor.States.Code:
+          return this.inputCode("Backspace");
+        case CodeEditor.States.SearchFile:
+          this.inputCommand("Backspace");
+          this.searchFile(this.commandLine.textContent.slice(1));
+          break;		
+        case CodeEditor.States.Cmd:
+          this.inputCommand("Backspace");
           break;
         default:
           break;
@@ -363,9 +455,8 @@ export default class CodeEditor {
             lockTime: Date.now()  
           })
           break;
+        case CodeEditor.States.SearchFile:
         case CodeEditor.States.Cmd:
-          this.commandLine.style.visibility = "hidden";
-          this.commandLine.textContent = ":";
           this.focusCoding();
           break;
         default:
@@ -385,8 +476,30 @@ export default class CodeEditor {
       return Formatter.moveLinesUp(e.target.value, e.target.selectionStart, e.target.selectionEnd);
     });
 
+    this.keyInputHandler.addListener("ArrowUp", (e) => {
+      switch (this.currentState) {
+        case CodeEditor.States.SearchFile:
+          this.willSelectFile(this.selectedFileIndex - 1);
+          break;
+
+        default:
+          break;
+      }
+    });
+
     this.keyInputHandler.addListener("MoveLinesDown", (e) => {
       return Formatter.moveLinesDown(e.target.value, e.target.selectionStart, e.target.selectionEnd);
+    });
+
+    this.keyInputHandler.addListener("ArrowDown", (e) => {
+      switch (this.currentState) {
+        case CodeEditor.States.SearchFile:
+          this.willSelectFile(this.selectedFileIndex + 1);
+          break;
+          
+        default:
+          break;
+      }
     });
 
     this.keyInputHandler.addListener("DeleteLines", (e) => {
@@ -415,10 +528,14 @@ export default class CodeEditor {
 
     this.keyInputHandler.addListener("InputCommand", (e) => {
       this.currentState = CodeEditor.States.Cmd;
-      this.codeInput.classList.remove(`${this.theme.name}-caret`);
-      this.codeInput.classList.add("caret-transparent");
-      this.commandLine.style.visibility = "visible";
-      this.commandLine.focus();
+      this.focusCommand();
+    });
+
+    this.keyInputHandler.addListener("SearchFile", (e) => {
+      this.currentState = CodeEditor.States.SearchFile;
+      this.resultView.style.visibility = "visible";
+      this.resultView.value = `* ${this.currentFile.path}`;
+      this.focusCommand();
     });
 
     document.addEventListener("selectionchange", event => {
@@ -429,5 +546,47 @@ export default class CodeEditor {
         this.highlightLineOfCode(numLine);
       }
     });
+  }
+
+  loadSession() {
+    this.currentFile = this.fileManagement.loadSession();
+    if (!this.currentFile) {
+      this.currentFile = this.fileManagement.createCodeFile("we_code.rb");
+    }
+
+    this.selectedFile = this.currentFile.path;
+    this.setCode(this.currentFile.content);
+  }
+
+  createFile(filePath) {
+    this.currentFile = this.fileManagement.createCodeFile(filePath);
+    this.selectedFile = this.currentFile.path;
+    this.setCode(this.currentFile.content);
+  }
+
+  loadFile(filePath) {
+    this.currentFile = this.fileManagement.loadCodeFile(filePath);
+    this.selectedFile = this.currentFile.path;
+    this.setCode(this.currentFile.content);
+  } 
+
+  searchFile(searchKey) {
+    this.searchFilePaths = this.fileManagement.searchCodeFile(searchKey, 5);
+    this.selectedFileIndex = 0;
+    this.selectedFile = this.searchFilePaths[0];
+    this.showResultSearch();
+  }
+
+  showResultSearch() {
+    this.resultView.value = "";
+    this.searchFilePaths.forEach(f => {
+      this.resultView.value += f === this.selectedFile ? `* ${f}\n` : `> ${f}\n`;
+    })
+  }
+
+  willSelectFile(index) {
+    this.selectedFileIndex = index < 0 ? 0 : Math.min(index, this.searchFilePaths.length - 1);
+    this.selectedFile = this.searchFilePaths[this.selectedFileIndex];
+    this.showResultSearch();
   }
 }
