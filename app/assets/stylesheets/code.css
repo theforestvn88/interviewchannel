@@ -140,6 +140,18 @@ textarea.blues-rock-intro {
   color: white;
 }
 
+textarea.blues-rock-result {
+  background: #0891B2;
+  border-top: 1em solid #F87171;
+  outline: none;
+  box-shadow: none !important;
+  width: 100%;
+  min-height: 50px;
+  color: white;
+  resize: none;
+  overflow-y: hidden;
+}
+
 /* POP THEME */
 .pop-main {
   background-color: white;
