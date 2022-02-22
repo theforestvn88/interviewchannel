@@ -1,116 +1,282 @@
+const InteractionStates = {
+  Code: "Code",
+  SearchFile: "SearchFile",
+  Cmd: "Command",
+  Run: "Run"
+};
+
 class KeyInputHandler {
-  constructor(sourceElement) {
+  constructor(codeEditor) {
     this.listerners = {};
     this.afterCallbacks = {};
     this.beforeCallbacks = {};
     this.commands = [];
     this.combineKeys = {}; // TODO: bit
 
-    sourceElement.addEventListener("input", e => {
-      this.exec("Input", e);
-    });
+    this.currentState = InteractionStates.Code;
 
-    sourceElement.addEventListener("keyup", e => {
-      this.combineKeys[e.key] = false;
+    codeEditor.addEventListener("input", e => {
+      switch (this.currentState) {
+        case InteractionStates.Code:
+          this.exec("InputCode", e);
+          break;
+        
+        case InteractionStates.SearchFile:
+          this.exec("SearchFile", e);
+          break;
 
-      switch (e.key) {
-        case "Enter":
-          e.preventDefault();
-          this.exec("Enter", e);
+        case InteractionStates.Cmd:
+          this.exec("InputCommand", e);
           break;
-				case "Escape":
-					e.preventDefault();
-					this.exec("Escape", e);
-          break;
+
         default:
           break;
       }
     });
 
-    sourceElement.addEventListener("keydown", e => {
+    codeEditor.addEventListener("keyup", e => {
+      this.combineKeys[e.key] = false;
+
+      switch (e.key) {
+        case "Enter":
+          e.preventDefault();
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              this.exec("BreakLineCode", e);   
+              break;
+            
+            case InteractionStates.SearchFile:
+              this.exec("LoadSelectedFile", e);
+              this.currentState = InteractionStates.Code;
+              break;
+
+            case InteractionStates.Cmd:
+              this.exec("ExecCommand", e);
+              this.currentState = InteractionStates.Code;
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+				case "Escape":
+					e.preventDefault();
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              this.exec("ReleaseLock", e);
+              break;
+          
+            case InteractionStates.SearchFile:
+            case InteractionStates.Cmd:
+              this.exec("FocusCoding", e);
+              this.currentState = InteractionStates.Code;
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    codeEditor.addEventListener("keydown", e => {
       this.combineKeys[e.key] = true;
 
       switch (e.key) {
         case "Tab":
           e.preventDefault();
-          if (e.shiftKey) {
-            this.exec("ShiftTab", e);
-          } else {
-            this.exec("Tab", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.shiftKey) {
+                this.exec("ShiftTab", e);
+              } else {
+                this.exec("Tab", e);
+              }
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "ArrowUp":
-          if (e.altKey) {
-            e.preventDefault();
-            this.exec("MoveLinesUp", e);
-          } else {
-            this.exec("ArrowUp", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.altKey) {
+                e.preventDefault();
+                this.exec("MoveLinesUp", e);
+              }
+              break;
+
+            case InteractionStates.SearchFile:
+              this.exec("SelectAboveFile", e);
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "ArrowDown":
-          if (e.altKey) {
-            e.preventDefault();
-            this.exec("MoveLinesDown", e);
-          } else {
-            this.exec("ArrowDown", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.altKey) {
+                e.preventDefault();
+                this.exec("MoveLinesDown", e);
+              }
+              break;
+
+            case InteractionStates.SearchFile:
+              this.exec("SelectBelowFile", e);
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "/":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            this.exec("CommentLines", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.ctrlKey) {
+                e.preventDefault();
+                this.exec("CommentLines", e);
+              }
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "Delete":
-          if (e.shiftKey) {
-            e.preventDefault();
-            this.exec("DeleteLines", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.shiftKey) {
+                e.preventDefault();
+                this.exec("DeleteLines", e);
+              }
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "c":
-          if (e.ctrlKey) {
-            if (e.target.selectionStart == e.target.selectionEnd) {
-              e.preventDefault();
-              this.commands.push("CopyLine");
-            } else if (this.commands[this.commands.length - 1] == "CopyLine") {
-              this.commands.pop();
-            }
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.ctrlKey) {
+                if (e.target.selectionStart == e.target.selectionEnd) {
+                  e.preventDefault();
+                  this.commands.push("CopyLine");
+                } else if (this.commands[this.commands.length - 1] == "CopyLine") {
+                  this.commands.pop();
+                }
+              }
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "v":
-          if (e.ctrlKey && this.commands[this.commands.length - 1] == "CopyLine") {
-            e.preventDefault();
-            this.exec("CopyPasteLine", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.ctrlKey && this.commands[this.commands.length - 1] == "CopyLine") {
+                e.preventDefault();
+                this.exec("CopyPasteLine", e);
+              }   
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "z":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            this.exec("BackwardCode", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.ctrlKey) {
+                e.preventDefault();
+                this.exec("BackwardCode", e);
+              }              
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "Z":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            this.exec("ForwardCode", e);
+          switch (this.currentState) {
+            case InteractionStates:
+              if (e.ctrlKey) {
+                e.preventDefault();
+                this.exec("ForwardCode", e);
+              }
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case ":":
-          if (e.shiftKey) {
-            e.preventDefault();
-            this.exec("InputCommand", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.shiftKey) {
+                e.preventDefault();
+                this.exec("OpenCommand", e);
+                this.currentState = InteractionStates.Cmd;
+              }              
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "p":
-          if (e.ctrlKey) {
-            e.preventDefault();
-            this.exec("SearchFile", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.ctrlKey) {
+                e.preventDefault();
+                this.exec("OpenSearchFile", e);
+                this.currentState = InteractionStates.SearchFile;
+              }
+              break;
+          
+            default:
+              break;
           }
           break;
+
         case "Backspace":
           e.preventDefault();
-          this.exec("Backspace", e);
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              this.exec("DeleteCodeChar", e);
+              break;
+
+            case InteractionStates.SearchFile:
+              this.exec("DeleteSearchChar", e);
+              break;
+            
+            case InteractionStates.Cmd:
+              this.exec("DeleteCommandChar", e);
+              break;
+
+            default:
+              break;
+          }
           break;
+
         default:
           break;
       }
