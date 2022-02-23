@@ -1,6 +1,13 @@
+const LangExts = {
+    "js": "javascript",
+    "rb": "ruby",
+    "py": "python"
+}
+
 function CodeFile(path, content = "") {
     [this.name, this.ext] = path.split(".");
     this.path = path;
+    this.lang = LangExts[this.ext];
     this.content = content;
 }
 
@@ -36,7 +43,7 @@ CodeFileManagement.prototype.loadCodeFile = function(filePath) {
     }
 }
 
-CodeFileManagement.prototype.searchCodeFile = function(searchKey, limit) {
+CodeFileManagement.prototype.searchCodeFile = function(searchKey, limit = undefined) {
     try {
         let searchRegex = new RegExp(searchKey);
         return this.filePaths.filter(path => searchRegex.test(path)).slice(0, limit);
@@ -66,5 +73,3 @@ export {
     CodeFileManagement,
     CodeFile
 }
-
-

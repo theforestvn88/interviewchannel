@@ -209,3 +209,14 @@ textarea.pop-intro {
   min-height: 100px;
   color: #24292f;
 }
+
+textarea.pop-result {
+  background: #f6f8fa;
+  border-top: 1em solid #24292f;
+  outline: none;
+  box-shadow: none !important;
+  width: 100%;
+  color: #24292f;
+  resize: none;
+  overflow-y: hidden;
+}

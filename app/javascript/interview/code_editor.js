@@ -113,7 +113,7 @@ export default class CodeEditor {
     
     this.switchHighlightTheme();
 
-    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline"].forEach(part => {
+    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline", "result"].forEach(part => {
       let oldCssClass = `${oldTheme.name}-${part}`;
       let newCssClass = `${newTheme.name}-${part}`;
       for (let element of document.querySelectorAll(`.${oldCssClass}`)) {
@@ -189,8 +189,8 @@ export default class CodeEditor {
   }
 
   setCode(code) {
-    this.codeFileName.textContent = `>> interview >> ./${this.currentFile.path}`;
     this.codeInput.value = code;
+    this.updateSologan();
     this.highlightCode(code);
     this.updateCodeOverlay();
   }
@@ -216,8 +216,7 @@ export default class CodeEditor {
         break;
     }
 
-    let [formattedCode, selection] = 
-      blockBegin ? Formatter.formatBlockBegin(this.lang, this.codeInput.value, this.codeInput.selectionEnd) : Formatter.formatBlockEnd(this.lang, this.codeInput.value, this.codeInput.selectionEnd);
+    let [formattedCode, selection] = Formatter.format(this.lang, this.codeInput.value, this.codeInput.selectionEnd, blockBegin);
     this.currentFile.content = formattedCode;
     this.fileManagement.saveCodeFile(this.currentFile);
 
@@ -237,7 +236,7 @@ export default class CodeEditor {
   }
 
   highlightCode(code = null) {
-    if (code) {
+    if (code !== null) {
       this.codeHighlight.firstChild.textContent = code;
     }
     Formatter.highlightCodeElement(this.codeEditor, this.lang);
@@ -491,7 +490,7 @@ export default class CodeEditor {
 
     this.keyInputHandler.addListener("OpenSearchFile", (e) => {
       this.resultView.style.visibility = "visible";
-      this.resultView.value = `* ${this.currentFile.path}`;
+      this.searchFile("");
       this.focusCommand();
     });
 
@@ -511,39 +510,56 @@ export default class CodeEditor {
       this.currentFile = this.fileManagement.createCodeFile("we_code.rb");
     }
 
-    this.selectedFile = this.currentFile.path;
-    this.setCode(this.currentFile.content);
+    this.openFile(this.currentFile);
   }
 
   createFile(filePath) {
     this.currentFile = this.fileManagement.createCodeFile(filePath);
-    this.selectedFile = this.currentFile.path;
-    this.setCode(this.currentFile.content);
+    this.openFile(this.currentFile);
   }
 
   loadFile(filePath) {
     this.currentFile = this.fileManagement.loadCodeFile(filePath);
-    this.selectedFile = this.currentFile.path;
-    this.setCode(this.currentFile.content);
+    this.openFile(this.currentFile);
   } 
 
-  searchFile(searchKey) {
-    this.searchFilePaths = this.fileManagement.searchCodeFile(searchKey, 5);
-    this.selectedFileIndex = 0;
-    this.selectedFile = this.searchFilePaths[0];
-    this.showResultSearch();
+  openFile(file) {
+    this.currentFile = file;
+    this.selectedFile = this.currentFile.path;
+    this.lang = this.currentFile.lang;
+    this.codeFileName.textContent = `>> interview >> ./${this.currentFile.path}`;
+    this.setCode(this.currentFile.content);
   }
 
-  showResultSearch() {
+  static SearchPageSize = 7;
+  searchFile(searchKey) {
+    this.searchFilePaths = this.fileManagement.searchCodeFile(searchKey);
+    let currentFileIndex = Math.max(0, this.searchFilePaths.indexOf(this.currentFile.path));
+    this.selectedFileIndex = currentFileIndex;
+    this.selectedFile = this.searchFilePaths[currentFileIndex];
+    let offset = Math.max(0, currentFileIndex - CodeEditor.SearchPageSize + 1);
+    this.showResultSearch(offset);
+  }
+
+  showResultSearch(pageStart = 0, pageSize = CodeEditor.SearchPageSize) {
+    this.resultPageStart = pageStart;
+    this.resultPageEnd = Math.min(this.searchFilePaths.length, pageStart + pageSize);
     this.resultView.value = "";
-    this.searchFilePaths.forEach(f => {
+    this.searchFilePaths.slice(this.resultPageStart, this.resultPageEnd).forEach(f => {
       this.resultView.value += f === this.selectedFile ? `* ${f}\n` : `> ${f}\n`;
-    })
+    });
   }
 
   willSelectFile(index) {
     this.selectedFileIndex = index < 0 ? 0 : Math.min(index, this.searchFilePaths.length - 1);
     this.selectedFile = this.searchFilePaths[this.selectedFileIndex];
-    this.showResultSearch();
+
+    if (this.selectedFileIndex < this.resultPageStart) {
+      this.showResultSearch(this.selectedFileIndex);
+    } else if (this.selectedFileIndex >= this.resultPageEnd) {
+      this.showResultSearch(this.resultPageStart + (this.resultPageEnd - this.selectedFileIndex + 1));
+    } else {
+      this.showResultSearch(this.resultPageStart);
+    }
   }
 }
