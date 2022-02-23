@@ -110,6 +110,14 @@ function formatBlockEnd(lang, code, position) {
   return [formattedCode, selection];
 }
 
+function format(lang, code, position, blockBegin) {
+  if (blockBegin) {
+    return formatBlockBegin(lang, code, position);
+  } else {
+    return formatBlockEnd(lang, code, position);
+  }
+}
+
 function moveLinesUp(code, selectionStart, selectionEnd) {
   let [fitCode, _, fitEnd] = standardSelection(code, selectionStart, selectionEnd);
   selectionEnd = fitEnd;
@@ -283,6 +291,7 @@ export {
   copyPasteLine,
   formatBlockBegin,
   formatBlockEnd,
+  format,
   moveLinesUp,
   moveLinesDown,
   moveLinesLeft,

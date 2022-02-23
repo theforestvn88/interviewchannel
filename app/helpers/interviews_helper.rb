@@ -44,7 +44,7 @@ module InterviewsHelper
     editor_header_style = %W( flex justify-between sticky top-0 mt-2 p-1 #{attributes[:"theme"]}-header text-xs )
     editor_command_style = %W( w-full sticky bottom-0 #{attributes[:"theme"]}-command border-0 text-xs pl-2 invisible )
     interview_intro_style = %W( #{attributes[:"theme"]}-intro text-xs )
-    result_view_style = %W( #{attributes[:"theme"]}-result sticky bottom-0 h-200 pb-20 pl-2 w-full text-xs text-white invisible )
+    result_view_style = %W( #{attributes[:"theme"]}-result sticky bottom-0 pb-20 pl-2 w-full text-xs text-white invisible )
 
     tag.interview_stream(**attributes, class: "w-full min-h-screen") do |tag|
       tag.div(class: editor_main_style) { |tag|
