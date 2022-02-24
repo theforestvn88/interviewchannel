@@ -6,7 +6,6 @@ export default class History {
 
   push(code) {
     if (this.currentVersion == this.codeVersions.length - 1) {
-      console.log("push code");
       this.currentVersion += 1;
       this.codeVersions.push(code);
     } else {
@@ -28,7 +27,6 @@ export default class History {
 
   rewriteVersion(version, code) {
     if (version > 0 && version < this.codeVersions.length) {
-      console.log("rewrite");
       this.codeVersions = this.codeVersions.slice(0, version);
       this.currentVersion = version;
       this.push(code);
@@ -40,7 +38,11 @@ export default class History {
   }
 
   backward() {
-    console.log("backward");
     return this.applyVersion(this.currentVersion - 1);
+  }
+
+  reset() {
+    this.codeVersions = [];
+    this.currentVersion = -1;
   }
 }

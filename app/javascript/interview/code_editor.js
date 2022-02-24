@@ -31,7 +31,7 @@ export default class CodeEditor {
     this.interview = interview;
     this.component = component;
     this.history = new History();
-    this.commander = new Commander(this, this);
+    this.commander = new Commander(this);
 
     this.codeFileName = this.interview.querySelector("#code-filename");
     this.codeInput = this.interview.querySelector(".code-input");
@@ -47,10 +47,8 @@ export default class CodeEditor {
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
 		// after modifying code callbacks  
     this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, ([formattedCode, selectionStart, selectionEnd]) => {
-      this.codeInput.value = formattedCode;
+      this.setCode(formattedCode);
       this.codeInput.setSelectionRange(selectionStart, selectionEnd);
-      this.highlightCode(formattedCode);
-      this.history.push(formattedCode);
     });
 		// decorating editor callbacks
 		this.keyInputHandler.after(CodeEditor.DecoratingEvents, ([formattedCode, s, e]) => {
@@ -66,7 +64,10 @@ export default class CodeEditor {
 
 			this.lockTime = null;
 			this.interview.sync(this.component, {
-				code: formattedCode
+        file: {
+          path: this.currentFile.path,
+          code: formattedCode
+        }
 			})
 		});
 
@@ -120,7 +121,7 @@ export default class CodeEditor {
         element.classList.remove(oldCssClass);
         element.classList.add(newCssClass);
       }
-    })
+    });
 
     this.codeInput.classList.remove(`${oldTheme.name}-caret`);
     this.codeInput.classList.add(`${newTheme.name}-caret`);
@@ -135,12 +136,18 @@ export default class CodeEditor {
 
   receive(data) {
     if (data.user != this.interview.user) {
-      if (data.code) {
-        this.setCode(data.code);
+      if (data.file) {
+        if (data.code) {
+          this.setCode(data.code);
+        }
       }
 
       if (data.actions) {
         this.showActions(data.actions);
+      }
+
+      if (data.result) {
+        this.showResult(data.result);
       }
 			
 			if (data.lockTime) { // manual release lock (press ESC) - set locktime < now
@@ -193,23 +200,29 @@ export default class CodeEditor {
     this.updateSologan();
     this.highlightCode(code);
     this.updateCodeOverlay();
+    this.history.push(code);
   }
 
   revertInputCode() {
-    let start = this.codeInput.selectionStart - 1;
+    this.codeInput.value = this.history.applyVersion(this.history.currentVersion);
+    this.codeInput.setSelectionRange(...this.codeSelection);
+  }
+
+  breakLineCode() {
+    let start = this.codeInput.selectionStart;
     let end = this.codeInput.selectionEnd;
-    this.codeInput.value = this.codeInput.value.substring(0, start) + this.codeInput.value.substring(end);
+    this.codeInput.value = this.codeInput.value.substring(0, start) + "\n" + this.codeInput.value.substring(end);
+    start++;
     this.codeInput.setSelectionRange(start, start);
   }
 
-  inputCode(keyCode) {
+  inputCode(key) {
     let blockBegin = false;
 
-    switch (keyCode) {
-      case "Backspace":
-        this.revertInputCode();
+    switch (key) {
+      case "deleteContentBackward":
         break;
-      case "Enter":
+      case "insertLineBreak":
         blockBegin = true;
         break;
       default:
@@ -228,6 +241,7 @@ export default class CodeEditor {
       case "Backspace":
         this.commandLine.textContent = this.commandLine.textContent.slice(0, -1);
         break;
+
       default:
         this.commandLine.textContent += keyCode;
         this.revertInputCode();
@@ -378,23 +392,17 @@ export default class CodeEditor {
   }
   
   addEditorRules() {
-    this.keyInputHandler.addListener("InputCode", (e) => {
-      if (e.data) {
-        return this.inputCode(e.data);
-      }
+    this.keyInputHandler.addListener("InputCode", (key) => {
+      return this.inputCode(key);
     });
 
-    this.keyInputHandler.addListener("InputCommand", (e) => {
-      if (e.data) {
-        this.inputCommand(e.data);
-      }
+    this.keyInputHandler.addListener("InputCommand", (key) => {
+      this.inputCommand(key);
     });
 
-    this.keyInputHandler.addListener("SearchFile", (e) => {
-      if (e.data) {
-        this.inputCommand(e.data);
-        this.searchFile(this.commandLine.textContent.slice(1));
-      }
+    this.keyInputHandler.addListener("SearchFile", (key) => {
+      this.inputCommand(key);
+      this.searchFile(this.commandLine.textContent.slice(1));
     });
 
     this.keyInputHandler.addListener("BreakLineCode", (e) => {
@@ -408,9 +416,6 @@ export default class CodeEditor {
 
     this.keyInputHandler.addListener("ExecCommand", (e) => {
       this.commander.exec(this.commandLine.textContent);
-      this.commandLine.style.visibility = "hidden";
-      this.commandLine.textContent = ":";
-      this.focusCoding();
     });
  
     this.keyInputHandler.addListener("DeleteCodeChar", (e) => {
@@ -485,10 +490,12 @@ export default class CodeEditor {
     });
 
     this.keyInputHandler.addListener("OpenCommand", (e) => {
+      this.codeSelection = [this.codeInput.selectionStart, this.codeInput.selectionEnd];
       this.focusCommand();
     });
 
     this.keyInputHandler.addListener("OpenSearchFile", (e) => {
+      this.codeSelection = [this.codeInput.selectionStart, this.codeInput.selectionEnd];
       this.resultView.style.visibility = "visible";
       this.searchFile("");
       this.focusCommand();
@@ -528,6 +535,7 @@ export default class CodeEditor {
     this.selectedFile = this.currentFile.path;
     this.lang = this.currentFile.lang;
     this.codeFileName.textContent = `>> interview >> ./${this.currentFile.path}`;
+    this.history.reset();
     this.setCode(this.currentFile.content);
   }
 
@@ -561,5 +569,32 @@ export default class CodeEditor {
     } else {
       this.showResultSearch(this.resultPageStart);
     }
+  }
+
+  run(params) {
+    let [lineStart, lineEnd] = params;
+    let [start, end] = [0, -1];
+    if (!lineStart && !lineEnd) {
+      if (this.codeSelection[0] !== this.codeSelection[1]) {
+        [start, end] = this.codeSelection;
+      }
+    } else {
+      let lines = this.codeInput.value.split("\n");
+      start = lines.slice(0, Math.max(lineStart - 1, 0)).join("\n").length;
+      end = lines.slice(0, lineEnd).join("\n").length;
+    }
+    
+    // TODO: lock all user --> runner lock ?
+    
+    // send command
+    this.interview.sync(this.component, {
+      command: `run ${this.currentFile.path} ${start} ${end}`
+    }) // get result at the onReceive method
+  }
+
+  showResult(result) {
+    this.resultView.style.visibility = "visible";
+    this.resultView.value = result;
+    this.focusCommand();
   }
 }

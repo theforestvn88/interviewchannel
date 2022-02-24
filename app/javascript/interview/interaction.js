@@ -11,81 +11,14 @@ class KeyInputHandler {
     this.afterCallbacks = {};
     this.beforeCallbacks = {};
     this.commands = [];
-    this.combineKeys = {}; // TODO: bit
-
     this.currentState = InteractionStates.Code;
-
-    codeEditor.addEventListener("input", e => {
-      switch (this.currentState) {
-        case InteractionStates.Code:
-          this.exec("InputCode", e);
-          break;
-        
-        case InteractionStates.SearchFile:
-          this.exec("SearchFile", e);
-          break;
-
-        case InteractionStates.Cmd:
-          this.exec("InputCommand", e);
-          break;
-
-        default:
-          break;
-      }
-    });
-
-    codeEditor.addEventListener("keyup", e => {
-      this.combineKeys[e.key] = false;
-
-      switch (e.key) {
-        case "Enter":
-          e.preventDefault();
-          switch (this.currentState) {
-            case InteractionStates.Code:
-              this.exec("BreakLineCode", e);   
-              break;
-            
-            case InteractionStates.SearchFile:
-              this.exec("LoadSelectedFile", e);
-              this.currentState = InteractionStates.Code;
-              break;
-
-            case InteractionStates.Cmd:
-              this.exec("ExecCommand", e);
-              this.currentState = InteractionStates.Code;
-              break;
-
-            default:
-              break;
-          }
-          break;
-
-				case "Escape":
-					e.preventDefault();
-          switch (this.currentState) {
-            case InteractionStates.Code:
-              this.exec("ReleaseLock", e);
-              break;
-          
-            case InteractionStates.SearchFile:
-            case InteractionStates.Cmd:
-              this.exec("FocusCoding", e);
-              this.currentState = InteractionStates.Code;
-              break;
-
-            default:
-              break;
-          }
-          break;
-
-        default:
-          break;
-      }
-    });
+    
+    // key input event chain: keydown -> keyup -> input
+    // keydown: handle specific command 
+    // input: normal input
+    // ...
 
     codeEditor.addEventListener("keydown", e => {
-      this.combineKeys[e.key] = true;
-
       switch (e.key) {
         case "Tab":
           e.preventDefault();
@@ -227,10 +160,10 @@ class KeyInputHandler {
           }
           break;
 
-        case ":":
+        case ";":
           switch (this.currentState) {
             case InteractionStates.Code:
-              if (e.shiftKey) {
+              if (e.ctrlKey) {
                 e.preventDefault();
                 this.exec("OpenCommand", e);
                 this.currentState = InteractionStates.Cmd;
@@ -258,22 +191,83 @@ class KeyInputHandler {
           break;
 
         case "Backspace":
-          e.preventDefault();
           switch (this.currentState) {
-            case InteractionStates.Code:
-              this.exec("DeleteCodeChar", e);
-              break;
-
             case InteractionStates.SearchFile:
+              e.preventDefault();
               this.exec("DeleteSearchChar", e);
               break;
             
             case InteractionStates.Cmd:
+              e.preventDefault();
               this.exec("DeleteCommandChar", e);
               break;
 
             default:
               break;
+          }
+          break;
+
+        case "Enter":
+          switch (this.currentState) {            
+            case InteractionStates.SearchFile:
+              e.preventDefault();
+              this.exec("LoadSelectedFile", e);
+              this.currentState = InteractionStates.Code;
+              break;
+
+            case InteractionStates.Cmd:
+              e.preventDefault();
+              this.exec("ExecCommand", e);
+              this.currentState = InteractionStates.Cmd;
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+        case "Escape":
+          e.preventDefault();
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              this.exec("ReleaseLock", e);
+              break;
+          
+            case InteractionStates.SearchFile:
+            case InteractionStates.Cmd:
+              this.exec("FocusCoding", e);
+              this.currentState = InteractionStates.Code;
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    codeEditor.addEventListener("input", e => {
+      switch (this.currentState) {
+        case InteractionStates.Code:
+          if (e.data) {
+            this.exec("InputCode", e.data);
+          } else {
+            this.exec("InputCode", e.inputType);
+          }
+          break;
+        
+        case InteractionStates.SearchFile:
+          if (e.data) {
+            this.exec("SearchFile", e.data);
+          }
+          break;
+
+        case InteractionStates.Cmd:
+          if (e.data) {
+            this.exec("InputCommand", e.data);
           }
           break;
 
@@ -332,33 +326,34 @@ class KeyInputHandler {
 // client side command executor
 // parsing input then dispatch commands
 class Commander {
-  constructor(clientExecutor, serverExecutor) {
-    this.clientExecutor = clientExecutor;
-    this.serverExecutor = serverExecutor;
+  constructor(executor) {
+    this.executor = executor;
   }
 
   exec(command) {
     let [cmdName, ...cmdArguments] = command.split(" ");
     switch (cmdName) {
       case ":theme":
-        this.clientExecutor.switchTheme(cmdArguments[0]);
+        this.executor.switchTheme(cmdArguments[0]);
         break;
+
       case ":touch":
         cmdArguments.forEach(file => {
-          this.clientExecutor.createFile(file);
+          this.executor.createFile(file);
         });
         break;
+        
+      case ":run":
+        this.executor.run(cmdArguments);
+        break;
+
       default:
         break;
     }
   }
 }
 
-// run code remote from server
-class Runner {}
-
 export {
   KeyInputHandler,
-  Commander,
-  Runner
+  Commander
 }
