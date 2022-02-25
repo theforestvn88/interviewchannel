@@ -31,11 +31,6 @@ html {
   z-index: 2;
 }
 
-.code-input::selection {
-  text-shadow: none;
-  background: rgb(248, 231, 220);
-}
-
 .code-editor {
   height: 100%;
   position: relative;
