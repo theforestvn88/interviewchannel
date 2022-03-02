@@ -38,6 +38,7 @@ export default class CodeEditor {
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
     this.commandLine = this.interview.querySelector("#editor-command");
+    this.lock = this.interview.querySelector("#editor-lock");
     this.resultView = this.interview.querySelector("#editor-result");
 
     // files
@@ -114,7 +115,7 @@ export default class CodeEditor {
     
     this.switchHighlightTheme();
 
-    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline", "result"].forEach(part => {
+    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline", "result", "lock"].forEach(part => {
       let oldCssClass = `${oldTheme.name}-${part}`;
       let newCssClass = `${newTheme.name}-${part}`;
       for (let element of document.querySelectorAll(`.${oldCssClass}`)) {
@@ -135,10 +136,10 @@ export default class CodeEditor {
   }
 
   receive(data) {
-    if (data.user != this.interview.user) {
+    if (data.user_id != this.interview.user_id) {
       if (data.file) {
-        if (data.code) {
-          this.setCode(data.code);
+        if (data.file.code) {
+          this.setCode(data.file.code);
         }
       }
 
@@ -149,13 +150,15 @@ export default class CodeEditor {
       if (data.result) {
         this.showResult(data.result);
       }
-			
-			if (data.lockTime) { // manual release lock (press ESC) - set locktime < now
-				this.lockTime = data.lockTime;
-			} else {
-				// set lock expire-time
-				this.lockTime = Date.now() + CodeEditor.LOCKTIME;
-			}
+
+      if (data.lock) { // other takes lock
+        this.lockTime = Date.now() + CodeEditor.LOCKTIME;
+        this.locking = true;
+        this.showLock(data.lock);
+        setTimeout(() => {
+          if (this.lockTime < Date.now()) this.hideLock();
+        }, CodeEditor.LOCKTIME);
+      }
     }
   }
 
@@ -431,11 +434,12 @@ export default class CodeEditor {
       this.inputCommand("Backspace");
     });
 
-		this.keyInputHandler.addListener("ReleaseLock", (e) => {
-      this.interview.sync(this.component, {
-        lockTime: Date.now()  
-      })
-		});
+    // TODO: do we need manual release lock ?
+		// this.keyInputHandler.addListener("ReleaseLock", (e) => {
+    //   this.interview.sync(this.component, {
+    //     lockTime: Date.now()  
+    //   })
+		// });
     
     this.keyInputHandler.addListener("FocusCoding", (e) => {
       this.focusCoding();
@@ -596,5 +600,24 @@ export default class CodeEditor {
     this.resultView.style.visibility = "visible";
     this.resultView.value = result;
     this.focusCommand();
+  }
+
+  showLock(lock) {
+    if (this.locking) {
+      this.dot = this.dot || 0;
+      setTimeout(() => {
+        if (this.locking) {
+          this.lock.style.visibility = "visible";
+          this.lock.textContent = `${lock} is typing ` + `${"......".substring(this.dot)}`;
+          this.dot = (this.dot + 1) % 6;         
+          this.showLock(lock);     
+        }
+      }, 500);
+    }
+  }
+
+  hideLock() {
+    this.lock.style.visibility = "hidden";
+    this.locking = false;
   }
 }
