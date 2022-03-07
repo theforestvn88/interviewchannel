@@ -147,6 +147,21 @@ textarea.blues-rock-result {
   overflow-y: hidden;
 }
 
+.blues-rock-lock {
+  background-color: red;
+  color: white;
+  font-weight: bold;
+}
+
+.blues-rock-lock::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: white;
+  display: inline-block;
+  animation: cursor-blink 1.5s steps(2) infinite;
+}
+
 /* POP THEME */
 .pop-main {
   background-color: white;
@@ -214,4 +229,19 @@ textarea.pop-result {
   color: #24292f;
   resize: none;
   overflow-y: hidden;
+}
+
+.pop-lock {
+  background-color: green;
+  color: white;
+  font-weight: bold;
+}
+
+.pop-lock::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: white;
+  display: inline-block;
+  animation: cursor-blink 1.5s steps(2) infinite;
 }

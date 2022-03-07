@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CodeRunner
-    RUNNER = {
+    RUNNER = { # TODO: runner for c/c++/java/kotlin/python...
         "rb" => "ruby".freeze,
         "js" => "node".freeze
     }.freeze
@@ -11,35 +11,38 @@ class CodeRunner
         "js" => "try {\n%s\n} catch (error) {\nconsole.log(`ERROR: ${error.message}`);\n}\n"
     }.freeze
 
-    def self.run_with_tempfile(interview_id, file_path, pos_start, pos_end)
+    def self.run_with_tempfile(interview_id, user_id, file_path, pos_start, pos_end)
         interview = Interview.new(id: interview_id)
         code = CodeRepo.get_code(interview_id, file_path)
         unless code
-            InterviewStreamsChannel.broadcast_update_interview(interview, {
-                component: "code",
-                result: "Something go wrong"
-            })
+            response(interview, user_id, "Something go wrong")
             return
         end
 
         unless runner = RUNNER[ext = file_path.split(".").last]
-            InterviewStreamsChannel.broadcast_update_interview(interview, {
-                component: "code",
-                result: "Could not run .#{ext} file"
-            })
+            response(interview, user_id, "Could not run .#{ext} file")
             return
         end
 
         require "tempfile"
         tempfile = Tempfile.new("#{interview_id}_#{file_path}")
         code = code[pos_start..pos_end]
-        tempfile << CATCHER[ext] % code
+        tempfile << CATCHER[ext] % code # TODO: wrap into a timeout handler
         tempfile.close
         output = `#{runner} #{tempfile.path}`
+        
+        response(interview, user_id, output)
+    end
 
-        InterviewStreamsChannel.broadcast_update_interview(interview, {
-            component: "code",
-            result: output
-        })
+    def self.response(interview, user_id, result)
+        lock = InterviewRepo.get_lock(interview.id)
+        if lock == user_id
+            InterviewStreamsChannel.broadcast_update_interview(interview, {
+                component: "code",
+                result: result
+            })
+            # reset lock time
+            InterviewRepo.set_lock(interview.id, user_id, expires_at: 3.seconds.from_now)
+        end
     end
 end

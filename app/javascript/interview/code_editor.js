@@ -38,6 +38,7 @@ export default class CodeEditor {
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
     this.commandLine = this.interview.querySelector("#editor-command");
+    this.lockView = this.interview.querySelector("#editor-lock");
     this.resultView = this.interview.querySelector("#editor-result");
 
     // files
@@ -114,7 +115,7 @@ export default class CodeEditor {
     
     this.switchHighlightTheme();
 
-    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline", "result"].forEach(part => {
+    ["main", "header", "command", "intro", "codeline-hl", "codeline-marked", "numline", "result", "lock"].forEach(part => {
       let oldCssClass = `${oldTheme.name}-${part}`;
       let newCssClass = `${newTheme.name}-${part}`;
       for (let element of document.querySelectorAll(`.${oldCssClass}`)) {
@@ -135,27 +136,44 @@ export default class CodeEditor {
   }
 
   receive(data) {
-    if (data.user != this.interview.user) {
-      if (data.file) {
-        if (data.code) {
-          this.setCode(data.code);
-        }
+    if (data.user_id != this.interview.user_id) {
+      if (data.lock) { // other takes lock
+        this.lockTime = Date.now() + CodeEditor.LOCKTIME;
+        this.setLock(`${data.lock} is coding`, CodeEditor.LOCKTIME);
       }
 
-      if (data.actions) {
-        this.showActions(data.actions);
+      if (data.file) {
+        if (data.file.path && data.file.path !== this.currentFile.path) {
+          this.setLock(`${data.user_id} open ${data.file.path}`, CodeEditor.LOCKTIME);
+          this.syncFile(data.file.path, data.file.code);
+        } else {
+        if (data.file.code) {
+          this.setCode(data.file.code);
+            this.saveCurrentFile(data.file.code);
+        }
+
+          if (data.file.selection) {
+            this.codeSelection = data.file.selection;
+            this.codeInput.setSelectionRange(...this.codeSelection);
+      }
+
+          if (data.file.marklines) {
+            this.showMarklines(data.marklines);
+          }
+      }
+
+        this.keyInputHandler.syncState(InteractionStates.Code);
+      }
+
+      if (data.command) {
+        this.setLock(`${data.user_id} ${data.command}`, 2000*60);
+        this.keyInputHandler.syncState(InteractionStates.Cmd);
       }
 
       if (data.result) {
+        this.runningCodeLock = null;
         this.showResult(data.result);
       }
-			
-			if (data.lockTime) { // manual release lock (press ESC) - set locktime < now
-				this.lockTime = data.lockTime;
-			} else {
-				// set lock expire-time
-				this.lockTime = Date.now() + CodeEditor.LOCKTIME;
-			}
     }
   }
 
@@ -431,11 +449,12 @@ export default class CodeEditor {
       this.inputCommand("Backspace");
     });
 
-		this.keyInputHandler.addListener("ReleaseLock", (e) => {
-      this.interview.sync(this.component, {
-        lockTime: Date.now()  
-      })
-		});
+    // TODO: do we need manual release lock ?
+		// this.keyInputHandler.addListener("ReleaseLock", (e) => {
+    //   this.interview.sync(this.component, {
+    //     lockTime: Date.now()  
+    //   })
+		// });
     
     this.keyInputHandler.addListener("FocusCoding", (e) => {
       this.focusCoding();
@@ -572,6 +591,7 @@ export default class CodeEditor {
   }
 
   run(params) {
+    if (!this.runningCodeLock) {
     let [lineStart, lineEnd] = params;
     let [start, end] = [0, -1];
     if (!lineStart && !lineEnd) {
@@ -584,17 +604,60 @@ export default class CodeEditor {
       end = lines.slice(0, lineEnd).join("\n").length;
     }
     
-    // TODO: lock all user --> runner lock ?
-    
-    // send command
+      const startTime = Date.now();
+      this.runningCodeLock = startTime;
+      // send command to server
+      // get result from server at the onReceive method
     this.interview.sync(this.component, {
       command: `run ${this.currentFile.path} ${start} ${end}`
-    }) // get result at the onReceive method
+      }) 
+      // timeout in 2 minutes
+      setTimeout(() => {
+        if (this.runningCodeLock == startTime) {
+          this.showResult("time out");
+          this.runningCodeLock = null;
+          this.interview.sync(this.component, {
+            result: "time out"
+          })
+        }
+      }, 2000*60);
+    }
   }
 
   showResult(result) {
     this.resultView.style.visibility = "visible";
     this.resultView.value = result;
-    this.focusCommand();
+  }
+
+  setLock(lockName, expiredTime) {
+    let lock = {
+      name: lockName,
+      progress: 0
+    };
+    this.lock = lock;
+    this.showLock(lock);
+    setTimeout(() => {
+      if (this.lock === lock) this.releaseLock();
+    }, expiredTime);
+  }
+
+  releaseLock() {
+    this.hideLock();
+    this.lock = null;
+  }
+
+  showLock(lock) {
+    if (this.lock === lock) {
+      this.lockView.style.visibility = "visible";
+      this.lockView.textContent = `${lock.name} ` + `${"......".substring(lock.progress)}`;
+      lock.progress = (lock.progress + 1) % 6;      
+      setTimeout(() => {
+          this.showLock(lock);     
+      }, 500);
+    }
+  }
+
+  hideLock() {
+    this.lockView.style.visibility = "hidden";
   }
 }

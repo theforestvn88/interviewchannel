@@ -12,7 +12,7 @@ class InterviewElement extends HTMLElement {
     const subscription = await cable.subscribeTo(this.channel, {
       received: this.dispatchMessageEvent.bind(this)
     });
-		const upStream = new Sync(this.id, this.user, subscription);
+		const upStream = new Sync(this.id, this.user_id, subscription);
 
 		this.sync = (component, data) => {
 			upStream.sync(component, data);
@@ -53,8 +53,12 @@ class InterviewElement extends HTMLElement {
     return this.getAttribute("interview-id");
   }
 
-  get user() {
-    return this.getAttribute("user");
+  get user_id() {
+    return this.getAttribute("user_id");
+  }
+
+  get user_name() {
+    return this.getAttribute("user_name");
   }
 }
 
