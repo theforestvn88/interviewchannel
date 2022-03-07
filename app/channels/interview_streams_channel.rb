@@ -24,6 +24,8 @@ class InterviewStreamsChannel < Turbo::StreamsChannel
   end
 
   private def save_code(interview_id, code_file)
+    return unless code_file["path"] && code_file["code"]
+    
     CodeRepo.save_code(interview_id: interview_id, path: code_file["path"], code: code_file["code"], expires_at: 3.hours.from_now)
   end
 

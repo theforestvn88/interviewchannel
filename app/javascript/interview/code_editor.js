@@ -1,5 +1,5 @@
 import * as Formatter from "formatter";
-import { KeyInputHandler, Commander } from "./interaction";
+import { InteractionStates, KeyInputHandler, Commander } from "./interaction";
 import History from "./history";
 import Theme from "./theme";
 import { CodeFileManagement, CodeFile } from "./file";
@@ -67,7 +67,8 @@ export default class CodeEditor {
 			this.interview.sync(this.component, {
         file: {
           path: this.currentFile.path,
-          code: formattedCode
+          code: formattedCode,
+          selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd]
         }
 			})
 		});
@@ -147,20 +148,20 @@ export default class CodeEditor {
           this.setLock(`${data.user_id} open ${data.file.path}`, CodeEditor.LOCKTIME);
           this.syncFile(data.file.path, data.file.code);
         } else {
-        if (data.file.code) {
-          this.setCode(data.file.code);
+          if (data.file.code) {
+            this.setCode(data.file.code);
             this.saveCurrentFile(data.file.code);
-        }
+          }
 
           if (data.file.selection) {
             this.codeSelection = data.file.selection;
             this.codeInput.setSelectionRange(...this.codeSelection);
-      }
+          }
 
           if (data.file.marklines) {
             this.showMarklines(data.marklines);
           }
-      }
+        }
 
         this.keyInputHandler.syncState(InteractionStates.Code);
       }
@@ -223,7 +224,7 @@ export default class CodeEditor {
 
   revertInputCode() {
     this.codeInput.value = this.history.applyVersion(this.history.currentVersion);
-    this.codeInput.setSelectionRange(...this.codeSelection);
+    if (this.codeSelection) this.codeInput.setSelectionRange(...this.codeSelection);
   }
 
   breakLineCode() {
@@ -248,8 +249,7 @@ export default class CodeEditor {
     }
 
     let [formattedCode, selection] = Formatter.format(this.lang, this.codeInput.value, this.codeInput.selectionEnd, blockBegin);
-    this.currentFile.content = formattedCode;
-    this.fileManagement.saveCodeFile(this.currentFile);
+    this.saveCurrentFile(formattedCode);
 
     return [formattedCode, selection, selection];
   }
@@ -299,14 +299,10 @@ export default class CodeEditor {
     }
   }
 
-  showActions(actions) {
-    for(let act of actions) {
-			if (act.marklines) {
-				this.resetMarkLinesOfCode();
-				for(let i of act.marklines) {
-					this.markLineOfCode(i);
-				}
-			}	
+  showMarklines(marklines) {
+    this.resetMarkLinesOfCode();
+    for(let i of marklines) {
+			this.markLineOfCode(i);
 		}
   }
 
@@ -402,9 +398,9 @@ export default class CodeEditor {
       }
 
       this.interview.sync(this.component, {
-        actions: [
-          { marklines: this.currMarkLineIndexes }
-        ]
+        file: {
+          marklines: this.currMarkLineIndexes
+        }
       });
     });
   }
@@ -412,6 +408,11 @@ export default class CodeEditor {
   addEditorRules() {
     this.keyInputHandler.addListener("InputCode", (key) => {
       return this.inputCode(key);
+    });
+
+    this.keyInputHandler.addListener("OpenCommand", (e) => {
+      this.codeSelection = [this.codeInput.selectionStart, this.codeInput.selectionEnd];
+      this.focusCommand();
     });
 
     this.keyInputHandler.addListener("InputCommand", (key) => {
@@ -449,12 +450,9 @@ export default class CodeEditor {
       this.inputCommand("Backspace");
     });
 
-    // TODO: do we need manual release lock ?
-		// this.keyInputHandler.addListener("ReleaseLock", (e) => {
-    //   this.interview.sync(this.component, {
-    //     lockTime: Date.now()  
-    //   })
-		// });
+		this.keyInputHandler.addListener("ReleaseLock", (e) => {
+      // TODO: do we need manual release lock ?
+		});
     
     this.keyInputHandler.addListener("FocusCoding", (e) => {
       this.focusCoding();
@@ -508,11 +506,6 @@ export default class CodeEditor {
       this.highlightCode(backwardCode);
     });
 
-    this.keyInputHandler.addListener("OpenCommand", (e) => {
-      this.codeSelection = [this.codeInput.selectionStart, this.codeInput.selectionEnd];
-      this.focusCommand();
-    });
-
     this.keyInputHandler.addListener("OpenSearchFile", (e) => {
       this.codeSelection = [this.codeInput.selectionStart, this.codeInput.selectionEnd];
       this.resultView.style.visibility = "visible";
@@ -523,9 +516,12 @@ export default class CodeEditor {
     document.addEventListener("selectionchange", event => {
       let activeElement = document.activeElement;
       if (activeElement && activeElement == this.codeInput) {
-        let selectStart = this.codeInput.selectionStart;
-        let numLine = this.countNumOfLines(0, selectStart);
-        this.highlightLineOfCode(numLine);
+        this.interview.sync(this.component, {
+          file: {
+            path: this.currentFile.path,
+            selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd]
+          }
+        })
       }
     });
   }
@@ -556,6 +552,13 @@ export default class CodeEditor {
     this.codeFileName.textContent = `>> interview >> ./${this.currentFile.path}`;
     this.history.reset();
     this.setCode(this.currentFile.content);
+
+    this.interview.sync(this.component, {
+      file: {
+        path: this.currentFile.path,
+        code: this.currentFile.content
+      }
+    });
   }
 
   static SearchPageSize = 7;
@@ -566,6 +569,21 @@ export default class CodeEditor {
     this.selectedFile = this.searchFilePaths[currentFileIndex];
     let offset = Math.max(0, currentFileIndex - CodeEditor.SearchPageSize + 1);
     this.showResultSearch(offset);
+  }
+
+  syncFile(path, code = "") {
+    this.currentFile = this.fileManagement.loadCodeFile(path);
+    if (!this.currentFile) {
+      this.currentFile = this.fileManagement.createCodeFile(path);
+    }
+
+    this.saveCurrentFile(code);
+    this.openFile(this.currentFile);
+  }
+
+  saveCurrentFile(code) {
+    this.currentFile.content = code;
+    this.fileManagement.saveCodeFile(this.currentFile);
   }
 
   showResultSearch(pageStart = 0, pageSize = CodeEditor.SearchPageSize) {
@@ -592,24 +610,24 @@ export default class CodeEditor {
 
   run(params) {
     if (!this.runningCodeLock) {
-    let [lineStart, lineEnd] = params;
-    let [start, end] = [0, -1];
-    if (!lineStart && !lineEnd) {
-      if (this.codeSelection[0] !== this.codeSelection[1]) {
-        [start, end] = this.codeSelection;
+      let [lineStart, lineEnd] = params;
+      let [start, end] = [0, -1];
+      if (!lineStart && !lineEnd) {
+        if (this.codeSelection[0] !== this.codeSelection[1]) {
+          [start, end] = this.codeSelection;
+        }
+      } else {
+        let lines = this.codeInput.value.split("\n");
+        start = lines.slice(0, Math.max(lineStart - 1, 0)).join("\n").length;
+        end = lines.slice(0, lineEnd).join("\n").length;
       }
-    } else {
-      let lines = this.codeInput.value.split("\n");
-      start = lines.slice(0, Math.max(lineStart - 1, 0)).join("\n").length;
-      end = lines.slice(0, lineEnd).join("\n").length;
-    }
-    
+      
       const startTime = Date.now();
       this.runningCodeLock = startTime;
       // send command to server
       // get result from server at the onReceive method
-    this.interview.sync(this.component, {
-      command: `run ${this.currentFile.path} ${start} ${end}`
+      this.interview.sync(this.component, {
+        command: `run ${this.currentFile.path} ${start} ${end}`
       }) 
       // timeout in 2 minutes
       setTimeout(() => {
@@ -652,7 +670,7 @@ export default class CodeEditor {
       this.lockView.textContent = `${lock.name} ` + `${"......".substring(lock.progress)}`;
       lock.progress = (lock.progress + 1) % 6;      
       setTimeout(() => {
-          this.showLock(lock);     
+        this.showLock(lock);     
       }, 500);
     }
   }
