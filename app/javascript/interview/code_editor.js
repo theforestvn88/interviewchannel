@@ -38,7 +38,7 @@ export default class CodeEditor {
     this.codeEditor = this.interview.querySelector(".code-editor");
     this.codeHighlight = this.interview.querySelector(".code-hl");
     this.commandLine = this.interview.querySelector("#editor-command");
-    this.lock = this.interview.querySelector("#editor-lock");
+    this.lockView = this.interview.querySelector("#editor-lock");
     this.resultView = this.interview.querySelector("#editor-result");
 
     // files
@@ -137,27 +137,42 @@ export default class CodeEditor {
 
   receive(data) {
     if (data.user_id != this.interview.user_id) {
-      if (data.file) {
-        if (data.file.code) {
-          this.setCode(data.file.code);
-        }
+      if (data.lock) { // other takes lock
+        this.lockTime = Date.now() + CodeEditor.LOCKTIME;
+        this.setLock(`${data.lock} is coding`, CodeEditor.LOCKTIME);
       }
 
-      if (data.actions) {
-        this.showActions(data.actions);
+      if (data.file) {
+        if (data.file.path && data.file.path !== this.currentFile.path) {
+          this.setLock(`${data.user_id} open ${data.file.path}`, CodeEditor.LOCKTIME);
+          this.syncFile(data.file.path, data.file.code);
+        } else {
+        if (data.file.code) {
+          this.setCode(data.file.code);
+            this.saveCurrentFile(data.file.code);
+        }
+
+          if (data.file.selection) {
+            this.codeSelection = data.file.selection;
+            this.codeInput.setSelectionRange(...this.codeSelection);
+      }
+
+          if (data.file.marklines) {
+            this.showMarklines(data.marklines);
+          }
+      }
+
+        this.keyInputHandler.syncState(InteractionStates.Code);
+      }
+
+      if (data.command) {
+        this.setLock(`${data.user_id} ${data.command}`, 2000*60);
+        this.keyInputHandler.syncState(InteractionStates.Cmd);
       }
 
       if (data.result) {
+        this.runningCodeLock = null;
         this.showResult(data.result);
-      }
-
-      if (data.lock) { // other takes lock
-        this.lockTime = Date.now() + CodeEditor.LOCKTIME;
-        this.locking = true;
-        this.showLock(data.lock);
-        setTimeout(() => {
-          if (this.lockTime < Date.now()) this.hideLock();
-        }, CodeEditor.LOCKTIME);
       }
     }
   }
@@ -576,6 +591,7 @@ export default class CodeEditor {
   }
 
   run(params) {
+    if (!this.runningCodeLock) {
     let [lineStart, lineEnd] = params;
     let [start, end] = [0, -1];
     if (!lineStart && !lineEnd) {
@@ -588,36 +604,60 @@ export default class CodeEditor {
       end = lines.slice(0, lineEnd).join("\n").length;
     }
     
-    // TODO: lock all user --> runner lock ?
-    
-    // send command
+      const startTime = Date.now();
+      this.runningCodeLock = startTime;
+      // send command to server
+      // get result from server at the onReceive method
     this.interview.sync(this.component, {
       command: `run ${this.currentFile.path} ${start} ${end}`
-    }) // get result at the onReceive method
+      }) 
+      // timeout in 2 minutes
+      setTimeout(() => {
+        if (this.runningCodeLock == startTime) {
+          this.showResult("time out");
+          this.runningCodeLock = null;
+          this.interview.sync(this.component, {
+            result: "time out"
+          })
+        }
+      }, 2000*60);
+    }
   }
 
   showResult(result) {
     this.resultView.style.visibility = "visible";
     this.resultView.value = result;
-    this.focusCommand();
+  }
+
+  setLock(lockName, expiredTime) {
+    let lock = {
+      name: lockName,
+      progress: 0
+    };
+    this.lock = lock;
+    this.showLock(lock);
+    setTimeout(() => {
+      if (this.lock === lock) this.releaseLock();
+    }, expiredTime);
+  }
+
+  releaseLock() {
+    this.hideLock();
+    this.lock = null;
   }
 
   showLock(lock) {
-    if (this.locking) {
-      this.dot = this.dot || 0;
+    if (this.lock === lock) {
+      this.lockView.style.visibility = "visible";
+      this.lockView.textContent = `${lock.name} ` + `${"......".substring(lock.progress)}`;
+      lock.progress = (lock.progress + 1) % 6;      
       setTimeout(() => {
-        if (this.locking) {
-          this.lock.style.visibility = "visible";
-          this.lock.textContent = `${lock} is typing ` + `${"......".substring(this.dot)}`;
-          this.dot = (this.dot + 1) % 6;         
           this.showLock(lock);     
-        }
       }, 500);
     }
   }
 
   hideLock() {
-    this.lock.style.visibility = "hidden";
-    this.locking = false;
+    this.lockView.style.visibility = "hidden";
   }
 }

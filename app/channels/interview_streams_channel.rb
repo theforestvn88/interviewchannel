@@ -11,7 +11,7 @@ class InterviewStreamsChannel < Turbo::StreamsChannel
       InterviewRepo.set_lock(interview_id, user_id, expires_at: 3.seconds.from_now)
       InterviewStreamsChannel.broadcast_update_interview(interview, data.merge(:"lock" => user_id))
       save_code(interview_id, data["file"]) if data["file"]
-      handle_command(interview_id, data["command"]) if data["command"]
+      handle_command(interview_id, user_id, data["command"]) if data["command"]
     end
   end
 
@@ -27,13 +27,14 @@ class InterviewStreamsChannel < Turbo::StreamsChannel
     CodeRepo.save_code(interview_id: interview_id, path: code_file["path"], code: code_file["code"], expires_at: 3.hours.from_now)
   end
 
-  private def handle_command(interview_id, command)
+  private def handle_command(interview_id, user_id, command)
     cmd, *params = command.split(" ")
 
     case cmd
     when "run"
+      InterviewRepo.set_lock(interview_id, user_id, expires_at: 2.minutes.from_now)
       file_path, pos_start, pos_end = *params
-      CodeRunJob.perform_later interview_id, file_path, pos_start.to_i, pos_end.to_i
+      CodeRunJob.perform_later interview_id, user_id, file_path, pos_start.to_i, pos_end.to_i
     end
   end
 end
