@@ -277,6 +277,10 @@ class KeyInputHandler {
     });
   }
 
+  syncState(state) {
+    this.currentState = state;
+  }
+
   // after callback
   after(keys = ["all"], callback) {
     for(let key of keys) {
@@ -354,6 +358,7 @@ class Commander {
 }
 
 export {
+  InteractionStates,
   KeyInputHandler,
   Commander
 }

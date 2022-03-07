@@ -61,7 +61,6 @@ CodeFileManagement.prototype.saveSession = function() {
 
 CodeFileManagement.prototype.loadSession = function() {
     let session = JSON.parse(localStorage.getItem(this.session));
-    console.log(session);
     if (!session) return;
 
     this.filePaths = session.paths;
