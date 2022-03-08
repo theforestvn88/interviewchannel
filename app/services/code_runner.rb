@@ -35,14 +35,15 @@ class CodeRunner
     end
 
     def self.response(interview, user_id, result)
-        lock = InterviewRepo.get_lock(interview.id)
+        lock = InterviewRepo.get_broadcast_lock(interview.id)
         if lock == user_id
             InterviewStreamsChannel.broadcast_update_interview(interview, {
                 component: "code",
                 result: result
             })
-            # reset lock time
-            InterviewRepo.set_lock(interview.id, user_id, expires_at: 3.seconds.from_now)
         end
+        # reset lock time
+        InterviewRepo.delete_coderun_lock(interview.id)
+        InterviewRepo.delete_broadcast_lock(interview.id)
     end
 end

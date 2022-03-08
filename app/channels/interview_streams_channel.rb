@@ -1,4 +1,7 @@
 class InterviewStreamsChannel < Turbo::StreamsChannel
+  TYPING_LOCKTIME = 3.seconds.freeze
+  CODERUN_LOCKTIME = 2.minutes.freeze
+  
   def receive(data)
     puts "SERVER interview streams receive #{data}"
 
@@ -6,12 +9,12 @@ class InterviewStreamsChannel < Turbo::StreamsChannel
     user_id = data["user_id"]
     interview = Interview.new(id: interview_id)
 
-    lock = InterviewRepo.get_lock(interview_id)
+    lock = InterviewRepo.get_broadcast_lock(interview_id)
     if !lock || lock == user_id # TODO: mutex ?
-      InterviewRepo.set_lock(interview_id, user_id, expires_at: 3.seconds.from_now)
       InterviewStreamsChannel.broadcast_update_interview(interview, data.merge(:"lock" => user_id))
       save_code(interview_id, data["file"]) if data["file"]
       handle_command(interview_id, user_id, data["command"]) if data["command"]
+      InterviewRepo.set_broadcast_lock(interview_id, user_id, expires_at: TYPING_LOCKTIME.from_now)
     end
   end
 
@@ -34,7 +37,10 @@ class InterviewStreamsChannel < Turbo::StreamsChannel
 
     case cmd
     when "run"
-      InterviewRepo.set_lock(interview_id, user_id, expires_at: 2.minutes.from_now)
+      return if InterviewRepo.get_coderun_lock(interview_id)
+
+      InterviewRepo.set_coderun_lock(interview_id, user_id, expires_at: CODERUN_LOCKTIME.from_now)
+      InterviewRepo.set_broadcast_lock(interview_id, user_id, expires_at: CODERUN_LOCKTIME.from_now)
       file_path, pos_start, pos_end = *params
       CodeRunJob.perform_later interview_id, user_id, file_path, pos_start.to_i, pos_end.to_i
     end
