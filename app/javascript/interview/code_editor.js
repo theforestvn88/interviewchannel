@@ -41,10 +41,6 @@ export default class CodeEditor {
     this.lockView = this.interview.querySelector("#editor-lock");
     this.resultView = this.interview.querySelector("#editor-result");
 
-    // files
-    this.fileManagement = new CodeFileManagement(`interview-${this.interview.getAttribute("interview-id")}`);
-    this.loadSession();
-
     this.keyInputHandler = new KeyInputHandler(this.codeInput);
 		// after modifying code callbacks  
     this.keyInputHandler.after(CodeEditor.ModifyCodeEvents, ([formattedCode, selectionStart, selectionEnd]) => {
@@ -72,6 +68,10 @@ export default class CodeEditor {
         }
 			})
 		});
+
+    // files
+    this.fileManagement = new CodeFileManagement(`interview-${this.interview.getAttribute("interview-id")}`);
+    this.loadSession();
 
 		this.setupEditor();
 
@@ -156,6 +156,8 @@ export default class CodeEditor {
           if (data.file.selection) {
             this.codeSelection = data.file.selection;
             this.codeInput.setSelectionRange(...this.codeSelection);
+            let codeLine = this.codeInput.value.slice(0, this.codeSelection[0]).split(/\n/).length;
+            this.scrollToLine(codeLine);
           }
 
           if (data.file.marklines) {
@@ -163,7 +165,7 @@ export default class CodeEditor {
           }
         }
 
-        this.keyInputHandler.syncState(InteractionStates.Code);
+        // this.keyInputHandler.syncState(InteractionStates.Code);
       }
 
       if (data.command) {
@@ -186,6 +188,7 @@ export default class CodeEditor {
     this.highlightCode();
     this.focusCoding();
 
+    this.codeLineHeight = 18; // font-size: 1em
     this.currLineIndex = 2;
     this.currMarkLineIndexes = [];
     this.totalLines = CodeEditor.InitNumOfLines;
@@ -404,6 +407,25 @@ export default class CodeEditor {
       });
     });
   }
+
+  scrollToLine(lineNumber) {
+    let linePosition = lineNumber * this.codeLineHeight;
+    window.scrollTo(0, linePosition);
+  }
+
+  gotoLine(lineNumber) {
+    let boundLineNumber = lineNumber <= 0 ? 1 : lineNumber;
+    this.scrollToLine(boundLineNumber);
+
+    let lineStart = this.codeInput.value.split(/\n/).slice(0, boundLineNumber - 1)
+                      .reduce((charCount, line) => charCount += line.length + 1, 0);
+    this.codeInput.setSelectionRange(lineStart, lineStart);
+    this.interview.sync(this.component, {
+      file: {
+        selection: [lineStart, lineStart]
+      }
+    })
+  }
   
   addEditorRules() {
     this.keyInputHandler.addListener("InputCode", (key) => {
@@ -513,16 +535,12 @@ export default class CodeEditor {
       this.focusCommand();
     });
 
-    document.addEventListener("selectionchange", event => {
-      let activeElement = document.activeElement;
-      if (activeElement && activeElement == this.codeInput) {
-        this.interview.sync(this.component, {
-          file: {
-            path: this.currentFile.path,
-            selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd]
-          }
-        })
-      }
+    this.keyInputHandler.addListener("SelectionChange", (e) => {
+      this.interview.sync(this.component, {
+        file: {
+          selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd]
+        }
+      })
     });
   }
 
@@ -552,11 +570,13 @@ export default class CodeEditor {
     this.codeFileName.textContent = `>> interview >> ./${this.currentFile.path}`;
     this.history.reset();
     this.setCode(this.currentFile.content);
+    this.codeInput.setSelectionRange(0, 0);
 
     this.interview.sync(this.component, {
       file: {
         path: this.currentFile.path,
-        code: this.currentFile.content
+        code: this.currentFile.content,
+        selection: [0,0]
       }
     });
   }
