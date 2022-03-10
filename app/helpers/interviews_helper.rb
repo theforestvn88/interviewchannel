@@ -92,7 +92,7 @@ module InterviewsHelper
         .concat(tag.textarea(class: "code-input #{attributes[:"theme"]}-caret", rows: "100", spellcheck: "false"))
         .concat(tag.div(class: "w-full h-full code-editor-overlay") { |tag|
           lines = tag.div(class: "pt-4")
-          (1..100).each do |row_id|
+          (1..1000).each do |row_id|
             lines = lines.concat(
               tag.div(id: "row-#{row_id}", class: "code-line #{attributes[:"theme"]}-numline") {
                 tag.button(id: "row-lineindex-#{row_id}", class: "w-6 flex justify-end hover:cursor-pointer") {

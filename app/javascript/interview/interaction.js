@@ -275,6 +275,14 @@ class KeyInputHandler {
           break;
       }
     });
+
+    document.addEventListener("selectionchange", event => {
+      let activeElement = document.activeElement;
+      if (activeElement && activeElement == codeEditor.codeInput && 
+            this.currentState == InteractionStates.Code) {
+        this.exec("SelectionChange", event);
+      }
+    });
   }
 
   syncState(state) {
@@ -336,22 +344,27 @@ class Commander {
 
   exec(command) {
     let [cmdName, ...cmdArguments] = command.split(" ");
-    switch (cmdName) {
-      case ":theme":
+    let [_, cmd] = cmdName.split(":");
+    switch (cmd.toLowerCase()) {
+      case "theme":
         this.executor.switchTheme(cmdArguments[0]);
         break;
 
-      case ":touch":
+      case "touch":
         cmdArguments.forEach(file => {
           this.executor.createFile(file);
         });
         break;
         
-      case ":run":
+      case "run":
         this.executor.run(cmdArguments);
         break;
 
       default:
+        let line = parseInt(cmd);
+        if (line !== NaN) {
+          this.executor.gotoLine(line);
+        }
         break;
     }
   }
