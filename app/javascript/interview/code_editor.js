@@ -155,9 +155,9 @@ export default class CodeEditor {
 
           if (data.file.selection) {
             this.codeSelection = data.file.selection;
-            this.codeInput.setSelectionRange(...this.codeSelection);
             let codeLine = this.codeInput.value.slice(0, this.codeSelection[0]).split(/\n/).length;
             this.scrollToLine(codeLine);
+            this.codeInput.setSelectionRange(...this.codeSelection);
           }
 
           if (data.file.marklines) {
@@ -424,7 +424,30 @@ export default class CodeEditor {
       file: {
         selection: [lineStart, lineStart]
       }
-    })
+    });
+  }
+
+  jumpToStart() {
+    this.scrollToLine(0);
+    this.codeInput.setSelectionRange(0, 0);
+    this.interview.sync(this.component, {
+      file: {
+        selection: [0, 0]
+      }
+    });
+  }
+
+  jumpToEnd() {
+    let numOfLines = this.codeInput.value.split(/\n/).length;
+    this.scrollToLine(numOfLines);
+
+    let codeLength = this.codeInput.value.length;
+    this.codeInput.setSelectionRange(codeLength, codeLength);
+    this.interview.sync(this.component, {
+      file: {
+        selection: [codeLength, codeLength]
+      }
+    });
   }
   
   addEditorRules() {
@@ -541,6 +564,14 @@ export default class CodeEditor {
           selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd]
         }
       })
+    });
+
+    this.keyInputHandler.addListener("JumpToStart", (e) => {
+      this.jumpToStart();
+    });
+
+    this.keyInputHandler.addListener("JumpToEnd", (e) => {
+      this.jumpToEnd();
     });
   }
 

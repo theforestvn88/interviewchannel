@@ -244,6 +244,28 @@ class KeyInputHandler {
           }
           break;
 
+        case "Home":
+          switch (this.currentState) {
+            case InteractionStates.Code:
+              if (e.ctrlKey) {
+                e.preventDefault();
+                this.exec("JumpToStart", e);
+              }
+              break;
+          }
+          break;
+
+          case "End":
+            switch (this.currentState) {
+              case InteractionStates.Code:
+                if (e.ctrlKey) {
+                  e.preventDefault();
+                  this.exec("JumpToEnd", e);
+                }
+                break;
+            }
+            break;
+
         default:
           break;
       }
@@ -278,8 +300,8 @@ class KeyInputHandler {
 
     document.addEventListener("selectionchange", event => {
       let activeElement = document.activeElement;
-      if (activeElement && activeElement == codeEditor.codeInput && 
-            this.currentState == InteractionStates.Code) {
+      if (activeElement && activeElement == codeEditor &&
+            this.currentState === InteractionStates.Code) {
         this.exec("SelectionChange", event);
       }
     });
