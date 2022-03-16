@@ -17,6 +17,14 @@ class Interview < ApplicationRecord
         where(start_time: range).or(where(end_time: range))   
     }
 
+    scope :by_keyword, ->(keyword) {
+        return self if keyword.nil?
+
+        keywords = ["%#{keyword}%"] * 2
+        joins("LEFT OUTER JOIN users ON interviews.interviewer_id = users.id OR interviews.candidate_id = users.id")
+            .where("users.name LIKE ? OR interviews.note LIKE ?", *keywords)
+    }
+
     def owner?(user)
         return interviewer.id == user.id
     end
