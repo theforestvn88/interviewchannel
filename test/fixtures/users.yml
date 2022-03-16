@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+coder1:
+  id: 1
+  uid: "123"
+  name: "Coder1"
+  email: "coder1@gmail.com"
+
+coder2:
+  id: 2
+  uid: "321"
+  name: "Coder2"
+  email: "coder2@gmail.com"
