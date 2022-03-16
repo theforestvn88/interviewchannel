@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SchedulerTest < ActiveSupport::TestCase
+class SchedulerQueryTest < ActiveSupport::TestCase
   setup do
     Interview.destroy_all
   end
