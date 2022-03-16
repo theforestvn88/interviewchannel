@@ -16,4 +16,10 @@ class Interview < ApplicationRecord
         range = from..to
         where(start_time: range).or(where(end_time: range))   
     }
+
+    def owner?(user)
+        return interviewer.id == user.id
+    end
+
+    class ModifyingPolicy < RuntimeError; end
 end

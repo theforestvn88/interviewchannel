@@ -17,4 +17,16 @@ class Scheduler
         interview.save if interview.errors.empty?
         interview
     end
+
+    def update_interview(interview, **options)
+        raise Interview::ModifyingPolicy unless interview.owner?(@user)
+
+        interview.update(**options)
+    end
+
+    def delete_interview(interview)
+        raise Interview::ModifyingPolicy unless interview.owner?(@user)
+        
+        interview.destroy
+    end
 end
