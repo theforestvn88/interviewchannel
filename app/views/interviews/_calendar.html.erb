@@ -1,7 +1,7 @@
 <div class="w-full mt-3 mx-auto px-6">
     <div class="w-full flex justify-between">
         <div class="flex justify-start">
-            <input class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" type="datetime-local">
+            <input class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full h-10" type="datetime-local">
         </div>
         <div class="flex justify-end">
             <div class="pt-2 relative mx-auto text-gray-600">
@@ -24,14 +24,6 @@
             </select>
         </div>
     </div>
-    <table class="w-full table-fixed">
-        <tbody>
-        <% (1..23).each do |t| %>
-            <tr>
-                <td class="w-14 border-b-2 border-gray-400 text-xs py-3 px-2"><%= t <= 12 ? t : t - 12 %> <%= t >= 12 ? "PM" : "AM" %></td>
-                <td class="border-b-2 border-gray-200"></td>
-            </tr>
-        <% end %>                               
-        </tbody>
-    </table>
+    
+    <%= render "interviews/#{@display}" %>                            
 </div>

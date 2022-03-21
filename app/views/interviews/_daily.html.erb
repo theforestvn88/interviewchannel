@@ -1,0 +1,42 @@
+<table class="w-full table-fixed mt-10">
+    <tbody>
+    <tr>
+        <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5">GMT+7</th>
+        <th class="w-60 border-b-2 border-gray-200 mb-5"><%= Time.now.utc.strftime("%A") %></th>
+        <th class="border-b-2 border-gray-200 mb-5"></th>
+    </tr>
+    <% (310..(1440 + 300)).each do |t| %>
+        <tr>
+            <% if (h = (t%1440)/60) >= 0 && (m = t%60) == 0 %>
+                <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs"><%= strftime(hours: h) %></td>
+            <% else %>
+                <td class="w-14 h-0 border-r-2 border-gray-200"></td>
+            <% end %>
+
+        <% if interview_display = @daily_interviews[t%1440] %>
+            <% if interview_display.first == :start %>
+                <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5">
+                    <span class="ml-1 font-bold"><%= interview_display.last %></span>
+                </td>
+            <% elsif interview_display.first == :middle %>
+                <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5">
+                    <% if interview_display.last %>
+                        <span class="ml-1 font-bold"><%= interview_display.last %></span>
+                    <% end %>
+                </td>
+            <% elsif interview_display.first == :end %>
+                <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5"><%= interview_display.last %></td>
+            <% end %>
+        <% else %>
+            <% if t%60 == 0 %>
+            <td class="w-60 border-b-2 border-gray-200"></td>
+            <% end %>
+        <% end %>
+        
+        <% if t%60 == 0 %>
+            <td class="border-b-2 border-gray-200"></td>
+        <% end %>
+        </tr>
+    <% end %>
+    </tbody>
+</table>
