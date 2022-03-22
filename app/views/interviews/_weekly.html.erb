@@ -2,41 +2,49 @@
     <tbody>
     <tr>
         <th class="w-14 text-xs">GMT+7</th>
-        <th class="border-l-2 border-gray-200">Sun</th>
-        <th class="border-l-2 border-gray-200 bg-gray-50">Mon</th>
-        <th class="border-l-2 border-gray-200">Tue</th>
-        <th class="border-l-2 border-gray-200 bg-gray-50">Wed</th>
-        <th class="border-l-2 border-gray-200">Thu</th>
-        <th class="border-l-2 border-gray-200 bg-gray-50">Fri</th>
-        <th class="border-l-2 border-gray-200">Sat</th>
+        <th class="border-l-2 border-gray-200"><span class="px-1 <%= @wday == 0 ? 'bg-blue-200 rounded-md' : '' %>">Sun</span></th>
+        <th class="border-l-2 border-gray-200 bg-gray-50"><span class="px-1 <%= @wday == 1 ? 'bg-blue-200 rounded-md' : '' %>">Mon</span></th>
+        <th class="border-l-2 border-gray-200"><span class="px-1 <%= @wday == 2 ? 'bg-blue-200 rounded-md' : '' %>">Tue</span></th>
+        <th class="border-l-2 border-gray-200 bg-gray-50"><span class="px-1 <%= @wday == 3 ? 'bg-blue-200 rounded-md' : '' %>">Wed</span></th>
+        <th class="border-l-2 border-gray-200"><span class="px-1 <%= @wday == 4 ? 'bg-blue-200 rounded-md' : '' %>">Thu</span></th>
+        <th class="border-l-2 border-gray-200 bg-gray-50"><span class="px-1 <%= @wday == 5 ? 'bg-blue-200 rounded-md' : '' %>">Fri</span></th>
+        <th class="border-l-2 border-gray-200"><span class="px-1 <%= @wday == 6 ? 'bg-blue-200 rounded-md' : '' %>">Sat</span></th>
     </tr>
     <% (310..(1440 + 300)).each do |t| %>
         <tr>
-            <% if (h = (t%1440)/60) >= 0 && (m = t%60) == 0 %>
+            <% h = (t%1440)/60 %>
+            <% m = t%60 %>
+            <% if h >= 0 && m == 0 %>
                 <td class="w-14 border-b-2 border-gray-400 text-xs"><%= strftime(hours: h) %></td>
             <% else %>
                 <td class="w-14 h-0"></td>
             <% end %>
 
-            <% (0..6).each do |weekday| %>
-                <% if @weekly_interviews.has_key?(t%1440) && interview_display = @weekly_interviews[t%1440][weekday] %>
-                    <% if interview_display.first == :start %>
-                        <td class="w-full bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-1">
-                            <span class="font-bold"><%= interview_display.last %></span>
-                        </td>
-                    <% elsif interview_display.first == :middle %>
-                        <td class="w-full bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-1">
-                            <% if interview_display.last %>
+            <% if week_interviews = @weekly_interviews[t%1440] %>
+                <% (0..6).each do |weekday| %>
+                    <% if interview_display = week_interviews[weekday] %>
+                        <% if interview_display.first == :start %>
+                            <td class="w-full bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-1">
                                 <span class="font-bold"><%= interview_display.last %></span>
-                            <% end %>
-                        </td>
-                    <% elsif interview_display.first == :end %>
-                        <td class="w-full bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-1"><%= interview_display.last %></td>
+                            </td>
+                        <% elsif interview_display.first == :middle %>
+                            <td class="w-full bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-1">
+                                <% if interview_display.last %>
+                                    <span class="font-bold"><%= interview_display.last %></span>
+                                <% end %>
+                            </td>
+                        <% elsif interview_display.first == :end %>
+                            <td class="w-full bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-1"><%= interview_display.last %></td>
+                        <% end %>
+                    <% else %>
+                        <%= tag.td(class: "w-full border-l-2 #{m==0 ? 'border-b-2' : '' } border-gray-200  #{weekday%2==1 ? 'bg-gray-50' : ''}") %>
                     <% end %>
-                <% else %>
-                    <%= tag.td(class: "w-full border-l-2 #{t%60==0 ? 'border-b-2' : '' } border-gray-200  #{weekday%2==1 ? 'bg-gray-50' : ''}") %>
                 <% end %>
-            <% end %>        
+            <% else %>
+                <% (0..6).each do |weekday| %>
+                    <%= tag.td(class: "w-full border-l-2 #{m==0 ? 'border-b-2' : '' } border-gray-200  #{weekday%2==1 ? 'bg-gray-50' : ''}") %>
+                <% end %>
+            <% end %>       
         </tr>
     <% end %>
     </tbody>

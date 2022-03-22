@@ -16,7 +16,7 @@
         <% (0..6).each do |weekday| %>
             <% if month_day = @month_days[index = weekday + week*7] %>
                 <td class="relative h-40 border-r-2 border-b-2 border-gray-200 <%= index%2==0 ? 'bg-gray-50' : '' %>">
-                    <div class="bg-blue-100 w-6 absolute top-px right-px text-center"><%= month_day.mday %></div>
+                    <div class="<%= @mday == month_day.mday ? 'bg-blue-500' : 'bg-blue-100' %> w-6 absolute top-px right-px text-center"><%= month_day.mday %></div>
                     <% @monthly_interviews[month_day.mday]&.each do |interview| %>
                         <div class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50"><%= interview.note&.slice(0, 28) %>...</div>
                     <% end %>

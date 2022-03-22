@@ -2,7 +2,7 @@
     <tbody>
     <tr>
         <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5">GMT+7</th>
-        <th class="w-60 border-b-2 border-gray-200 mb-5"><%= Time.now.utc.strftime("%A") %></th>
+        <th class="w-60 border-b-2 border-gray-200 mb-5"><%= @target_date.strftime("%A") %></th>
         <th class="border-b-2 border-gray-200 mb-5"></th>
     </tr>
     <% (310..(1440 + 300)).each do |t| %>

@@ -10,67 +10,66 @@ class Scheduler
             by_role
         end
     
-        def today(*roles, keyword: nil)
-            today = Time.now.utc
+        def day(target_date, *roles, keyword: nil)
             as_role(*roles)
-                .by_time(today.beginning_of_day, today.end_of_day)
+                .by_time(target_date.beginning_of_day, target_date.end_of_day)
                 .by_keyword(keyword)
         end
-    
+
+        def today(*roles, keyword: nil)
+            day(Time.now.utc, *roles, keyword: keyword)
+        end
+
+        def previous_day(target_date, *roles, keyword: nil)
+            _prev_day = target_date + -1.day
+            day(_prev_day, *roles, keyword: keyword)
+        end
+
+        def next_day(target_date, *roles, keyword: nil)
+            _next_day = target_date + 1.day
+            day(_next_day, *roles, keyword: keyword)
+        end
+
+        def week(aday_in_week, *roles, keyword: nil)
+            as_role(*roles)
+                .by_time(aday_in_week.beginning_of_week, aday_in_week.end_of_week)
+                .by_keyword(keyword)
+        end
+
         def this_week(*roles, keyword: nil)
             today = Time.now.utc
-            as_role(*roles)
-                .by_time(today.beginning_of_week, today.end_of_week)
-                .by_keyword(keyword)
+            week(today, *roles, keyword: keyword)
         end
     
+        def previous_week(aday_in_week, *roles, keyword: nil)
+            _pre_week = aday_in_week + -1.week
+            week(_pre_week, *roles, keyword: keyword)
+        end
+
+        def next_week(aday_in_week, *roles, keyword: nil)
+            _next_week = aday_in_week + 1.week
+            week(_next_week, *roles, keyword: keyword)
+        end
+
+        def month(aday_in_month, *roles, keyword: nil)
+            as_role(*roles)
+                .by_time(aday_in_month.beginning_of_month, aday_in_month.end_of_month)
+                .by_keyword(keyword)
+        end
+
         def this_month(*roles, keyword: nil)
             today = Time.now.utc
-            as_role(*roles)
-                .by_time(today.beginning_of_month, today.end_of_month)
-                .by_keyword(keyword)
+            month(today, *roles, keyword: keyword)
         end
     
-        def previous_day(num, *roles, keyword: nil)
-            _prev_day = num.day.ago.utc
-            as_role(*roles)
-                .by_time(_prev_day.beginning_of_day, _prev_day.end_of_day)
-                .by_keyword(keyword)
+        def previous_month(aday_in_month, *roles, keyword: nil)
+            _prev_month = aday_in_month + -1.month
+            month(_prev_month, *roles, keyword: keyword)
         end
     
-        def previous_week(num, *roles, keyword: nil)
-            _pre_week = num.week.ago.utc
-            as_role(*roles)
-                .by_time(_pre_week.beginning_of_week, _pre_week.end_of_week)
-                .by_keyword(keyword)
-        end
-    
-        def previous_month(num, *roles, keyword: nil)
-            _prev_month = num.month.ago.utc
-            as_role(*roles)
-                .by_time(_prev_month.beginning_of_month, _prev_month.end_of_month)
-                .by_keyword(keyword)
-        end
-    
-        def next_day(num, *roles, keyword: nil)
-            _next_day = num.day.from_now.utc
-            as_role(*roles)
-                .by_time(_next_day.beginning_of_day, _next_day.end_of_day)
-                .by_keyword(keyword)
-        end
-    
-        def next_week(num, *roles, keyword: nil)
-            _next_week = num.week.from_now.utc
-            as_role(*roles)
-                .by_time(_next_week.beginning_of_week, _next_week.end_of_week)
-                .by_keyword(keyword)
-        end
-    
-        def next_month(num, *roles, keyword: nil)
-            _next_month = num.month.from_now.utc
-            as_role(*roles)
-                .by_time(_next_month.beginning_of_month, _next_month.end_of_month)
-                .by_keyword(keyword)
+        def next_month(aday_in_month, *roles, keyword: nil)
+            _next_month = aday_in_month + 1.month
+            month(_next_month, *roles, keyword: keyword)
         end
     end
 end
