@@ -11,5 +11,9 @@ Rails.application.routes.draw do
     member do
       get 'room'
     end
+
+    collection do
+      get '/search', to: 'interviews#search', as: 'search'
+    end
   end
 end

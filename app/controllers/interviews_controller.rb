@@ -60,6 +60,14 @@ class InterviewsController < ApplicationController
     end
   end
 
+  def search
+    @interviews = \
+      Scheduler.new(current_user).as_role(:interviewer, :candidate)
+        .by_keyword(params[:keyword])
+
+    render partial: "interviews/search_result"
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_interview
