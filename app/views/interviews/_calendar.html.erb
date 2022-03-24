@@ -57,9 +57,8 @@
 
                 <%= form_tag(search_interviews_path, method: :get, class: "w-3/5 relative invisible", 
                     "data-turbo-frame": "interviews", "data-calendar-target": "searchForm") do %>
-                    <button class="absolute left-0 mt-3 mx-2 hover:scale-150" 
-                        data-action="click->calendar#search">
-                        <svg id="Capa_1" class="text-gray-600 h-4 w-4 mt-1 fill-current" data-action="click->calendar#search"
+                    <button class="absolute left-0 mt-3 mx-2 hover:scale-150">
+                        <svg id="Capa_1" class="text-gray-600 h-4 w-4 mt-1 fill-current"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve"
                             viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;" 
                             x="0px" y="0px" width="512px" height="512px">
@@ -69,7 +68,7 @@
                     </button>
                     <input class="absolution left-0 w-full border-1 border-gray-300 bg-white h-10 px-10 mt-1 rounded-lg text-sm focus:outline-none"
                             type="text" name="keyword" placeholder="Search" 
-                            data-calendar-target="searchInput" data-action="keypress->calendar#search mouseover->calendar#focusSearch">
+                            data-calendar-target="searchInput" data-action="mouseover->calendar#focusSearch">
                 <% end %>
 
             </div>
@@ -91,7 +90,7 @@
             </div>
         </div>
     </div>
-    
-    <%= render "interviews/#{@display}" %>                            
+
+    <%= render "interviews/#{@display}" %>                        
 </div>
 <% end %>

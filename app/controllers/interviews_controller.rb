@@ -60,10 +60,16 @@ class InterviewsController < ApplicationController
     end
   end
 
+  SEARCH_LIMIT = 20
   def search
     @interviews = \
-      Scheduler.new(current_user).as_role(:interviewer, :candidate)
+      Scheduler.new(current_user)\
+        .as_role(:interviewer, :candidate)
         .by_keyword(params[:keyword])
+        .offset(offset = params[:offset].to_i).limit(SEARCH_LIMIT)
+    
+    @prev_offset = [offset - SEARCH_LIMIT, 0].max
+    @next_offset = offset + @interviews.size
 
     render partial: "interviews/search_result"
   end

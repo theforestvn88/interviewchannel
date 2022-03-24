@@ -21,8 +21,9 @@ class Interview < ApplicationRecord
         return self if keyword.nil?
 
         keywords = ["%#{keyword}%"] * 2
-        joins("LEFT OUTER JOIN users ON interviews.interviewer_id = users.id OR interviews.candidate_id = users.id")
-            .where("users.name LIKE ? OR interviews.note LIKE ?", *keywords)
+        joins("INNER JOIN users ON interviews.interviewer_id = users.id OR interviews.candidate_id = users.id")
+            .where("users.name ILIKE ? OR interviews.note ILIKE ?", *keywords)
+            .distinct
     }
 
     def owner?(user)
