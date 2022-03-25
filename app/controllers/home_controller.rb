@@ -31,7 +31,7 @@ class HomeController < ApplicationController
     @display = "weekly"
     @wday = params[:shift].to_i == 0 ? Time.now.wday : -1
     @target_date += params[:shift].to_i.week
-    @weekly_interviews = @presenter.weekly(@target_date)
+    @weekly_interviews, @week_dates = @presenter.weekly(@target_date)
     render partial: "interviews/calendar"
   end
 

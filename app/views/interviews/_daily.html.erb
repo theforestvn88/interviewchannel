@@ -7,37 +7,40 @@
         <th class="border-b-2 border-gray-200 mb-5"></th>
     </tr>
     <% (310..(1440 + 300)).each do |t| %>
-        <tr>
-            <% if (h = (t%1440)/60) >= 0 && (m = t%60) == 0 %>
-                <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs"><%= strftime(hours: h) %></td>
-            <% else %>
-                <td class="w-14 h-0 border-r-2 border-gray-200"></td>
-            <% end %>
+        <% interview_display, hour_row = daily_row(t) %>
+        <% unless interview_display.nil? && hour_row.nil? %>
+            <tr>
+                <% if hour_row && hour_row >= 0 %>
+                    <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs"><%= strftime(hours: hour_row) %></td>
+                <% else %>
+                    <td class="w-14 h-0 border-r-2 border-gray-200"></td>
+                <% end %>
 
-        <% if interview_display = @daily_interviews[t%1440] %>
-            <% if interview_display.first == :start %>
-                <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5">
-                    <span class="ml-1 font-bold"><%= interview_display.last %></span>
-                </td>
-            <% elsif interview_display.first == :middle %>
-                <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5">
-                    <% if interview_display.last %>
+            <% if interview_display %>
+                <% if interview_display.first == :start %>
+                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5">
                         <span class="ml-1 font-bold"><%= interview_display.last %></span>
-                    <% end %>
-                </td>
-            <% elsif interview_display.first == :end %>
-                <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5"><%= interview_display.last %></td>
+                    </td>
+                <% elsif interview_display.first == :middle %>
+                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5">
+                        <% if interview_display.last %>
+                            <span class="ml-1 font-bold"><%= interview_display.last %></span>
+                        <% end %>
+                    </td>
+                <% elsif interview_display.first == :end %>
+                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5"><%= interview_display.last %></td>
+                <% end %>
+            <% else %>
+                <% if hour_row %>
+                <td class="w-60 <%= hour_row >= 0 ? 'border-b-2' : '' %> border-gray-200"></td>
+                <% end %>
             <% end %>
-        <% else %>
-            <% if t%60 == 0 %>
-            <td class="w-60 border-b-2 border-gray-200"></td>
+            
+            <% if hour_row %>
+                <td class="<%= hour_row >= 0 ? 'border-b-2' : '' %> border-gray-200"></td>
             <% end %>
+            </tr>
         <% end %>
-        
-        <% if t%60 == 0 %>
-            <td class="border-b-2 border-gray-200"></td>
-        <% end %>
-        </tr>
     <% end %>
     </tbody>
 </table>

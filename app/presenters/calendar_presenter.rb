@@ -21,7 +21,7 @@ class CalendarPresenter
     end
 
     def weekly(aday_in_week)
-      @scheduler.week(aday_in_week, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = Hash.new}) do |interviews, interview|
+      weekly_interviews = @scheduler.week(aday_in_week, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = Hash.new}) do |interviews, interview|
         start_time_minutes = (interview.start_time.seconds_since_midnight/60).floor
         interview_weekday = interview.start_time.wday
         
@@ -36,6 +36,11 @@ class CalendarPresenter
 
         interviews
       end
+
+      monday = aday_in_week.beginning_of_week
+      week_dates = (0..6).map {|i| monday + i.days}
+
+      return [weekly_interviews, week_dates]
     end
 
     def monthly(aday_in_month)
