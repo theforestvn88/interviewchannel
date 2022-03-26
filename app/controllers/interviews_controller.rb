@@ -1,5 +1,5 @@
 class InterviewsController < ApplicationController
-  before_action :set_interview, only: %i[ show room edit update destroy ]
+  before_action :set_interview, only: %i[ show room edit update destroy card ]
 
   # GET /interviews or /interviews.json
   def index
@@ -72,6 +72,10 @@ class InterviewsController < ApplicationController
     @next_offset = offset + @interviews.size
 
     render partial: "interviews/search_result"
+  end
+
+  def card
+    render layout: false
   end
 
   private

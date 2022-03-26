@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   resources :interviews do
     member do
       get 'room'
+      get 'card'
     end
 
     collection do

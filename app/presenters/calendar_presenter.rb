@@ -6,36 +6,38 @@ class CalendarPresenter
 
     def daily(day)
       @scheduler.day(day, :interviewer, :candidate).inject(Hash.new) do |interviews, interview|
-            start_time_minutes = (interview.start_time.seconds_since_midnight/60).floor
-            interviews[start_time_minutes] = [:start, :red, "#{interview.start_time.strftime("%I:%M %p")} -> #{interview.end_time.strftime("%I:%M %p")}"]
-            end_time_minutes = (interview.end_time.seconds_since_midnight/60).floor
-            note_count = 0
-            (start_time_minutes+1..end_time_minutes-1).each do |t|
-              note_count, wrapped_note = wrap_note(interview.note, note_count, 300)
-              interviews[t] ||= [:middle, :red, wrapped_note]
-            end
-            interviews[end_time_minutes] ||= [:end, :red, nil]
-  
-            interviews
+        start_time_minutes = (interview.start_time.seconds_since_midnight/60).floor
+        end_time_minutes = (interview.end_time.seconds_since_midnight/60).floor
+
+        interviews[start_time_minutes] = {:part => :start}
+        note_count = 0
+        (start_time_minutes+10-(start_time_minutes%10)..end_time_minutes-1).step(10) do |t|
+          note_count, wrapped_note = wrap_note(interview.note, note_count, 300)
+          interviews[t] ||= {:part => :middle, :content => wrapped_note, :id => interview.id}
+        end
+        interviews[end_time_minutes] ||= {:part => :end}
+
+        interviews
       end
     end
 
     def weekly(aday_in_week)
-      weekly_interviews = @scheduler.week(aday_in_week, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = Hash.new}) do |interviews, interview|
-        start_time_minutes = (interview.start_time.seconds_since_midnight/60).floor
-        interview_weekday = interview.start_time.wday
-        
-        interviews[start_time_minutes][interview_weekday] = [:start, :red, "#{interview.start_time.strftime("%I:%M %p")} -> #{interview.end_time.strftime("%I:%M %p")}"]
-        end_time_minutes = (interview.end_time.seconds_since_midnight/60).floor
-        note_count = 0
-        (start_time_minutes+1..end_time_minutes-1).each do |t|
-          note_count, wrapped_note = wrap_note(interview.note, note_count, 30)
-          interviews[t][interview_weekday] ||= [:middle, :red, wrapped_note]
-        end
-        interviews[end_time_minutes][interview_weekday] ||= [:end, :red, nil]
+      weekly_interviews = \
+        @scheduler.week(aday_in_week, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = Hash.new}) do |interviews, interview|
+          interview_weekday = interview.start_time.wday
+          start_time_minutes = (interview.start_time.seconds_since_midnight/60).floor
+          end_time_minutes = (interview.end_time.seconds_since_midnight/60).floor
 
-        interviews
-      end
+          interviews[start_time_minutes][interview_weekday] = {:part => :start}
+          note_count = 0
+          (start_time_minutes + 10 - start_time_minutes%10..end_time_minutes-1).step(10) do |t|
+            note_count, wrapped_note = wrap_note(interview.note, note_count, 30)
+            interviews[t][interview_weekday] ||= {:part => :middle, :content => wrapped_note, :id => interview.id}
+          end
+          interviews[end_time_minutes][interview_weekday] ||= {:part => :end}
+
+          interviews
+        end
 
       monday = aday_in_week.beginning_of_week
       week_dates = (0..6).map {|i| monday + i.days}

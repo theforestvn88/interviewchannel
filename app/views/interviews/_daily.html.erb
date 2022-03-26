@@ -17,22 +17,27 @@
                 <% end %>
 
             <% if interview_display %>
-                <% if interview_display.first == :start %>
-                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5">
-                        <span class="ml-1 font-bold"><%= interview_display.last %></span>
+                <% if interview_display[:part] == :start %>
+                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5 hover:cursor-pointer">
+                        <span class="ml-1 font-bold"><%= interview_display[:content] %></span>
                     </td>
-                <% elsif interview_display.first == :middle %>
-                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5">
-                        <% if interview_display.last %>
-                            <span class="ml-1 font-bold"><%= interview_display.last %></span>
+                <% elsif interview_display[:part] == :middle %>
+                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5 hover:cursor-pointer"
+                        data-controller="card"
+                        data-action="mouseenter->card#show mouseleave->card#hide"
+                        data-card-url-value="<%= card_interview_path(interview_display[:id]) %>">
+                        <% if interview_display[:content] %>
+                            <span class="ml-1 font-bold"><%= interview_display[:content] %></span>
                         <% end %>
                     </td>
-                <% elsif interview_display.first == :end %>
-                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5"><%= interview_display.last %></td>
+                <% elsif interview_display[:part] == :end %>
+                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5 hover:cursor-pointer">
+                        <%= interview_display[:content] %>
+                    </td>
                 <% end %>
             <% else %>
                 <% if hour_row %>
-                <td class="w-60 <%= hour_row >= 0 ? 'border-b-2' : '' %> border-gray-200"></td>
+                    <td class="w-60 <%= hour_row >= 0 ? 'border-b-2' : '' %> border-gray-200"></td>
                 <% end %>
             <% end %>
             
