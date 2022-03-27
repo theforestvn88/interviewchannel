@@ -21,8 +21,10 @@ module CalendarHelper
     end
 
     def daily_row(time_in_mins)
+        return [nil, nil] unless @daily_display
+
         time_in_mins = time_in_mins % 1440
-        interview_display = @daily_interviews[time_in_mins]
+        interview_display = @daily_display[time_in_mins]
         hour = hour_row(time_in_mins)
 
         return [interview_display, hour]
@@ -35,7 +37,7 @@ module CalendarHelper
 
     def weekly_row(time_in_mins)
         time_in_mins = time_in_mins % 1440
-        week_interviews = @weekly_interviews[time_in_mins]
+        week_interviews = @weekly_display[time_in_mins]
 
         return [week_interviews, hour_row(time_in_mins)]
     end

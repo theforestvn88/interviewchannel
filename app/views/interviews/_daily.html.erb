@@ -1,9 +1,12 @@
 <%= turbo_frame_tag "interviews" do %>
+<% @daily_interviews&.each do |interview| %>
+    <%= turbo_stream_from interview %>
+<% end %>
 <table class="w-full table-fixed mt-10">
     <tbody>
     <tr>
         <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5">GMT+7</th>
-        <th class="w-60 border-b-2 border-gray-200 mb-5"><%= @target_date.strftime("%A") %></th>
+        <th class="w-140 border-b-2 border-gray-200 mb-5"><%= @target_date.strftime("%A") %></th>
         <th class="border-b-2 border-gray-200 mb-5"></th>
     </tr>
     <% (310..(1440 + 300)).each do |t| %>
@@ -18,26 +21,24 @@
 
             <% if interview_display %>
                 <% if interview_display[:part] == :start %>
-                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5 hover:cursor-pointer">
-                        <span class="ml-1 font-bold"><%= interview_display[:content] %></span>
-                    </td>
+                    <td class="w-140 h-3 bg-red-50 text-xs text-red-400 border-l-2 border-t-2 border-r-2 border-red-500 pl-5"></td>
                 <% elsif interview_display[:part] == :middle %>
-                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5 hover:cursor-pointer"
+                    <% if interview_display[:content] %>
+                    <td class="w-140 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5 hover:cursor-pointer"
                         data-controller="card"
                         data-action="mouseenter->card#show mouseleave->card#hide"
                         data-card-url-value="<%= card_interview_path(interview_display[:id]) %>">
-                        <% if interview_display[:content] %>
-                            <span class="ml-1 font-bold"><%= interview_display[:content] %></span>
-                        <% end %>
+                        <%= link_to interview_display[:content], edit_interview_path(interview_display[:id]), data: {"turbo-frame": "modal"}, id: "interview#{interview_display[:id]}-link"%>
                     </td>
+                    <% else %>
+                        <td class="w-140 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-red-500 pl-5"></td>
+                    <% end %>
                 <% elsif interview_display[:part] == :end %>
-                    <td class="w-60 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5 hover:cursor-pointer">
-                        <%= interview_display[:content] %>
-                    </td>
+                    <td class="w-140 bg-red-50 text-xs text-red-400 border-l-2 border-r-2 border-b-2 border-red-500 pl-5"></td>
                 <% end %>
             <% else %>
                 <% if hour_row %>
-                    <td class="w-60 <%= hour_row >= 0 ? 'border-b-2' : '' %> border-gray-200"></td>
+                    <td class="w-140 <%= hour_row >= 0 ? 'border-b-2' : '' %> border-gray-200"></td>
                 <% end %>
             <% end %>
             

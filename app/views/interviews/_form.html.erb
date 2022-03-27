@@ -13,7 +13,7 @@
 
   <div class="my-5">
     <%= form.label :note %>
-    <%= form.text_field :note, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    <%= form.text_area :note, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
   </div>
 
   <div class="my-5">
@@ -24,16 +24,6 @@
   <div class="my-5">
     <%= form.label :end_time %>
     <%= form.datetime_field :end_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :code %>
-    <%= form.text_area :code, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :result %>
-    <%= form.check_box :result, class: "block mt-2 h-5 w-5" %>
   </div>
 
   <div class="inline">

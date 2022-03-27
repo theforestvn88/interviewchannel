@@ -20,6 +20,7 @@ class InterviewsController < ApplicationController
 
   # GET /interviews/1/edit
   def edit
+    render layout: false
   end
 
   # POST /interviews or /interviews.json
@@ -43,6 +44,21 @@ class InterviewsController < ApplicationController
       if @interview.update(interview_params)
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
         format.json { render :show, status: :ok, location: @interview }
+
+        Turbo::StreamsChannel.broadcast_replace_to(
+          @interview,
+          target: "interview#{@interview.id}-link", 
+          partial: "interviews/link",
+          locals: {interview: @interview}
+        )
+
+        Turbo::StreamsChannel.broadcast_replace_to(
+          @interview,
+          target: card_interview_path(@interview.id), 
+          template: "interviews/card",
+          locals: {interview: @interview}
+        )
+
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @interview.errors, status: :unprocessable_entity }

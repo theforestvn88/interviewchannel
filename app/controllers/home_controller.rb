@@ -11,9 +11,9 @@ class HomeController < ApplicationController
       @display = params[:display] || "daily"
       case @display
       when "daily"
-        @daily_interviews = @presenter.daily(@target_date)
+        @daily_interviews, @daily_display = @presenter.daily(@target_date)
       when "weekly"
-        @weekly_interviews = @presenter.weekly(@target_date)
+        @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date)
       when "monthly"
         @month_days, @monthly_interviews = @presenter.monthly(@target_date)
       end
@@ -23,8 +23,7 @@ class HomeController < ApplicationController
   def daily
     @display = "daily"
     @target_date += params[:shift].to_i.days
-    @daily_interviews = @presenter.daily(@target_date)
-
+    @daily_interviews, @daily_display = @presenter.daily(@target_date)
     render partial: "interviews/calendar"
   end
 
@@ -32,7 +31,7 @@ class HomeController < ApplicationController
     @display = "weekly"
     @wday = params[:shift].to_i == 0 ? Time.now.wday : -1
     @target_date += params[:shift].to_i.week
-    @weekly_interviews, @week_dates = @presenter.weekly(@target_date)
+    @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date)
     render partial: "interviews/calendar"
   end
 
