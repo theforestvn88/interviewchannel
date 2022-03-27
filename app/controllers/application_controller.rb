@@ -19,5 +19,9 @@ class ApplicationController < ActionController::Base
     def user_signed_in?
       !!current_user
     end
+
+    private def ensure_turbo_frame_request
+      redirect_to root_path unless turbo_frame_request?
+    end
 end
 

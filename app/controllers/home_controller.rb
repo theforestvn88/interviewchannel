@@ -2,6 +2,7 @@
 
 class HomeController < ApplicationController
   before_action :check_logged_in, except: :index
+  before_action :ensure_turbo_frame_request, except: :index
   before_action :create_scheduler_and_presenter
   before_action :get_target_date
 
