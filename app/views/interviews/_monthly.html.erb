@@ -20,11 +20,12 @@
                     <div class="<%= @mday == month_day.mday ? 'bg-blue-500' : 'bg-blue-100' %> w-6 absolute top-px right-px text-center"><%= month_day.mday %></div>
                     <% @monthly_interviews[month_day.mday]&.each do |interview| %>
                         <%= turbo_stream_from interview %>
-                        <div class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 hover:cursor-pointer"
+                        <div id="interview-<%= interview.id %>-timespan-monthly" 
+                            class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50"
                             data-controller="card"
                             data-action="mouseenter->card#show mouseleave->card#hide"
                             data-card-url-value="<%= card_interview_path(interview.id) %>">
-                            <%= link_to interview.note&.slice(0, 28) + "...", edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, id: "interview#{interview.id}-link"%>
+                            <%= link_to interview.note&.slice(0, 28) + "...", edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, class: "block" %>
                         </div>
                     <% end %>
                 </td>

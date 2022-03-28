@@ -6,3 +6,15 @@
     border-width: 0.5rem;
     border-color: white transparent transparent transparent;
 }
+
+@for $i from 0 through 100 {
+    .top_#{$i} {
+        top: $i * 1%;
+    }
+}
+
+@for $i from 0 through 240 {
+    .h_#{$i} {
+        height: $i * 0.25rem;
+    }
+}

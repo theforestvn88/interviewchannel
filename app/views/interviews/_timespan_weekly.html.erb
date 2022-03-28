@@ -1,0 +1,10 @@
+<div id="interview-<%= interview.id %>-timespan-weekly" 
+    class="absolute top_<%= top %> left-1/5 w-full h_<%= height %> bg-red-200 z-10 px-5 flex items-center">
+    <div class="flex flex-col-reverse items-center p-2"
+        data-controller="card"
+        data-action="mouseenter->card#show mouseleave->card#hide"
+        data-card-url-value="<%= card_interview_path(interview) %>">
+        <%= link_to text, edit_interview_path(interview), data: {"turbo-frame": "modal"}, class: "text-xs" %>
+        <%= render template: "interviews/card", locals: {interview: interview} %>
+    </div>
+</div>

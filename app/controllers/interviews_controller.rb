@@ -47,15 +47,22 @@ class InterviewsController < ApplicationController
 
         Turbo::StreamsChannel.broadcast_replace_to(
           @interview,
-          target: "interview#{@interview.id}-link", 
-          partial: "interviews/link",
-          locals: {interview: @interview}
+          target: "interview-#{@interview.id}-timespan-daily", 
+          partial: "interviews/timespan_daily",
+          locals: CalendarPresenter.interview_daily_display(@interview).merge(interview: @interview)
         )
 
         Turbo::StreamsChannel.broadcast_replace_to(
           @interview,
-          target: card_interview_path(@interview.id), 
-          template: "interviews/card",
+          target: "interview-#{@interview.id}-timespan-weekly", 
+          partial: "interviews/timespan_weekly",
+          locals: CalendarPresenter.interview_weekly_display(@interview).merge(interview: @interview)
+        )
+
+        Turbo::StreamsChannel.broadcast_replace_to(
+          @interview,
+          target: "interview-#{@interview.id}-timespan-monthly", 
+          partial: "interviews/timespan_monthly",
           locals: {interview: @interview}
         )
 

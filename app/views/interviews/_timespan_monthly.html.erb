@@ -1,0 +1,8 @@
+<div id="interview-<%= interview.id %>-timespan-monthly" 
+    class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50"
+    data-controller="card"
+    data-action="mouseenter->card#show mouseleave->card#hide"
+    data-card-url-value="<%= card_interview_path(interview.id) %>">
+    <%= link_to interview.note&.slice(0, 28) + "...", edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, class: "block" %>
+    <%= render template: "interviews/card", locals: {interview: interview} %>
+</div>

@@ -4,6 +4,8 @@ class Interview < ApplicationRecord
     belongs_to  :interviewer, class_name: "User" # required
     belongs_to  :candidate, class_name: "User", optional: true # allow unregister users, interviewer could use `note` to note candidate info.
 
+    validates :note, presence: true
+    
     scope :as_interviewer, ->(interviewer) {
         where(interviewer_id: interviewer.id)
     }
@@ -31,4 +33,13 @@ class Interview < ApplicationRecord
     end
 
     class ModifyingPolicy < RuntimeError; end
+
+    def start_time_minutes
+        (self.start_time.seconds_since_midnight/60).floor
+    end
+
+    def end_time_minutes
+        (self.end_time.seconds_since_midnight/60).floor
+    end
+
 end
