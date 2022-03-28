@@ -1,4 +1,5 @@
 <%= turbo_frame_tag "interviews" do %>
+<%= turbo_stream_from :interviews %>
 <table class="w-full table-fixed mt-10">
     <tbody>
     <tr>
@@ -16,12 +17,14 @@
         <td class="w-14 h-10 border-r-2 border-t-2 border-gray-200"></td>
         <% (0..6).each do |weekday| %>
             <% if month_day = @month_days[index = weekday + week*7] %>
-                <td class="relative h-40 border-r-2 border-b-2 border-gray-200 <%= index%2==0 ? 'bg-gray-50' : '' %>">
+                <td class="relative h-40 border-r-2 border-b-2 border-gray-200 <%= index%2==0 ? 'bg-gray-50' : '' %>" id="interviews-<%= month_day.strftime('%F') %>-monthly">
                     <div class="<%= @mday == month_day.mday ? 'bg-blue-500' : 'bg-blue-100' %> w-6 absolute top-px right-px text-center"><%= month_day.mday %></div>
+                    <%= link_to "  place holder ", new_interview_path(start_time: month_day.beginning_of_day, end_time: month_day.beginning_of_day), 
+                        data: {"turbo-frame": "modal"}, class: "absolute top-0 left-0 text-transparent block w-full h-full" %>
                     <% @monthly_interviews[month_day.mday]&.each do |interview| %>
                         <%= turbo_stream_from interview %>
                         <div id="interview-<%= interview.id %>-timespan-monthly" 
-                            class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50"
+                            class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 absolute left-0 top_<%= interview.start_time.hour * 3 %>"
                             data-controller="card"
                             data-action="mouseenter->card#show mouseleave->card#hide"
                             data-card-url-value="<%= card_interview_path(interview.id) %>">

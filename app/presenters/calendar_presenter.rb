@@ -48,24 +48,24 @@ class CalendarPresenter
     end
 
     def monthly(aday_in_month)
-        interviews = @scheduler.month(aday_in_month, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = []}) do |interviews, interview|
-            interviews[interview.start_time.mday].push(interview)
-            interviews
-        end
+      interviews = @scheduler.month(aday_in_month, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = []}) do |interviews, interview|
+        interviews[interview.start_time.mday].push(interview)
+        interviews
+      end
 
-        beginning_day = aday_in_month.beginning_of_month
-        end_day = aday_in_month.end_of_month
-        month_days = (0..35).map do |i|
-          if i < beginning_day.wday
-            nil
-          elsif (d = beginning_day + (i - beginning_day.wday).days) <= end_day
-            d
-          else
-            nil
-          end
+      beginning_day = aday_in_month.beginning_of_month
+      end_day = aday_in_month.end_of_month
+      month_days = (0..35).map do |i|
+        if i < beginning_day.wday
+          nil
+        elsif (d = beginning_day + (i - beginning_day.wday).days) <= end_day
+          d
+        else
+          nil
         end
+      end
 
-        [month_days, interviews]
+      [month_days, interviews]
     end
 
     private def wrap_note(note, start, length)

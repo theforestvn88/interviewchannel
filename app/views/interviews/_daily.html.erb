@@ -1,4 +1,5 @@
 <%= turbo_frame_tag "interviews" do %>
+    <%= turbo_stream_from :interviews %>
     <% @daily_interviews&.each do |interview| %>
         <%= turbo_stream_from interview %>
     <% end %>
@@ -21,6 +22,11 @@
                                 data-card-url-value="<%= card_interview_path(display[:id]) %>">
                                 <%= link_to display[:text], edit_interview_path(display[:id]), data: {"turbo-frame": "modal"} %>
                             </div>
+                        </div>
+                    <% else %>
+                        <div id="interview-<%= @target_date.strftime('%F') + "-#{hour}" %>-daily" class="w-full">
+                            <%= link_to "  place holder ", new_interview_path(start_time: @target_date.beginning_of_day, end_time: @target_date.beginning_of_day), 
+                                data: {"turbo-frame": "modal"}, class: "text-transparent block w-full" %>
                         </div>
                     <% end %>
                 </td>

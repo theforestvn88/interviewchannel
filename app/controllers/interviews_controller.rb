@@ -16,6 +16,9 @@ class InterviewsController < ApplicationController
   # GET /interviews/new
   def new
     @interview = Interview.new
+    # TODO: fix timezone
+    @interview.start_time = params[:start_time]&.to_datetime
+    @interview.end_time = params[:end_time]&.to_datetime
   end
 
   # GET /interviews/1/edit
@@ -31,6 +34,27 @@ class InterviewsController < ApplicationController
       if @interview.save
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
         format.json { render :show, status: :created, location: @interview }
+
+        Turbo::StreamsChannel.broadcast_replace_to(
+          :interviews,
+          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.hour}-daily", 
+          partial: "interviews/timespan_daily",
+          locals: CalendarPresenter.interview_daily_display(@interview).merge(interview: @interview, action: :create)
+        )
+
+        Turbo::StreamsChannel.broadcast_replace_to(
+          :interviews,
+          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.hour}-weekly", 
+          partial: "interviews/timespan_weekly",
+          locals: CalendarPresenter.interview_weekly_display(@interview).merge(interview: @interview, action: :create)
+        )
+
+        Turbo::StreamsChannel.broadcast_append_to(
+          :interviews,
+          target: "interviews-#{@interview.start_time.strftime('%F')}-monthly", 
+          partial: "interviews/timespan_monthly",
+          locals: {interview: @interview, action: :create}
+        )
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @interview.errors, status: :unprocessable_entity }
@@ -49,21 +73,21 @@ class InterviewsController < ApplicationController
           @interview,
           target: "interview-#{@interview.id}-timespan-daily", 
           partial: "interviews/timespan_daily",
-          locals: CalendarPresenter.interview_daily_display(@interview).merge(interview: @interview)
+          locals: CalendarPresenter.interview_daily_display(@interview).merge(interview: @interview, action: :update)
         )
 
         Turbo::StreamsChannel.broadcast_replace_to(
           @interview,
           target: "interview-#{@interview.id}-timespan-weekly", 
           partial: "interviews/timespan_weekly",
-          locals: CalendarPresenter.interview_weekly_display(@interview).merge(interview: @interview)
+          locals: CalendarPresenter.interview_weekly_display(@interview).merge(interview: @interview, action: :update)
         )
 
         Turbo::StreamsChannel.broadcast_replace_to(
           @interview,
           target: "interview-#{@interview.id}-timespan-monthly", 
           partial: "interviews/timespan_monthly",
-          locals: {interview: @interview}
+          locals: {interview: @interview, action: :update}
         )
 
       else

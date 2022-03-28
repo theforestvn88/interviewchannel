@@ -1,8 +1,11 @@
 <div id="interview-<%= interview.id %>-timespan-monthly" 
-    class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50"
+    class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 absolute left-0 top_<%= interview.start_time.hour * 3 %>"
     data-controller="card"
     data-action="mouseenter->card#show mouseleave->card#hide"
     data-card-url-value="<%= card_interview_path(interview.id) %>">
+    <% if action == :create  or action == :update %>
+        <%= turbo_stream_from interview %>
+    <% end %>
     <%= link_to interview.note&.slice(0, 28) + "...", edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, class: "block" %>
     <%= render template: "interviews/card", locals: {interview: interview} %>
 </div>

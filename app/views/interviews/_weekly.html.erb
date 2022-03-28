@@ -1,10 +1,11 @@
 <%= turbo_frame_tag "interviews" do %>
+<%= turbo_stream_from :interviews %>
 <% @weekly_interviews.each do |interview| %>
     <%= turbo_stream_from interview %>
 <% end %>
 <table class="w-full table-fixed mt-10">
     <tbody>
-    <tr>
+    <tr class="mb-5">
         <th class="w-14 text-xs">GMT+7</th>
         <th class="border-l-2 border-gray-200 bg-gray-50">
             <div>
@@ -67,7 +68,12 @@
                         </div>
                     </td>
                 <% else %>
-                    <%= tag.td(class: "w-full h-10 border-l-2 border-b-2 border-gray-200  #{weekday%2==1 ? 'bg-gray-50' : ''}") %>
+                    <td class="relative w-full h-10 border-l-2 border-b-2 border-gray-200  <%= weekday%2==1 ? 'bg-gray-50' : '' %>">
+                        <div id="interview-<%= @week_dates[weekday - 1].strftime('%F') + "-#{hour}" %>-weekly" class="w-full">
+                            <%= link_to "  place holder ", new_interview_path(start_time: @week_dates[weekday - 1].beginning_of_day, end_time: @week_dates[weekday - 1].beginning_of_day), 
+                                data: {"turbo-frame": "modal"}, class: "text-transparent block w-full" %>
+                        </div>
+                    </td>
                 <% end %>
             <% end %>
         </tr>

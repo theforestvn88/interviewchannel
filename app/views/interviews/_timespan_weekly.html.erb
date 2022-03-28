@@ -4,6 +4,9 @@
         data-controller="card"
         data-action="mouseenter->card#show mouseleave->card#hide"
         data-card-url-value="<%= card_interview_path(interview) %>">
+        <% if action == :create  or action == :update %>
+            <%= turbo_stream_from interview %>
+        <% end %>
         <%= link_to text, edit_interview_path(interview), data: {"turbo-frame": "modal"}, class: "text-xs" %>
         <%= render template: "interviews/card", locals: {interview: interview} %>
     </div>
