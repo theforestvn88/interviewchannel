@@ -1,3 +1,4 @@
+<div data-controller="form">
 <%= form_with(model: interview, class: "contents") do |form| %>
   <% if interview.errors.any? %>
     <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
@@ -26,7 +27,20 @@
     <%= form.datetime_field :end_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
   </div>
 
-  <div class="inline">
-    <%= form.submit class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+  <div class="flex justify-end relative">
+    <% if interview.persisted? %>
+      <div data-action="click->form#showConfirmDialog" 
+        class="rounded-lg py-2 px-4 mr-2 bg-red-400 text-white inline-block font-medium cursor-pointer">Remove</div>
+      <div data-form-target="confirmDialog" class="hidden absolute top-0 left-0 w-full h-full flex justify-between items-center p-1 bg-white border-2 border-gray-100 drop-shadow-md z-52">
+        <p class="font-bold mr-5">Are you sure ?</p>
+        <div>
+          <div data-action="click->form#hideConfirmDialog" class="rounded-lg px-2 m-1 inline-block font-medium cursor-pointer">No</div>
+          <%= button_to "Yes", interview_path(interview), method: :delete,
+              class: "rounded-lg px-2 m-1 bg-red-400 text-white inline-block font-medium cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
+    <%= form.submit class: "rounded-lg py-2 px-4 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
   </div>
 <% end %>
+</div>

@@ -104,6 +104,21 @@ class InterviewsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to interviews_url, notice: "Interview was successfully destroyed." }
       format.json { head :no_content }
+
+      Turbo::StreamsChannel.broadcast_remove_to(
+        @interview,
+        target: "interview-#{@interview.id}-timespan-daily"
+      )
+
+      Turbo::StreamsChannel.broadcast_remove_to(
+        @interview,
+        target: "interview-#{@interview.id}-timespan-weekly"
+      )
+
+      Turbo::StreamsChannel.broadcast_remove_to(
+        @interview,
+        target: "interview-#{@interview.id}-timespan-monthly"
+      )
     end
   end
 
