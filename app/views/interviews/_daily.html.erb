@@ -6,8 +6,10 @@
     <table class="w-full table-fixed mt-10">
         <tbody>
         <tr>
-            <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5">GMT+7</th>
-            <th class="w-full border-b-2 border-gray-200 mb-5"><%= @target_date.strftime("%A") %></th>
+            <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5" title="<%= current_user.curr_timezone %>">
+                GMT<%= ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset %>
+            </th>
+            <th class="w-full border-b-2 border-gray-200 mb-5"><%= @target_date_timezone.strftime("%A") %></th>
         </tr>
         <% (6..29).each do |hour| %>
             <tr>
@@ -24,8 +26,12 @@
                             </div>
                         </div>
                     <% else %>
-                        <div id="interview-<%= @target_date.strftime('%F') + "-#{hour}" %>-daily" class="w-full">
-                            <%= link_to "  place holder ", new_interview_path(start_time: @target_date.beginning_of_day, end_time: @target_date.beginning_of_day), 
+                        <div id="interview-<%= @target_date_timezone.strftime('%F') + "-#{hour}" %>-daily" class="w-full">
+                            <% suggest_time = @target_date_timezone.beginning_of_day + hour.hours %>
+                            <%= link_to "  place holder ", 
+                                new_interview_path(
+                                    start_time: suggest_time.strftime('%Y-%m-%dT%H:%M'), 
+                                    end_time: (suggest_time + 1.hour).strftime('%Y-%m-%dT%H:%M')), 
                                 data: {"turbo-frame": "modal"}, class: "text-transparent block w-full" %>
                         </div>
                     <% end %>

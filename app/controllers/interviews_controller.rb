@@ -16,9 +16,6 @@ class InterviewsController < ApplicationController
   # GET /interviews/new
   def new
     @interview = Interview.new
-    # TODO: fix timezone
-    @interview.start_time = params[:start_time]&.to_datetime
-    @interview.end_time = params[:end_time]&.to_datetime
   end
 
   # GET /interviews/1/edit
@@ -29,6 +26,8 @@ class InterviewsController < ApplicationController
   # POST /interviews or /interviews.json
   def create
     @interview = Interview.new(interview_params)
+    @interview.start_time = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc
+    @interview.end_time = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
 
     respond_to do |format|
       if @interview.save
@@ -37,16 +36,16 @@ class InterviewsController < ApplicationController
 
         Turbo::StreamsChannel.broadcast_replace_to(
           :interviews,
-          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.hour}-daily", 
+          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(current_user.curr_timezone).hour}-daily", 
           partial: "interviews/timespan_daily",
-          locals: CalendarPresenter.interview_daily_display(@interview).merge(interview: @interview, action: :create)
+          locals: CalendarPresenter.interview_daily_display(@interview, current_user.curr_timezone).merge(interview: @interview, action: :create)
         )
 
         Turbo::StreamsChannel.broadcast_replace_to(
           :interviews,
-          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.hour}-weekly", 
+          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(current_user.curr_timezone).hour}-weekly", 
           partial: "interviews/timespan_weekly",
-          locals: CalendarPresenter.interview_weekly_display(@interview).merge(interview: @interview, action: :create)
+          locals: CalendarPresenter.interview_weekly_display(@interview, current_user.curr_timezone).merge(interview: @interview, action: :create)
         )
 
         Turbo::StreamsChannel.broadcast_append_to(

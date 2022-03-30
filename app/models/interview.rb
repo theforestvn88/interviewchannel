@@ -14,8 +14,8 @@ class Interview < ApplicationRecord
         where(candidate_id: candidate.id)
     }
 
-    scope :by_time, ->(from, to) {
-        range = from..to
+    scope :by_time, ->(from_utc, to_utc) {
+        range = from_utc..to_utc
         where(start_time: range).or(where(end_time: range))   
     }
 
@@ -34,12 +34,11 @@ class Interview < ApplicationRecord
 
     class ModifyingPolicy < RuntimeError; end
 
-    def start_time_minutes
-        (self.start_time.seconds_since_midnight/60).floor
+    def start_time_minutes(timezone = "UTC")
+        (self.start_time.in_time_zone(timezone).seconds_since_midnight/60).floor
     end
 
-    def end_time_minutes
-        (self.end_time.seconds_since_midnight/60).floor
+    def end_time_minutes(timezone = "UTC")
+        (self.end_time.in_time_zone(timezone).seconds_since_midnight/60).floor
     end
-
 end

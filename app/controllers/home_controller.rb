@@ -7,15 +7,17 @@ class HomeController < ApplicationController
   before_action :get_target_date
 
   def index
-    if user_signed_in? 
+    if user_signed_in?
       @display = params[:display] || "daily"
+      @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
+
       case @display
       when "daily"
-        @daily_interviews, @daily_display = @presenter.daily(@target_date)
+        @daily_interviews, @daily_display = @presenter.daily(@target_date, current_user.curr_timezone)
       when "weekly"
-        @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date)
+        @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date, current_user.curr_timezone)
       when "monthly"
-        @month_days, @monthly_interviews = @presenter.monthly(@target_date)
+        @month_days, @monthly_interviews = @presenter.monthly(@target_date, current_user.curr_timezone)
       end
     end
   end
@@ -23,15 +25,19 @@ class HomeController < ApplicationController
   def daily
     @display = "daily"
     @target_date += params[:shift].to_i.days
-    @daily_interviews, @daily_display = @presenter.daily(@target_date)
+    @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
+
+    @daily_interviews, @daily_display = @presenter.daily(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
   end
 
   def weekly
     @display = "weekly"
-    @wday = params[:shift].to_i == 0 ? Time.now.wday : -1
+    @wday = params[:shift].to_i == 0 ? Time.now.in_time_zone(current_user.curr_timezone).wday : -1
     @target_date += params[:shift].to_i.week
-    @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date)
+    @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
+
+    @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
   end
 
@@ -39,7 +45,9 @@ class HomeController < ApplicationController
     @display = "monthly"
     @mday = params[:shift].to_i == 0 ? Time.now.mday : -1
     @target_date += params[:shift].to_i.month
-    @month_days, @monthly_interviews = @presenter.monthly(@target_date)
+    @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
+    
+    @month_days, @monthly_interviews = @presenter.monthly(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
   end
 
@@ -52,9 +60,9 @@ class HomeController < ApplicationController
 
   private def get_target_date
     @target_date = begin
-      Date.parse(params[:date])
-    rescue
-      Time.now
+      DateTime.parse(params[:date]).utc
+    rescue => e
+      Time.now.utc
     end
   end
 

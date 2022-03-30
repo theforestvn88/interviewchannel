@@ -3,7 +3,7 @@
 <table class="w-full table-fixed mt-10">
     <tbody>
     <tr>
-        <th class="w-14 text-xs"></th>
+        <th class="w-14 text-xs" title="<%= current_user.curr_timezone %>">GMT<%= ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset %></th>
         <th class="border-b-2 border-l-2 border-gray-200">Sun</th>
         <th class="border-b-2 border-l-2 border-gray-200 bg-gray-50">Mon</th>
         <th class="border-b-2 border-l-2 border-gray-200">Tue</th>

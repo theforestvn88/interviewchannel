@@ -11,5 +11,11 @@ class User < ApplicationRecord
       user.email = auth.info['email']
     end
   end
+
+  attr_accessor :session_timezone
+
+  def curr_timezone
+    self.session_timezone || "UTC"
+  end
 end
 
