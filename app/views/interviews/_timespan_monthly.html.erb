@@ -1,4 +1,4 @@
-<div id="interview-<%= interview.id %>-timespan-monthly" 
+<div id="interview-<%= interview.id %>-timespan-monthly<%= tz_offset %>" 
     class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 absolute left-0 top_<%= interview.start_time.hour * 3 %>"
     data-controller="card"
     data-action="mouseenter->card#show mouseleave->card#hide"
@@ -7,5 +7,5 @@
         <%= turbo_stream_from interview %>
     <% end %>
     <%= link_to interview.note&.slice(0, 28) + "...", edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, class: "block" %>
-    <%= render template: "interviews/card", locals: {interview: interview} %>
+    <%= render template: "interviews/card", locals: {timezone: timezone, tz_offset: tz_offset, interview: interview} %>
 </div>

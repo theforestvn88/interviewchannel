@@ -6,7 +6,7 @@
 <table class="w-full table-fixed mt-10">
     <tbody>
     <tr class="mb-5">
-        <th class="w-14 text-xs" title="<%= current_user.curr_timezone %>">GMT<%= ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset %></th>
+        <th class="w-14 text-xs" title="<%= current_user.curr_timezone %>">GMT<%= @tz_offset %></th>
         <th class="border-l-2 border-gray-200 bg-gray-50">
             <div>
                 <div><span class="w-20 px-1 <%= @wday == 1 ? 'bg-blue-200 rounded-md' : '' %>">Mon</span></div>
@@ -57,7 +57,7 @@
             <% (1..7).each do |weekday| %>
                 <% if @weekly_display[hour] && display = @weekly_display[hour][weekday] %>
                     <td class="w-full h-10 border-b-2 border-gray-200 relative">
-                        <div id="interview-<%= display[:id] %>-timespan-weekly" 
+                        <div id="interview-<%= display[:id] %>-timespan-weekly<%= @tz_offset %>" 
                             class="absolute top_<%= display[:top] %> left-1/5 w-full h_<%= display[:height] %> bg-red-200 z-10 flex items-center">
                             <div class="flex flex-col-reverse items-center p-2"
                                 data-controller="card"
@@ -70,7 +70,7 @@
                 <% else %>
                     <td class="relative w-full h-10 border-l-2 border-b-2 border-gray-200  <%= weekday%2==1 ? 'bg-gray-50' : '' %>">
                         <% suggest_time = @week_dates[weekday - 1].beginning_of_day + (hour%24).hours %>
-                        <div id="interview-<%= @week_dates[weekday - 1].strftime('%F') + "-#{hour}" %>-weekly" class="w-full">
+                        <div id="interview-<%= @week_dates[weekday - 1].strftime('%F') + "-#{hour}" %>-weekly<%= @tz_offset %>" class="w-full">
                             <%= link_to "  place holder ", new_interview_path(start_time: suggest_time.strftime('%Y-%m-%dT%H:%M'), end_time: (suggest_time + 1.hour).strftime('%Y-%m-%dT%H:%M')), 
                                 data: {"turbo-frame": "modal"}, class: "text-transparent block w-full" %>
                         </div>

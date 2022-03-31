@@ -4,7 +4,7 @@ class HomeController < ApplicationController
   before_action :check_logged_in, except: :index
   before_action :ensure_turbo_frame_request, except: :index
   before_action :create_scheduler_and_presenter
-  before_action :get_target_date
+  before_action :set_time
 
   def index
     if user_signed_in?
@@ -58,12 +58,14 @@ class HomeController < ApplicationController
     end
   end
 
-  private def get_target_date
+  private def set_time
     @target_date = begin
       DateTime.parse(params[:date]).utc
     rescue => e
       Time.now.utc
     end
+
+    @tz_offset = ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset
   end
 
   private def check_logged_in

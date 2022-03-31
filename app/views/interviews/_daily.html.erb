@@ -7,7 +7,7 @@
         <tbody>
         <tr>
             <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5" title="<%= current_user.curr_timezone %>">
-                GMT<%= ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset %>
+                GMT<%= @tz_offset %>
             </th>
             <th class="w-full border-b-2 border-gray-200 mb-5"><%= @target_date_timezone.strftime("%A") %></th>
         </tr>
@@ -16,7 +16,7 @@
                 <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs"><%= strftime(hours: hour%24) %></td>
                 <td class="w-full h-10 border-b-2 border-gray-200 relative">
                     <% if display = @daily_display[hour] %>
-                        <div id="interview-<%= display[:id] %>-timespan-daily" 
+                        <div id="interview-<%= display[:id] %>-timespan-daily<%= @tz_offset %>" 
                             class="absolute top_<%= display[:top] %> left-1/5 w-full h_<%= display[:height] %> bg-red-200 z-10 flex items-center">
                             <div class="flex flex-col-reverse items-center p-2"
                                 data-controller="card"
@@ -26,7 +26,7 @@
                             </div>
                         </div>
                     <% else %>
-                        <div id="interview-<%= @target_date_timezone.strftime('%F') + "-#{hour}" %>-daily" class="w-full">
+                        <div id="interview-<%= @target_date_timezone.strftime('%F') + "-#{hour}" %>-daily<%= @tz_offset %>" class="w-full">
                             <% suggest_time = @target_date_timezone.beginning_of_day + hour.hours %>
                             <%= link_to "  place holder ", 
                                 new_interview_path(

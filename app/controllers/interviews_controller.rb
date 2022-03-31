@@ -34,26 +34,33 @@ class InterviewsController < ApplicationController
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
         format.json { render :show, status: :created, location: @interview }
 
-        Turbo::StreamsChannel.broadcast_replace_to(
-          :interviews,
-          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(current_user.curr_timezone).hour}-daily", 
-          partial: "interviews/timespan_daily",
-          locals: CalendarPresenter.interview_daily_display(@interview, current_user.curr_timezone).merge(interview: @interview, action: :create)
-        )
+        [@interview.interviewer, @interview.candidate].each do |participant|
+          timezone = participant.curr_timezone
+          tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-        Turbo::StreamsChannel.broadcast_replace_to(
-          :interviews,
-          target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(current_user.curr_timezone).hour}-weekly", 
-          partial: "interviews/timespan_weekly",
-          locals: CalendarPresenter.interview_weekly_display(@interview, current_user.curr_timezone).merge(interview: @interview, action: :create)
-        )
+          Turbo::StreamsChannel.broadcast_replace_to(
+            :interviews,
+            target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
+            partial: "interviews/timespan_daily",
+            locals: CalendarPresenter.interview_daily_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
+          )
 
-        Turbo::StreamsChannel.broadcast_append_to(
-          :interviews,
-          target: "interviews-#{@interview.start_time.strftime('%F')}-monthly", 
-          partial: "interviews/timespan_monthly",
-          locals: {interview: @interview, action: :create}
-        )
+          Turbo::StreamsChannel.broadcast_replace_to(
+            :interviews,
+            target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
+            partial: "interviews/timespan_weekly",
+            locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
+          )
+
+          Turbo::StreamsChannel.broadcast_append_to(
+            :interviews,
+            target: "interviews-#{@interview.start_time.strftime('%F')}-monthly#{tz_offset}", 
+            partial: "interviews/timespan_monthly",
+            locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create}
+          )
+        end
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @interview.errors, status: :unprocessable_entity }
@@ -68,27 +75,33 @@ class InterviewsController < ApplicationController
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
         format.json { render :show, status: :ok, location: @interview }
 
-        Turbo::StreamsChannel.broadcast_replace_to(
-          @interview,
-          target: "interview-#{@interview.id}-timespan-daily", 
-          partial: "interviews/timespan_daily",
-          locals: CalendarPresenter.interview_daily_display(@interview).merge(interview: @interview, action: :update)
-        )
+        [@interview.interviewer, @interview.candidate].each do |participant|
+          timezone = participant.curr_timezone
+          tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-        Turbo::StreamsChannel.broadcast_replace_to(
-          @interview,
-          target: "interview-#{@interview.id}-timespan-weekly", 
-          partial: "interviews/timespan_weekly",
-          locals: CalendarPresenter.interview_weekly_display(@interview).merge(interview: @interview, action: :update)
-        )
+          Turbo::StreamsChannel.broadcast_replace_to(
+            @interview,
+            target: "interview-#{@interview.id}-timespan-daily#{tz_offset}", 
+            partial: "interviews/timespan_daily",
+            locals: CalendarPresenter.interview_daily_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update)
+          )
 
-        Turbo::StreamsChannel.broadcast_replace_to(
-          @interview,
-          target: "interview-#{@interview.id}-timespan-monthly", 
-          partial: "interviews/timespan_monthly",
-          locals: {interview: @interview, action: :update}
-        )
+          Turbo::StreamsChannel.broadcast_replace_to(
+            @interview,
+            target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}", 
+            partial: "interviews/timespan_weekly",
+            locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update)
+          )
 
+          Turbo::StreamsChannel.broadcast_replace_to(
+            @interview,
+            target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}", 
+            partial: "interviews/timespan_monthly",
+            locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update}
+          )
+        end
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @interview.errors, status: :unprocessable_entity }
@@ -104,20 +117,25 @@ class InterviewsController < ApplicationController
       format.html { redirect_to interviews_url, notice: "Interview was successfully destroyed." }
       format.json { head :no_content }
 
-      Turbo::StreamsChannel.broadcast_remove_to(
-        @interview,
-        target: "interview-#{@interview.id}-timespan-daily"
-      )
+      [@interview.interviewer, @interview.candidate].each do |participant|
+        timezone = participant.curr_timezone
+        tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-      Turbo::StreamsChannel.broadcast_remove_to(
-        @interview,
-        target: "interview-#{@interview.id}-timespan-weekly"
-      )
+        Turbo::StreamsChannel.broadcast_remove_to(
+          @interview,
+          target: "interview-#{@interview.id}-timespan-daily#{tz_offset}"
+        )
 
-      Turbo::StreamsChannel.broadcast_remove_to(
-        @interview,
-        target: "interview-#{@interview.id}-timespan-monthly"
-      )
+        Turbo::StreamsChannel.broadcast_remove_to(
+          @interview,
+          target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}"
+        )
+
+        Turbo::StreamsChannel.broadcast_remove_to(
+          @interview,
+          target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}"
+        )
+      end
     end
   end
 
@@ -136,7 +154,10 @@ class InterviewsController < ApplicationController
   end
 
   def card
-    render layout: false
+    timezone = current_user.curr_timezone
+    tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
+
+    render layout: false, locals: {timezone: timezone, tz_offset: tz_offset}
   end
 
   private
