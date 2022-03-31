@@ -4,7 +4,9 @@ class SessionsController < ApplicationController
   def callback
     if request && auth = request.env['omniauth.auth']
       user = User.find_or_create_from_omniauth(auth)
+      user.set_session_timezone(session["timezone"])
       session[:user_id] = user.id
+      
       redirect_to root_path
     else
       destroy

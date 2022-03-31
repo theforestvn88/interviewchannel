@@ -28,14 +28,14 @@ class InterviewsController < ApplicationController
     @interview = Interview.new(interview_params)
     @interview.start_time = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc
     @interview.end_time = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
+    @interview.interviewer = current_user
 
     respond_to do |format|
       if @interview.save
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
         format.json { render :show, status: :created, location: @interview }
 
-        [@interview.interviewer, @interview.candidate].each do |participant|
-          timezone = participant.curr_timezone
+        [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
           Turbo::StreamsChannel.broadcast_replace_to(
@@ -75,8 +75,7 @@ class InterviewsController < ApplicationController
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
         format.json { render :show, status: :ok, location: @interview }
 
-        [@interview.interviewer, @interview.candidate].each do |participant|
-          timezone = participant.curr_timezone
+        [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
           Turbo::StreamsChannel.broadcast_replace_to(
@@ -117,8 +116,7 @@ class InterviewsController < ApplicationController
       format.html { redirect_to interviews_url, notice: "Interview was successfully destroyed." }
       format.json { head :no_content }
 
-      [@interview.interviewer, @interview.candidate].each do |participant|
-        timezone = participant.curr_timezone
+      [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
         tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
         Turbo::StreamsChannel.broadcast_remove_to(

@@ -65,7 +65,7 @@ class HomeController < ApplicationController
       Time.now.utc
     end
 
-    @tz_offset = ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset
+    @tz_offset = ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset if user_signed_in?
   end
 
   private def check_logged_in
