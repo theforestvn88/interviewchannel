@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   get 'auth/github/callback', to: 'sessions#callback'
   get '/sign_out', to: 'sessions#destroy'
+  get 'user/suggest', to: 'users#suggest', as: 'suggest_user'
 
   resources :interviews do
     member do

@@ -19,5 +19,10 @@ class User < ApplicationRecord
   def curr_timezone
     Rails.cache.fetch("ss_timezone_#{self.id}", expires_in: 12.hours) { "UTC" }
   end
+
+  scope :suggest, ->(keyword) {
+    keywords = ["%#{keyword}%"] * 2
+    where("name ILIKE ? OR email ILIKE ?", *keywords)
+  }
 end
 

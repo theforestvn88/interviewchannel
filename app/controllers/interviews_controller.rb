@@ -29,7 +29,6 @@ class InterviewsController < ApplicationController
     @interview.start_time = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc
     @interview.end_time = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
     @interview.interviewer = current_user
-    @interview.candidate = User.first
 
     respond_to do |format|
       if @interview.save
@@ -167,6 +166,6 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      params.require(:interview).permit(:note, :start_time, :end_time, :code, :result)
+      params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id)
     end
 end
