@@ -16,9 +16,9 @@ class CalendarPresenter
       }
     end
 
-    def daily(day_utc, user_timezone)
+    def daily(day_in_tz, user_timezone)
       daily_interviews_display = \
-        (interviews = @scheduler.day(day_utc, :interviewer, :candidate))
+        (interviews = @scheduler.day(day_in_tz, :interviewer, :candidate))
           .inject(Hash.new) do |interviews, interview|
             interviews[interview.start_time_minutes(user_timezone)/60] = CalendarPresenter.interview_daily_display(interview, user_timezone)
             interviews

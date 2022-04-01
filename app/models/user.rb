@@ -13,11 +13,11 @@ class User < ApplicationRecord
   end
 
   def set_session_timezone(ss_timezone)
-    Rails.cache.write("ss_timezone_#{user.id}", ss_timezone, expires_in: 12.hours)
+    Rails.cache.write("ss_timezone_#{self.id}", ss_timezone, expires_in: 12.hours)
   end
   
   def curr_timezone
-    Rails.cache.fetch("ss_timezone_#{self.id}") { "UTC" }
+    Rails.cache.fetch("ss_timezone_#{self.id}", expires_in: 12.hours) { "UTC" }
   end
 end
 

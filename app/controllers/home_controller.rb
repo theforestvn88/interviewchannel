@@ -9,7 +9,6 @@ class HomeController < ApplicationController
   def index
     if user_signed_in?
       @display = params[:display] || "daily"
-      @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
 
       case @display
       when "daily"
@@ -25,7 +24,6 @@ class HomeController < ApplicationController
   def daily
     @display = "daily"
     @target_date += params[:shift].to_i.days
-    @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
 
     @daily_interviews, @daily_display = @presenter.daily(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
@@ -35,7 +33,6 @@ class HomeController < ApplicationController
     @display = "weekly"
     @wday = params[:shift].to_i == 0 ? Time.now.in_time_zone(current_user.curr_timezone).wday : -1
     @target_date += params[:shift].to_i.week
-    @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
 
     @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
@@ -45,7 +42,6 @@ class HomeController < ApplicationController
     @display = "monthly"
     @mday = params[:shift].to_i == 0 ? Time.now.mday : -1
     @target_date += params[:shift].to_i.month
-    @target_date_timezone = @target_date.in_time_zone(current_user.curr_timezone)
     
     @month_days, @monthly_interviews = @presenter.monthly(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
@@ -60,9 +56,9 @@ class HomeController < ApplicationController
 
   private def set_time
     @target_date = begin
-      DateTime.parse(params[:date]).utc
+      DateTime.parse(params[:date])
     rescue => e
-      Time.now.utc
+      Time.now.in_time_zone(current_user&.curr_timezone || "UTC")
     end
 
     @tz_offset = ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset if user_signed_in?

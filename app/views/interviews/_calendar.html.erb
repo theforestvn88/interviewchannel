@@ -17,7 +17,7 @@
             <% end %>
             <%= form_tag('/cal/daily', method: :get) do %>
                 <input name="date" type="datetime-local" data-action="input->calendar#changeDate"
-                    value="<%= @target_date_timezone.strftime('%FT%R') %>"
+                    value="<%= @target_date.strftime('%FT%R') %>"
                     class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-3 w-full h-10">
             <% end %>
         <% when "weekly" %>
@@ -31,7 +31,7 @@
                     <polyline fill="none" stroke="#000" stroke-width="4" points="7 2 17 12 7 22" />
                 </svg>
             <% end %>
-            <span class="mt-5 w-60 h-10"><%= @target_date_timezone.strftime('Week %U (%B %Y)') %></span>
+            <span class="mt-5 w-60 h-10"><%= @target_date.strftime('Week %U (%B %Y)') %></span>
         <% when "monthly" %>
             <%= link_to "/cal/monthly?shift=-1&date=#{@target_date.strftime('%FT%R')}", method: :get, class: "text-xl text-center mt-5", title: "previous month" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
                     <polyline fill="none" stroke="#000" stroke-width="4" points="7 2 17 12 7 22" />
                 </svg>
             <% end %>
-            <span class="mt-5 w-60 h-10"><%= @target_date_timezone.strftime('%B %Y') %></span>
+            <span class="mt-5 w-60 h-10"><%= @target_date.strftime('%B %Y') %></span>
         <% end %>
 
         </div>

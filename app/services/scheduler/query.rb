@@ -12,7 +12,7 @@ class Scheduler
     
         def day(target_date, *roles, keyword: nil)
             as_role(*roles)
-                .by_time(target_date.beginning_of_day, target_date.end_of_day)
+                .by_time(target_date.beginning_of_day.utc, target_date.end_of_day.utc)
                 .by_keyword(keyword)
         end
 
@@ -32,7 +32,7 @@ class Scheduler
 
         def week(aday_in_week, *roles, keyword: nil)
             as_role(*roles)
-                .by_time(aday_in_week.beginning_of_week, aday_in_week.end_of_week)
+                .by_time(aday_in_week.beginning_of_week.utc, aday_in_week.end_of_week.utc)
                 .by_keyword(keyword)
         end
 
@@ -53,7 +53,7 @@ class Scheduler
 
         def month(aday_in_month, *roles, keyword: nil)
             as_role(*roles)
-                .by_time(aday_in_month.beginning_of_month, aday_in_month.end_of_month)
+                .by_time(aday_in_month.beginning_of_month.utc, aday_in_month.end_of_month.utc)
                 .by_keyword(keyword)
         end
 

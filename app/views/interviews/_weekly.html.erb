@@ -52,11 +52,18 @@
     </tr>
 
     <% (6..29).each do |hour| %>
+        <% timespan = hour % 24 %>
         <tr>
-            <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs"><%= strftime(hours: hour%24) %></td>
+            <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs"><%= strftime(hours: timespan) %></td>
             <% (1..7).each do |weekday| %>
-                <% if @weekly_display[hour] && display = @weekly_display[hour][weekday] %>
-                    <td class="w-full h-10 border-b-2 border-gray-200 relative">
+                <td class="relative w-full h-10 border-l-2 border-b-2 border-gray-200  <%= weekday%2==1 ? 'bg-gray-50' : '' %>">
+                    <% suggest_time = @week_dates[weekday - 1].beginning_of_day + timespan.hours %>
+                    <div id="interview-<%= @week_dates[weekday - 1].strftime('%F') + "-#{timespan}" %>-weekly<%= @tz_offset %>" class="w-full h-full">
+                        <%= link_to "  place holder ", new_interview_path(start_time: suggest_time.strftime('%Y-%m-%dT%H:%M'), end_time: (suggest_time + 1.hour).strftime('%Y-%m-%dT%H:%M')), 
+                            data: {"turbo-frame": "modal"}, class: "text-transparent block w-full h-full" %>
+                    </div>
+
+                    <% if @weekly_display[timespan] && display = @weekly_display[timespan][weekday] %>
                         <div id="interview-<%= display[:id] %>-timespan-weekly<%= @tz_offset %>" 
                             class="absolute top_<%= display[:top] %> left-1/5 w-full h_<%= display[:height] %> bg-red-200 z-10 flex items-center">
                             <div class="flex flex-col-reverse items-center p-2"
@@ -66,16 +73,8 @@
                                 <%= link_to display[:text], edit_interview_path(display[:id]), data: {"turbo-frame": "modal"}, class: "text-xs" %>
                             </div>
                         </div>
-                    </td>
-                <% else %>
-                    <td class="relative w-full h-10 border-l-2 border-b-2 border-gray-200  <%= weekday%2==1 ? 'bg-gray-50' : '' %>">
-                        <% suggest_time = @week_dates[weekday - 1].beginning_of_day + (hour%24).hours %>
-                        <div id="interview-<%= @week_dates[weekday - 1].strftime('%F') + "-#{hour}" %>-weekly<%= @tz_offset %>" class="w-full">
-                            <%= link_to "  place holder ", new_interview_path(start_time: suggest_time.strftime('%Y-%m-%dT%H:%M'), end_time: (suggest_time + 1.hour).strftime('%Y-%m-%dT%H:%M')), 
-                                data: {"turbo-frame": "modal"}, class: "text-transparent block w-full" %>
-                        </div>
-                    </td>
-                <% end %>
+                    <% end %>
+                </td>
             <% end %>
         </tr>
     <% end %>

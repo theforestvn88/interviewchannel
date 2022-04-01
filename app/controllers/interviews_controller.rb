@@ -29,6 +29,7 @@ class InterviewsController < ApplicationController
     @interview.start_time = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc
     @interview.end_time = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
     @interview.interviewer = current_user
+    @interview.candidate = User.first
 
     respond_to do |format|
       if @interview.save
@@ -38,7 +39,7 @@ class InterviewsController < ApplicationController
         [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-          Turbo::StreamsChannel.broadcast_replace_to(
+          Turbo::StreamsChannel.broadcast_append_to(
             :interviews,
             target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
@@ -46,7 +47,7 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
           )
 
-          Turbo::StreamsChannel.broadcast_replace_to(
+          Turbo::StreamsChannel.broadcast_append_to(
             :interviews,
             target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",

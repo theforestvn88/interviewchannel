@@ -1,5 +1,5 @@
 <div id="interview-<%= interview.id %>-timespan-monthly<%= tz_offset %>" 
-    class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 absolute left-0 top_<%= interview.start_time.hour * 3 %>"
+    class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 absolute left-0 top_<%= interview.start_time.in_time_zone(timezone).hour * 3 %>"
     data-controller="card"
     data-action="mouseenter->card#show mouseleave->card#hide"
     data-card-url-value="<%= card_interview_path(interview.id) %>">
