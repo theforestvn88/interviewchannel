@@ -1,5 +1,6 @@
 class InterviewsController < ApplicationController
-  before_action :set_interview, only: %i[ show room edit update destroy card ]
+  before_action :set_interview, only: %i[ show room edit update destroy card confirm ]
+  before_action :convert_time, only: %i[ create update ]
 
   # GET /interviews or /interviews.json
   def index
@@ -26,8 +27,6 @@ class InterviewsController < ApplicationController
   # POST /interviews or /interviews.json
   def create
     @interview = Interview.new(interview_params)
-    @interview.start_time = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc
-    @interview.end_time = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
     @interview.interviewer = current_user
 
     respond_to do |format|
@@ -78,14 +77,21 @@ class InterviewsController < ApplicationController
         [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-          Turbo::StreamsChannel.broadcast_replace_to(
+          # day
+          Turbo::StreamsChannel.broadcast_remove_to(
             @interview,
-            target: "interview-#{@interview.id}-timespan-daily#{tz_offset}", 
-            partial: "interviews/timespan_daily",
-            locals: CalendarPresenter.interview_daily_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update)
+            target: "interview-#{@interview.id}-timespan-daily#{tz_offset}"
           )
 
+          Turbo::StreamsChannel.broadcast_append_to(
+            :interviews,
+            target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
+            partial: "interviews/timespan_daily",
+            locals: CalendarPresenter.interview_daily_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
+          )
+
+          # week
           Turbo::StreamsChannel.broadcast_replace_to(
             @interview,
             target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}", 
@@ -94,6 +100,7 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update)
           )
 
+          # month
           Turbo::StreamsChannel.broadcast_replace_to(
             @interview,
             target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}", 
@@ -158,6 +165,14 @@ class InterviewsController < ApplicationController
     render layout: false, locals: {timezone: timezone, tz_offset: tz_offset}
   end
 
+  def confirm
+    delta_time = params[:timespan].to_i - @interview.start_time.in_time_zone(current_user.curr_timezone).hour
+    @interview.start_time += delta_time.hour
+    @interview.end_time += delta_time.hour
+
+    render layout: false
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_interview
@@ -166,6 +181,13 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id)
+      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id)
+    end
+
+    def convert_time
+      interview_params.merge!({
+        start_time: interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc,
+        end_time: interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
+      })
     end
 end

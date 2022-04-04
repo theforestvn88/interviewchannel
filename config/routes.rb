@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     member do
       get 'room'
       get 'card'
+      get 'confirm'
     end
 
     collection do

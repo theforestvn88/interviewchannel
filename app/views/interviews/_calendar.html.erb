@@ -1,5 +1,7 @@
 <%= turbo_frame_tag "calendar" do %>
-<div class="w-full mt-3 mx-auto px-6" data-controller="calendar">
+<div class="w-full mt-3 mx-auto px-6" 
+     data-controller="calendar"
+     data-action="dragstart->calendar#dragStart dragover->calendar#dragOver dragenter->calendar#dragEnter drop->calendar#drop dragEnd->calendar#dragEnd">
     <div class="w-full flex justify-between">
         <div class="flex justify-start" data-calendar-target="displayHeader">
 

@@ -53,4 +53,45 @@ export default class extends Controller {
       console.log(`search ${this.searchTarget.value}`);
     }
   }
-} 
+
+  // drag and drop
+  
+  dragStart(event) {
+    event.dataTransfer.setData("data-id", event.target.getAttribute("data-id"))
+    event.dataTransfer.setData("data-timespan", event.target.getAttribute("data-timespan"))
+    event.dataTransfer.effectAllowed = "move"
+  }
+
+  dragOver(event) {
+    event.preventDefault()
+    return true
+  }
+
+  dragEnter(event) {
+    event.preventDefault()
+  }
+
+  drop(event) {
+    let dropTarget = event.target
+    let droppable = dropTarget.getAttribute("droppable") 
+    if (!droppable || droppable == "false") {
+      dropTarget = dropTarget.parentElement
+      droppable = dropTarget.getAttribute("droppable")
+    }
+
+    if (droppable == "true") {
+      const id = event.dataTransfer.getData("data-id")
+      const timespan = dropTarget.getAttribute("data-timespan")
+
+      fetch(`/interviews/${id}/confirm?timespan=${timespan}`)
+        .then(r => r.text())
+        .then(html => {
+          const fragment = document.createRange().createContextualFragment(html)
+          document.getElementById("modal").replaceWith(fragment)
+        })
+    }
+    event.preventDefault()
+  }
+
+  dragEnd(event) {}
+}
