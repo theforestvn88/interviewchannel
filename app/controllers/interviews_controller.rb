@@ -39,7 +39,7 @@ class InterviewsController < ApplicationController
 
           Turbo::StreamsChannel.broadcast_append_to(
             :interviews,
-            target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
+            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
             locals: CalendarPresenter.interview_daily_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
@@ -47,7 +47,7 @@ class InterviewsController < ApplicationController
 
           Turbo::StreamsChannel.broadcast_append_to(
             :interviews,
-            target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
+            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",
             locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
@@ -55,7 +55,7 @@ class InterviewsController < ApplicationController
 
           Turbo::StreamsChannel.broadcast_append_to(
             :interviews,
-            target: "interviews-#{@interview.start_time.strftime('%F')}-monthly#{tz_offset}", 
+            target: "interviews-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
             locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create}
           )
@@ -85,27 +85,37 @@ class InterviewsController < ApplicationController
 
           Turbo::StreamsChannel.broadcast_append_to(
             :interviews,
-            target: "interview-#{@interview.start_time.strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
+            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
             locals: CalendarPresenter.interview_daily_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
           )
 
           # week
-          Turbo::StreamsChannel.broadcast_replace_to(
+          Turbo::StreamsChannel.broadcast_remove_to(
             @interview,
-            target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}", 
+            target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}"
+          )
+
+          Turbo::StreamsChannel.broadcast_append_to(
+            :interviews,
+            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",
             locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
           )
 
           # month
-          Turbo::StreamsChannel.broadcast_replace_to(
+          Turbo::StreamsChannel.broadcast_remove_to(
             @interview,
-            target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}", 
+            target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}"
+          )
+
+          Turbo::StreamsChannel.broadcast_append_to(
+            :interviews,
+            target: "interviews-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
-            locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :update}
+            locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create}
           )
         end
       else
@@ -166,9 +176,15 @@ class InterviewsController < ApplicationController
   end
 
   def confirm
-    delta_time = params[:timespan].to_i - @interview.start_time.in_time_zone(current_user.curr_timezone).hour
-    @interview.start_time += delta_time.hour
-    @interview.end_time += delta_time.hour
+    timespan_hour = params[:hour]
+    timespan_mday = params[:mday]
+
+    delta_hour = timespan_hour.present? ? timespan_hour.to_i - @interview.start_time.in_time_zone(current_user.curr_timezone).hour : 0
+    delta_day = timespan_mday.present? ? timespan_mday.to_i - @interview.start_time.in_time_zone(current_user.curr_timezone).mday : 0
+
+    delta_time = delta_day.day + delta_hour.hour
+    @interview.start_time += delta_time
+    @interview.end_time += delta_time
 
     render layout: false
   end

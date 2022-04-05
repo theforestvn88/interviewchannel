@@ -58,7 +58,6 @@ export default class extends Controller {
   
   dragStart(event) {
     event.dataTransfer.setData("data-id", event.target.getAttribute("data-id"))
-    event.dataTransfer.setData("data-timespan", event.target.getAttribute("data-timespan"))
     event.dataTransfer.effectAllowed = "move"
   }
 
@@ -75,15 +74,16 @@ export default class extends Controller {
     let dropTarget = event.target
     let droppable = dropTarget.getAttribute("droppable") 
     if (!droppable || droppable == "false") {
-      dropTarget = dropTarget.parentElement
+      dropTarget = dropTarget.closest(`[droppable='true']`)
       droppable = dropTarget.getAttribute("droppable")
     }
 
     if (droppable == "true") {
       const id = event.dataTransfer.getData("data-id")
-      const timespan = dropTarget.getAttribute("data-timespan")
+      const timespanHour = dropTarget.getAttribute("data-timespan-hour") || ""
+      const timespanMDay = dropTarget.getAttribute("data-timespan-mday") || ""
 
-      fetch(`/interviews/${id}/confirm?timespan=${timespan}`)
+      fetch(`/interviews/${id}/confirm?hour=${timespanHour}&mday=${timespanMDay}`)
         .then(r => r.text())
         .then(html => {
           const fragment = document.createRange().createContextualFragment(html)
