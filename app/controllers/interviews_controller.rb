@@ -57,7 +57,8 @@ class InterviewsController < ApplicationController
             :interviews,
             target: "interviews-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
-            locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create}
+            locals: CalendarPresenter.interview_monthly_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
           )
         end
       else
@@ -115,7 +116,8 @@ class InterviewsController < ApplicationController
             :interviews,
             target: "interviews-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
-            locals: {timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create}
+            locals: CalendarPresenter.interview_monthly_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
           )
         end
       else

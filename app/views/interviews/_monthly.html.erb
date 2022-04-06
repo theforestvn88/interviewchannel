@@ -1,5 +1,8 @@
 <%= turbo_frame_tag "interviews" do %>
 <%= turbo_stream_from :interviews %>
+<% @monthly_interviews.each do |interview| %>
+    <%= turbo_stream_from interview %>
+<% end %>
 <table class="w-full table-fixed mt-10">
     <tbody>
     <tr>
@@ -22,15 +25,14 @@
                     <div class="<%= @mday == month_day.mday ? 'bg-blue-500' : 'bg-blue-100' %> w-6 absolute top-px right-px text-center" draggable="false"><%= month_day.mday %></div>
                     <%= link_to "  place holder ", new_interview_path(start_time: month_day.beginning_of_day, end_time: month_day.beginning_of_day), 
                         data: {"turbo-frame": "modal"}, class: "absolute top-0 left-0 text-transparent block w-full h-full", "draggable": "false" %>
-                    <% @monthly_interviews[month_day.mday]&.each do |interview| %>
-                        <%= turbo_stream_from interview %>
-                        <div id="interview-<%= interview.id %>-timespan-monthly<%= @tz_offset %>" 
-                            class="m-2 text-xs text-red-300 border-2 border-red-500 bg-red-50 absolute left-0 top_<%= interview.start_time.hour * 3 %>"
+                    <% @monthly_display[month_day.mday]&.each do |display| %>
+                        <div id="interview-<%= display[:id] %>-timespan-monthly<%= @tz_offset %>" 
+                            class="m-2 text-xs <%= display[:color] %>_tag absolute left-0 top_<%= display[:top] %>"
                             data-controller="card"
                             data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
-                            data-card-url-value="<%= card_interview_path(interview.id) %>"
-                            draggable="true" droppable="false" data-id="<%= interview.id %>">
-                            <%= link_to interview.note&.slice(0, 28) + "...", edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, class: "block", "draggable": "false", "droppable": "false" %>
+                            data-card-url-value="<%= card_interview_path(display[:id]) %>"
+                            draggable="true" droppable="false" data-id="<%= display[:id] %>">
+                            <%= link_to display[:text], edit_interview_path(display[:id]), data: {"turbo-frame": "modal"}, class: "block", "draggable": "false", "droppable": "false" %>
                         </div>
                     <% end %>
                 </td>

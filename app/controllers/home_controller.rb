@@ -16,7 +16,7 @@ class HomeController < ApplicationController
       when "weekly"
         @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date, current_user.curr_timezone)
       when "monthly"
-        @month_days, @monthly_interviews = @presenter.monthly(@target_date, current_user.curr_timezone)
+        @monthly_interviews, @monthly_display, @month_days = @presenter.monthly(@target_date, current_user.curr_timezone)
       end
     end
   end
@@ -43,7 +43,7 @@ class HomeController < ApplicationController
     @mday = params[:shift].to_i == 0 ? Time.now.mday : -1
     @target_date += params[:shift].to_i.month
     
-    @month_days, @monthly_interviews = @presenter.monthly(@target_date, current_user.curr_timezone)
+    @monthly_interviews, @monthly_display, @month_days = @presenter.monthly(@target_date, current_user.curr_timezone)
     render partial: "interviews/calendar"
   end
 

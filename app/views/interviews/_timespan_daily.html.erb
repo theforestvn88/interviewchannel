@@ -1,5 +1,5 @@
 <div id="interview-<%= interview.id %>-timespan-daily<%= tz_offset %>" 
-    class="absolute top_<%= top %> left-1/5 w-full h_<%= height %> bg-red-200 z-10 flex items-center"
+    class="absolute top_<%= top %> left-1/5 w-full h_<%= height %> <%= color %>_tag z-10 flex items-center"
     draggable="true" droppable="false" data-id="<%= interview.id %>">
     <div class="flex flex-col-reverse items-center p-2"
         data-controller="card"

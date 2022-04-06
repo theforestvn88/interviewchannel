@@ -12,7 +12,8 @@ class CalendarPresenter
         id: interview.id,
         top: (start_time_in_min%60) * 100 / 60,
         height: (end_time_in_min - start_time_in_min)/6,
-        text: interview.note
+        text: interview.note,
+        color: "red" # TODO: base on tags
       }
     end
 
@@ -34,7 +35,8 @@ class CalendarPresenter
         id: interview.id,
         top: (start_time_in_min%60) * 100 / 60,
         height: (end_time_in_min - start_time_in_min)/6,
-        text: interview.note.slice(0, 30)
+        text: interview.note.slice(0, 30),
+        color: "red" # TODO: base on tags
       }
     end
 
@@ -53,9 +55,21 @@ class CalendarPresenter
       return [weekly_interviews, weekly_interviews_display, week_dates]
     end
 
+    def self.interview_monthly_display(interview, user_timezone)
+      {
+        id: interview.id,
+        top: interview.start_time.in_time_zone(user_timezone).hour * 3,
+        text: interview.note&.slice(0, 28) + "...",
+        color: "red" # TODO: base on tags
+      }
+    end
+
     def monthly(aday_in_month, user_timezone)
-      interviews = @scheduler.month(aday_in_month, :interviewer, :candidate).inject(Hash.new {|h,k| h[k] = []}) do |interviews, interview|
-        interviews[interview.start_time.in_time_zone(user_timezone).mday].push(interview)
+      monthly_interviews = @scheduler.month(aday_in_month, :interviewer, :candidate)
+      monthly_display = monthly_interviews.inject(Hash.new {|h,k| h[k] = []}) do |interviews, interview|
+        interviews[interview.start_time.in_time_zone(user_timezone).mday].push(
+          CalendarPresenter.interview_monthly_display(interview, user_timezone)
+        )
         interviews
       end
 
@@ -71,17 +85,6 @@ class CalendarPresenter
         end
       end
 
-      [month_days, interviews]
-    end
-
-    private def wrap_note(note, start, length)
-        return [0, ""] if note.nil?
-        
-        sliceStr = note.slice(start, length)
-        if (last_space_index = sliceStr&.rindex(/\s/) || 0) > 0
-            [start + last_space_index, sliceStr.slice(0, last_space_index)]
-        else
-            [start + length, sliceStr]
-        end
+      [monthly_interviews, monthly_display, month_days]
     end
 end
