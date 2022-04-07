@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get '/sign_out', to: 'sessions#destroy'
   get 'user/suggest', to: 'users#suggest', as: 'suggest_user'
   get 'users/:id/profile', to: 'users#profile', as: 'user_profile'
+  resources :users, only: [:edit, :update]
 
   resources :interviews do
     member do
