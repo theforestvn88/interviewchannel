@@ -1,0 +1,15 @@
+<div id="interview-<%= interview.id %>-timespan-weekly<%= tz_offset %>" 
+    class="absolute top_<%= top %> left-1/5 w-full h_<%= height %> <%= color %>_tag z-10 flex items-center"
+    draggable="true" droppable="false" data-id="<%= interview.id %>">
+    <div class="flex flex-col-reverse items-center p-2"
+        data-controller="card"
+        data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
+        data-card-url-value="<%= card_interview_path(interview) %>"
+        droppable="false">
+        <% if action == :create  or action == :update %>
+            <%= turbo_stream_from interview %>
+        <% end %>
+        <%= link_to text, edit_interview_path(interview), data: {"turbo-frame": "modal"}, class: "text-xs", "draggable": "false", "droppable": "false" %>
+        <%= render template: "interviews/card", locals: {timezone: timezone, tz_offset: tz_offset, interview: interview} %>
+    </div>
+</div>

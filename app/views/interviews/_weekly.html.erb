@@ -1,0 +1,86 @@
+<%= turbo_frame_tag "interviews" do %>
+<%= turbo_stream_from :interviews %>
+<% @weekly_interviews.each do |interview| %>
+    <%= turbo_stream_from interview %>
+<% end %>
+<table class="w-full table-fixed mt-10">
+    <tbody>
+    <tr class="mb-5">
+        <th class="w-14 text-xs" title="<%= current_user.curr_timezone %>">GMT<%= @tz_offset %></th>
+        <th class="border-l-2 border-gray-200 bg-gray-50">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 1 ? 'bg-blue-200 rounded-md' : '' %>">Mon</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 1 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[0].strftime("%d") %></span></div>
+            </div>
+        </th>
+        <th class="border-l-2 border-gray-200">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 2 ? 'bg-blue-200 rounded-md' : '' %>">Tue</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 2 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[1].strftime("%d") %></span></div>
+            </div>
+        </th>
+        <th class="border-l-2 border-gray-200 bg-gray-50">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 3 ? 'bg-blue-200 rounded-md' : '' %>">Wed</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 3 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[2].strftime("%d") %></span></div>
+            </div>
+        </th>
+        <th class="border-l-2 border-gray-200">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 4 ? 'bg-blue-200 rounded-md' : '' %>">Thu</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 4 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[3].strftime("%d") %></span></div>
+            </div>
+        </th>
+        <th class="border-l-2 border-gray-200 bg-gray-50">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 5 ? 'bg-blue-200 rounded-md' : '' %>">Fri</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 5 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[4].strftime("%d") %></span></div>
+            </div>
+        </th>
+        <th class="border-l-2 border-gray-200">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 6 ? 'bg-blue-200 rounded-md' : '' %>">Sat</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 6 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[5].strftime("%d") %></span></div>
+            </div>
+        </th>
+        <th class="border-l-2 border-gray-200">
+            <div>
+                <div><span class="w-20 px-1 <%= @wday == 0 ? 'bg-blue-200 rounded-md' : '' %>">Sun</span></div>
+                <div class="px-1"><span class="w-10 <%= @wday == 0 ? 'bg-blue-200' : 'bg-zinc-200' %> rounded-md"><%= @week_dates[6].strftime("%d") %></span></div>
+            </div>
+        </th>
+    </tr>
+
+    <% (6..29).each do |hour| %>
+        <% timespan = hour % 24 %>
+        <tr>
+            <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs" droppable="false"><%= strftime(hours: timespan) %></td>
+            <% (1..7).each do |weekday| %>
+                <td class="relative w-full h-10 border-l-2 border-b-2 border-gray-200  <%= weekday%2==1 ? 'bg-gray-50' : '' %> bg-clip-padding"
+                    droppable="true" data-timespan-hour="<%= timespan %>" data-timespan-mday="<%= @week_dates[weekday - 1].mday %>">
+                    <% suggest_time = @week_dates[weekday - 1].beginning_of_day + timespan.hours %>
+                    <div id="interview-<%= @week_dates[weekday - 1].strftime('%F') + "-#{timespan}" %>-weekly<%= @tz_offset %>" class="w-full h-full">
+                        <%= link_to "      ", new_interview_path(start_time: suggest_time.strftime('%Y-%m-%dT%H:%M'), end_time: (suggest_time + 1.hour).strftime('%Y-%m-%dT%H:%M')), 
+                            data: {"turbo-frame": "modal"}, class: "text-transparent block w-full h-full", "draggable": "false" %>
+                    </div>
+
+                    <% if @weekly_display[timespan] && display = @weekly_display[timespan][weekday] %>
+                        <div id="interview-<%= display[:id] %>-timespan-weekly<%= @tz_offset %>" 
+                            class="absolute top_<%= display[:top] %> left-1/5 w-full h_<%= display[:height] %> <%= display[:color] %>_tag z-10 flex items-center"
+                            draggable="true" droppable="false" data-id="<%= display[:id] %>">
+                            <div class="flex flex-col-reverse items-center p-2"
+                                data-controller="card"
+                                data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
+                                data-card-url-value="<%= card_interview_path(display[:id]) %>"
+                                droppable="false">
+                                <%= link_to display[:text], edit_interview_path(display[:id]), data: {"turbo-frame": "modal"}, class: "text-xs", "draggable": "false", "droppable": "false" %>
+                            </div>
+                        </div>
+                    <% end %>
+                </td>
+            <% end %>
+        </tr>
+    <% end %>
+    </tbody>
+</table>
+<% end %>

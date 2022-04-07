@@ -1,0 +1,12 @@
+<div id="interview-<%= interview.id %>-timespan-monthly<%= tz_offset %>" 
+    class="m-2 text-xs <%= color %>_tag absolute left-0 top_<%= top %>"
+    data-controller="card"
+    data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
+    data-card-url-value="<%= card_interview_path(interview.id) %>"
+    draggable="true" droppable="false" data-id="<%= interview.id %>">
+    <% if action == :create  or action == :update %>
+        <%= turbo_stream_from interview %>
+    <% end %>
+    <%= link_to text, edit_interview_path(interview.id), data: {"turbo-frame": "modal"}, class: "block", "draggable": "false", "droppable": "false" %>
+    <%= render template: "interviews/card", locals: {timezone: timezone, tz_offset: tz_offset, interview: interview} %>
+</div>

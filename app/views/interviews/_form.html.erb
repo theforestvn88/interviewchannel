@@ -1,42 +1,64 @@
-<%= form_with(model: interview, class: "contents") do |form| %>
-  <% if interview.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2><%= pluralize(interview.errors.count, "error") %> prohibited this interview from being saved:</h2>
+<div data-controller="form" class="relative" data-form-suggest-user-url-value="<%= suggest_user_path %>">
+  <%= form_with(model: interview, class: "contents") do |form| %>
+    <% if interview.errors.any? %>
+      <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+        <h2><%= pluralize(interview.errors.count, "error") %> prohibited this interview from being saved:</h2>
 
-      <ul>
-        <% interview.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+        <ul>
+          <% interview.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="my-5">
+      <%= form.label :title %>
+      <%= form.text_area :note, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    </div>
+
+    <div class="my-5">
+      <%= form.label :interviewer %>
+      <input class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" value="<%= current_user.name %>" disabled>
+    </div>
+
+    <div class="my-5 relative">
+      <%= form.label :candidate %>
+      <%= form.hidden_field :candidate_id, value: "#{interview.candidate&.id}", "data-form-target": "suggestionUserId" %>
+      <input value="<%= interview.candidate&.name %>"
+        data-form-target="suggestionUserInput" data-action="input->form#suggestUser",
+        class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+      <div data-form-target="suggestionUser" class="hidden absolute bot-0 left-0 w-full h-20 drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
+    </div>
+
+    <div class="my-5">
+      <%= form.label :start_time %>
+      <%= form.datetime_field :start_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full",
+          :value => (params[:start_time] || interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%Y-%m-%dT%H:%M')) %>
+    </div>
+
+    <div class="my-5">
+      <%= form.label :end_time %>
+      <%= form.datetime_field :end_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full",
+          :value => (params[:end_time] || interview.end_time.in_time_zone(current_user.curr_timezone).strftime('%Y-%m-%dT%H:%M')) %>
+    </div>
+
+
+    <div class="flex justify-end">
+      <% if interview.persisted? %>
+        <div data-action="click->form#showConfirmDialog" 
+          class="rounded-lg py-2 px-4 mr-2 bg-red-400 text-white inline-block font-medium cursor-pointer">Remove</div>
+      <% end %>
+      <%= form.submit class: "rounded-lg py-2 px-4 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
     </div>
   <% end %>
 
-  <div class="my-5">
-    <%= form.label :note %>
-    <%= form.text_field :note, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+  <div data-form-target="confirmDialog" class="hidden absolute bottom-0 left-0 w-full h-10 flex justify-between items-center p-1 bg-white border-2 border-gray-100 drop-shadow-md z-52">
+    <p class="font-bold">Are you sure ?</p>
+    <div class="flex justify-end">
+      <div data-action="click->form#hideConfirmDialog" class="rounded-lg px-2 m-1 inline-block font-medium cursor-pointer">No</div>
+      <%= button_to "Yes", interview, method: :delete,
+          class: "rounded-lg px-2 m-1 bg-red-400 text-white inline-block font-medium cursor-pointer" %>
+    </div>
   </div>
-
-  <div class="my-5">
-    <%= form.label :start_time %>
-    <%= form.datetime_field :start_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :end_time %>
-    <%= form.datetime_field :end_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :code %>
-    <%= form.text_area :code, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :result %>
-    <%= form.check_box :result, class: "block mt-2 h-5 w-5" %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
-  </div>
-<% end %>
+</div>

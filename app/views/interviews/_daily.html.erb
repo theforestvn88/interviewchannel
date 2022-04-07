@@ -1,0 +1,46 @@
+<%= turbo_frame_tag "interviews" do %>
+    <%= turbo_stream_from :interviews %>
+    <% @daily_interviews&.each do |interview| %>
+        <%= turbo_stream_from interview %>
+    <% end %>
+    <table class="w-full table-fixed mt-10">
+        <tbody>
+        <tr>
+            <th class="w-14 text-xs border-b-2 border-r-2 border-gray-200 mb-5" title="<%= current_user.curr_timezone %>">
+                GMT<%= @tz_offset %>
+            </th>
+            <th class="w-full border-b-2 border-gray-200 mb-5"><%= @target_date.strftime("%A") %></th>
+        </tr>
+        <% (6..29).each do |hour| %>
+            <% timespan = hour % 24 %>
+            <tr>
+                <td class="w-14 border-b-2 border-r-2 border-gray-200 text-xs" droppable="false"><%= strftime(hours: timespan) %></td>
+                <td class="w-full h-10 border-b-2 border-gray-200 relative" droppable="true" data-timespan-hour="<%= timespan %>">
+                    <% suggest_time = @target_date.beginning_of_day + timespan.hours %>
+                    <%= link_to "   ", 
+                        new_interview_path(
+                            start_time: suggest_time.strftime('%Y-%m-%dT%H:%M'), 
+                            end_time: (suggest_time + 1.hour).strftime('%Y-%m-%dT%H:%M')), 
+                        data: {"turbo-frame": "modal"}, class: "text-transparent block w-full h-full",  "draggable": "false" %>
+
+                    <div id="interview-<%= @target_date.strftime('%F') + "-#{timespan}" %>-daily<%= @tz_offset %>" class="realtive w-full">     
+                        <% if display = @daily_display[timespan] %>
+                            <div id="interview-<%= display[:id] %>-timespan-daily<%= @tz_offset %>" 
+                                class="absolute top_<%= display[:top] %> left-1/5 w-full h_<%= display[:height] %> <%= display[:color] %>_tag z-10 flex items-center"
+                                draggable="true" droppable="false" data-id="<%= display[:id] %>">
+                                <div class="flex flex-col-reverse items-center p-2"
+                                    data-controller="card"
+                                    data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
+                                    data-card-url-value="<%= card_interview_path(display[:id]) %>"
+                                    droppable="false">
+                                    <%= link_to display[:text], edit_interview_path(display[:id]), data: {"turbo-frame": "modal"}, "draggable": "false", "droppable": "false" %>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </td>
+            </tr>
+        <% end %>
+        </tbody>
+    </table>
+<% end %>

@@ -1,0 +1,8 @@
+<h1><b><\ interview ></b> Channel</h1>
+<% if user_signed_in? %>
+    <div><%= link_to 'sign out', '/sign_out', class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 text-xs" %></div>
+<% else %>
+    <%= button_to 'Sign in with Github', '/auth/github', method: :post, data: {turbo: "false"}, params: {timezone: "UTC"},
+        class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 text-xs",
+        "data-controller": "auth" %>
+<% end %>

@@ -1,0 +1,42 @@
+<%= turbo_frame_tag "interviews" do %>
+    <% if @interviews.empty? && params[:offset].nil? %>
+        <table class="w-full table-fixed mt-10">
+            <div class="w-full h-full p-10 m-10 bg-gray-50 text-center"><span class="font-bold">No Result</span></div>
+        </table>
+    <% else %>
+        <table class="w-full table-fixed mt-10">
+            <tbody>
+                <tr>
+                    <th class="text-sm border-b-2 border-r-2 border-gray-200 mb-5">Note</th>
+                    <th class="text-sm w-56 border-b-2 border-r-2 border-gray-200 mb-5">Start Time</th>
+                    <th class="text-sm w-56 border-b-2 border-gray-200 mb-5">End Time</th>
+                </tr>
+                <% if @interviews.empty? %>
+                    <tr class="bg-gray-50 text-right py-10 border-b-2 border-gray-300"><td>No Result</td><td></td><td></td></tr>
+                <% else %>
+                    <% @interviews.each do |interview| %>
+                        <%= tag.tr do |tag| %>
+                            <%= tag.td(interview.note, class: "w-full px-5 py-5 text-xs border-b-2 border-r-2 border-gray-300") %>
+                            <%= tag.td(interview.start_time, class: "w-full px-5 py-5 text-xs border-b-2 border-r-2 border-gray-300") %>
+                            <%= tag.td(interview.end_time, class: "w-full px-5 py-5 text-xs border-b-2 border-gray-300") %>
+                        <% end %>
+                    <% end %>
+                <% end %>
+            </tbody>
+        </table>
+        <div class="w-60 flex justify-start">
+            <%= link_to "/interviews/search?keyword=#{params[:keyword]}&offset=#{@prev_offset}", method: :get, 
+                    class: "text-xl text-center mt-5", title: "previous page" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
+                    <polyline fill="none" stroke="#aaa" stroke-width="4" points="7 2 17 12 7 22" transform="matrix(-1 0 0 1 24 0)"/>
+                </svg>
+            <% end %>
+            <%= link_to "/interviews/search?keyword=#{params[:keyword]}&offset=#{@next_offset}", method: :get, 
+                    class: "text-xl text-center mt-5 mr-2", title: "next page" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
+                    <polyline fill="none" stroke="#aaa" stroke-width="4" points="7 2 17 12 7 22" />
+                </svg>
+            <% end %>
+        </div>
+    <% end %>
+<% end %>
