@@ -1,0 +1,12 @@
+<div class="w-full m-5">
+    <div class="w-full flex justify-between">
+        <%= render 'layouts/header' %>
+    </div>
+
+    <div class="flex flex-col items-center mt-10 mx-auto p-10 bg-zinc-100">
+        <img src="<%= @user.image %>" class="object-cover h-48 w-48 rounded-full" />
+        <h3><b><%= @user.name %></b></h3>
+        <h3><i><%= @user.email %></i></h3>
+        <a href="<%= @user.github %>" class="text-blue-600 font-bold">github</a>
+    </div>
+</div>
