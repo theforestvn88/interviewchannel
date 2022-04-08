@@ -12,7 +12,10 @@
         <span><b><%= user.cv.blank? ? "! IMPORTANT" : " " %></b> update your profile</span>
     <% end %>
 
-
-    <textarea class="w-full mt-1 border-0" rows="20", cols="100" disabled><%= user.cv.blank? ? "Your profile section is currently blank. Would you like to add one?" : user.cv %></textarea>
+    <% if user.cv.blank? %>
+        <p class="mt-10 pb-10 font-bold">Your profile section is currently blank. Would you like to add one?</p>
+    <% else %>
+        <textarea class="w-full mt-1 border-0" rows="20", cols="100" disabled><%= user.cv %></textarea>
+    <% end %>
 </div>
 <% end %>

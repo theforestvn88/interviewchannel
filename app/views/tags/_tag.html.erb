@@ -1,0 +1,4 @@
+<div id="<%= dom_id tag %>" class="flex justify-start py-1 mx-3">
+  <%= link_to tag.name, edit_tag_path(tag), class: "px-2 bg-gray-100 inline-block hover:bg-blue-200" %>
+  <%= button_to "X", tag_path(tag), method: :delete, class: "px-2 bg-gray-100 inline-block hover:bg-red-200 border-l-2 border-gray-400" %>
+</div>

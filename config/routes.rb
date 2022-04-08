@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :tags
   root 'home#index'
   get '/cal/daily', to: 'home#daily', as: "calendar_daily"
   get '/cal/weekly', to: 'home#weekly', as: "calendar_weekly"
@@ -6,9 +7,16 @@ Rails.application.routes.draw do
 
   get 'auth/github/callback', to: 'sessions#callback'
   get '/sign_out', to: 'sessions#destroy'
-  get 'user/suggest', to: 'users#suggest', as: 'suggest_user'
-  get 'users/:id/profile', to: 'users#profile', as: 'user_profile'
-  resources :users, only: [:edit, :update]
+
+  resources :users, only: [:edit, :update] do
+    collection do
+      get 'suggest'
+    end
+
+    member do
+      get 'profile'
+    end
+  end
 
   resources :interviews do
     member do
