@@ -22,8 +22,8 @@
             <h3><i><%= @user.email %></i></h3>
         </div>
 
-        <% if @user.id == current_user.id %>
-            <%= render partial: "users/cv", locals: {user: current_user} %>
-        <% end %>
+        <%= render partial: "users/tags", locals: {user: @user} %>
+        <%= render partial: "users/cv", locals: {user: @user} %>
+
     </div>
 </div>

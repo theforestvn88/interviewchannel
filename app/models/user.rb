@@ -15,10 +15,11 @@
 #   + votes on user (per job post as interviewer or per interview as interviewer/candidate)
 #
 # Solution:
-#     + subscriptions: channels are `user uid` or tags -> user has_many followers(users), user has tags combine string `#Ruby#Rails`
+#     + subscriptions: channels are `user uid` or tags -> user has_many followers(users), 
+#     + user has tags combine string `#Ruby#Rails`
 #     + messages table: <id, owner_id, channel, content_text_no_attachments, expired_at>
 #         . index updated_at (or expired_at) ?
-#         . channel are tag names (automatically add owner uid)
+#         . channel are tag names 
 #         . a schedule job to delete expired messages
 #     + interviewer post job message on tags-channel
 #     + user receive message (real time): turbo-stream on user's tags

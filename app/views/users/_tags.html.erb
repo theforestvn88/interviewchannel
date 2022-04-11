@@ -1,7 +1,8 @@
-<%= turbo_frame_tag "profile" do %>
-<div class="w-2/3 mx-auto pl-16 pt-5 mt-10 bg-white rounded-lg relative">
+<%= turbo_frame_tag "watch_tags" do %>
+<div class="w-2/3 mx-auto px-16 mt-5 mb-10">
+    <p class="w-full text-center"><span class="inline-block align-middle"><%= user.watch_tags || (user.id == current_user.id ? "Your watch-tags section is currently blank. Would you like to add one?" : "") %></span>
     <% if user.id == current_user.id %>
-        <%= link_to edit_user_path(user), class: "flex items-center absolute top-0 right-0 bg-green-300 hover:bg-green-600 p-1 rounded-tr-lg" do %>
+        <%= link_to edit_tags_user_path(user), class: "inline-block align-middle bg-green-300 hover:bg-green-600 ml-1 px-1 py-1", title: "edit tags" do %>
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 494.936 494.936" style="enable-background:new 0 0 494.936 494.936;" xml:space="preserve">
             <g>
                 <g>
@@ -10,15 +11,8 @@
                 </g>
             </g>
             </svg>
-            
-            <span><b><%= user.cv.blank? ? "! IMPORTANT" : " " %></b> update your profile</span>
         <% end %>
     <% end %>
-
-    <% if user.id == current_user.id && user.cv.blank? %>
-        <p class="w-full text-center pr-16 mt-10 pb-10 font-bold">Your profile section is currently blank. Would you like to add one?</p>
-    <% elsif user.cv.present? %>
-        <textarea class="w-full mt-1 border-0" rows="20", cols="100" disabled><%= user.cv %></textarea>
-    <% end %>
+    </p>
 </div>
 <% end %>

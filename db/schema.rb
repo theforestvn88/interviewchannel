@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_08_113702) do
+ActiveRecord::Schema.define(version: 2022_04_11_112041) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 2022_04_08_113702) do
     t.string "image"
     t.string "github"
     t.text "cv"
+    t.text "watch_tags"
   end
 
   add_foreign_key "interviews", "users", column: "candidate_id"

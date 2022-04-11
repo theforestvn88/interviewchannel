@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :tags
   root 'home#index'
   get '/cal/daily', to: 'home#daily', as: "calendar_daily"
   get '/cal/weekly', to: 'home#weekly', as: "calendar_weekly"
@@ -15,6 +14,7 @@ Rails.application.routes.draw do
 
     member do
       get 'profile'
+      get 'edit_tags'
     end
   end
 
@@ -29,4 +29,6 @@ Rails.application.routes.draw do
       get '/search', to: 'interviews#search', as: 'search'
     end
   end
+
+  resources :tags
 end

@@ -1,5 +1,5 @@
-<%= turbo_frame_tag "profile" do %>
-  <%= form_with(model: current_user, class: "contents") do |form| %>
+<%= turbo_frame_tag "watch_tags" do %>
+  <%= form_with(model: current_user, class: "w-2/3 mx-auto") do |form| %>
     <% if current_user.errors.any? %>
       <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
         <h2><%= pluralize(current_user.errors.count, "error") %> prohibited this current_user from being saved:</h2>
@@ -13,11 +13,11 @@
     <% end %>
 
     <div class="my-5">
-      <%= form.label :your_profile %>
-      <%= form.text_area :cv, rows: 10, cols: 50, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+      <%= form.label :watched_tags %>
+      <%= form.text_area :watch_tags, rows: 3, cols: 50, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
     </div>
 
-    <input type="hidden" id="partial" name="partial" value="cv" />
+    <input type="hidden" id="partial" name="partial" value="tags" />
     <div class="flex justify-end">
       <%= form.submit "Update", class: "rounded-lg py-2 px-4 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
     </div>

@@ -17,9 +17,13 @@ class UsersController < ApplicationController
         render layout: false
     end
 
+    def edit_tags
+        render layout: false
+    end
+
     def update
         if current_user.update(user_params)
-            render partial: "users/cv", locals: {user: current_user}, layout: false
+            render partial: "users/#{params[:partial]}", locals: {user: current_user}, layout: false
         else
             render :edit
         end
@@ -32,6 +36,6 @@ class UsersController < ApplicationController
         end
 
         def user_params
-            params.require(:user).permit(:cv)
+            params.require(:user).permit(:cv, :watch_tags)
         end
 end
