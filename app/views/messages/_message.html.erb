@@ -1,0 +1,9 @@
+<div id="<%= dom_id message %>" class="mb-5 text-xs">
+  <p>
+    <span><%= message.id %>. </span><span>by <%= message.user.name %> |</span> <span class="font-bold"><%= message.channel %></span>
+  </p>
+
+  <p>
+    <%= message.content %>
+  </p>
+</div>

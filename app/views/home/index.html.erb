@@ -6,9 +6,10 @@
     <div class="w-full mt-5 flex justify-between border-t-2 border-gray-300">
       <div>
         <%= render 'users/brief_profile' %>
+        <%= render 'messages/summary' %>
         <%= render 'interviews/summary' %>
       </div>
-      <div>
+      <div id="home-content" class="w-full">
         <%= render 'interviews/calendar' %>
       </div>
     </div>

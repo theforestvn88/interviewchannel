@@ -31,4 +31,5 @@ Rails.application.routes.draw do
   end
 
   resources :tags
+  resources :messages
 end
