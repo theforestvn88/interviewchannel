@@ -8,14 +8,14 @@ class MessageTest < ActiveSupport::TestCase
   end
 
   test "query by tags" do
-    assert_equal Message.by_tag([:ruby, :rails]).count, 2
-    assert_equal Message.by_tag([:js, :rails]).count, 2
-    assert_equal Message.by_tag([:js, :android]).count, 1
+    assert_equal Message.by_tags([:ruby, :rails]).count, 2
+    assert_equal Message.by_tags([:js, :rails]).count, 2
+    assert_equal Message.by_tags([:js, :android]).count, 1
   end
 
   test "query by time" do
-    assert_equal Message.by_updated_time(1.hour.ago.utc).count, 1
-    assert_equal Message.by_updated_time(1.month.ago.utc).count, 2
+    assert_equal Message.by_updated_time(1.hour.ago.utc...).count, 1
+    assert_equal Message.by_updated_time(1.month.ago.utc...).count, 2
   end
 
   test "query by user" do

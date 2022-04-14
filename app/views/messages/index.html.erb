@@ -8,7 +8,7 @@
 
   <%= turbo_frame_tag "messages", class: "w-full" do %>
   <div id="messages" class="w-full">
-    <%= render @messages %>
+    <%= render @messages if @messages %>
   </div>
   <% end %>
 

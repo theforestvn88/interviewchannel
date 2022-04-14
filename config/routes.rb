@@ -31,5 +31,10 @@ Rails.application.routes.draw do
   end
 
   resources :tags
-  resources :messages
+
+  resources :messages do
+    collection do
+      post '/query', to: 'messages#query', as: 'query'
+    end
+  end
 end

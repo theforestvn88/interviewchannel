@@ -4,11 +4,11 @@ class Message < ApplicationRecord
              :foreign_key => "user_id",
              :inverse_of => :sent_messages
 
-  scope :by_updated_time, ->(from_time) {
-    where(updated_at: from_time...).order("updated_at DESC")
+  scope :by_updated_time, ->(time_range) {
+    where(updated_at: time_range).order("updated_at DESC")
   }
 
-  scope :by_tag, ->(tags) {
+  scope :by_tags, ->(tags) {
     where(
       (["channel ILIKE ?"] * tags.size).join(" OR "), 
       *tags.map { |t| "%#{t}%" }

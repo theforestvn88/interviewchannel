@@ -4,8 +4,16 @@ class MessagesController < ApplicationController
 
   # GET /messages or /messages.json
   def index
-    @messages = Message.all
-    render layout: false
+    @messages = Messager.new(current_user, current_user.curr_timezone).recently(params[:tag])
+  end
+
+  def query
+    @messages = Messager.new(current_user, current_user.curr_timezone).recently(params[:tag])
+    respond_to do |format|
+      format.html { }
+      format.json { }
+      format.turbo_stream { }
+    end
   end
 
   # GET /messages/1 or /messages/1.json

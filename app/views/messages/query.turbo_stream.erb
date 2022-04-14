@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "messages" do %>
+    <div id="messages" class="w-full">
+        <%= render @messages if @messages %>
+    </div>
+<% end %>
