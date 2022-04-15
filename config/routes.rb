@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   root 'home#index'
+  post '/calendar', to: 'home#calendar', as: 'calendar'
   get '/cal/daily', to: 'home#daily', as: "calendar_daily"
   get '/cal/weekly', to: 'home#weekly', as: "calendar_weekly"
   get '/cal/monthly', to: 'home#monthly', as: "calendar_monthly"

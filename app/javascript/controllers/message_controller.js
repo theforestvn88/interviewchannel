@@ -1,23 +1,30 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["content", "channel"]
+    static targets = ["selectedTag", "content", "channel"]
 
     connect() {
-        this.element.addEventListener("turbo:submit-end", this.clearForm.bind(this));
-    }
-
-    recently() {
-        fetch('/messages')
-            .then(r => r.text())
-            .then(html => {
-                const fragment = document.createRange().createContextualFragment(html)
-                document.getElementById("home-content").replaceWith(fragment)
-            })
+        this.element.addEventListener("turbo:submit-end", this.clearForm.bind(this))
+        this.selectedTag = null
     }
 
     clearForm() {
-        this.contentTarget.value = ""
-        this.channelTarget.value = ""
+        if (this.hasContentTarget) {
+            this.contentTarget.value = ""
+        }
+
+        if (this.hasChannelTarget) {
+            this.channelTarget.value = ""
+        }
+    }
+
+    selectTag(event) {
+        if (this.hasSelectedTagTarget) {
+            this.selectedTagTarget.classList.remove("font-bold")
+        }
+        
+        if (this.selectedTag) this.selectedTag.classList.remove("font-bold")
+        event.target.classList.add("font-bold")
+        this.selectedTag = event.target
     }
 }

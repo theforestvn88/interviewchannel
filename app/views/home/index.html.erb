@@ -5,14 +5,12 @@
   <% if user_signed_in? %>
     <div class="w-full mt-5 flex justify-between border-t-2 border-gray-300">
       <div class="mt-5">
+        <%= turbo_stream_from :messages %>
         <%= render 'messages/summary' %>
         <hr class="my-2">
         <%= render 'interviews/summary' %>
       </div>
-      <div id="home-content" class="w-full">
-        <%= render template: 'messages/index' %>
-        <%= render 'interviews/calendar' %>
-      </div>
+      <%= render template: 'messages/index' %>
     </div>
   <% else %>
     <%= render 'layouts/intro' %>

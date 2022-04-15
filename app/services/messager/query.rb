@@ -3,7 +3,8 @@
 class Messager
     module Query
         def recently(*tags)
-            MessageRepo.query(by_tags: tags, by_time: @one_month_ago_utc...)
+            _tags = tags.filter {|t| t.to_s != "#all"}
+            MessageRepo.query(by_tags: _tags, by_time: @one_month_ago_utc...)
         end
 
         def own_by_me

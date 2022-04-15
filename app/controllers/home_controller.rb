@@ -2,7 +2,7 @@
 
 class HomeController < ApplicationController
   before_action :check_logged_in, except: :index
-  before_action :ensure_turbo_frame_request, except: :index
+  before_action :ensure_turbo_frame_request, except: [:index, :calendar]
   before_action :create_scheduler_and_presenter
   before_action :set_time
 
@@ -13,20 +13,28 @@ class HomeController < ApplicationController
       @tags = current_user.watch_tags.split(" ").map do |tag|
         _tag = tag.strip.downcase
         [_tag, messager.count_by_tag(_tag)]
-      end
+      end.unshift(["#all", messager.count_all])
 
-      # calendar
+      @messages = Messager.new(current_user, current_user.curr_timezone).recently("#all")
+    end
+  end
 
-      @display = params[:display] || "daily"
+  def calendar
+    @display = params[:display] || "daily"
 
-      case @display
-      when "daily"
-        @daily_interviews, @daily_display = @presenter.daily(@target_date, current_user.curr_timezone)
-      when "weekly"
-        @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date, current_user.curr_timezone)
-      when "monthly"
-        @monthly_interviews, @monthly_display, @month_days = @presenter.monthly(@target_date, current_user.curr_timezone)
-      end
+    case @display
+    when "daily"
+      @daily_interviews, @daily_display = @presenter.daily(@target_date, current_user.curr_timezone)
+    when "weekly"
+      @weekly_interviews, @weekly_display, @week_dates = @presenter.weekly(@target_date, current_user.curr_timezone)
+    when "monthly"
+      @monthly_interviews, @monthly_display, @month_days = @presenter.monthly(@target_date, current_user.curr_timezone)
+    end
+
+    respond_to do |format|
+      format.html { }
+      format.json { }
+      format.turbo_stream { }
     end
   end
 
