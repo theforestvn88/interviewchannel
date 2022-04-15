@@ -10,7 +10,7 @@ class HomeController < ApplicationController
     if user_signed_in?
       # messages
       messager = Messager.new(current_user, current_user.curr_timezone)
-      @tags = current_user.watch_tags.split(" ").map do |tag|
+      @tags = (current_user.watch_tags || "").split(" ").map do |tag|
         _tag = tag.strip.downcase
         [_tag, messager.count_by_tag(_tag)]
       end.unshift(["#all", messager.count_all])

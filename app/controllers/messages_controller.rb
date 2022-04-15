@@ -42,12 +42,12 @@ class MessagesController < ApplicationController
         format.json { render :show, status: :created, location: @message }
         format.turbo_stream
 
-        # Turbo::StreamsChannel.broadcast_append_to(
-        #   :messages,
-        #   target: "messages", 
-        #   partial: "messages/message",
-        #   locals: {message: @message}
-        # )
+        Turbo::StreamsChannel.broadcast_prepend_to(
+          :messages,
+          targets: (@message.channel || "").split(" ").push("all").map {|t| "#messages_#{t.gsub('#','')}"}.join(", "), 
+          partial: "messages/message",
+          locals: {message: @message}
+        )
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @message.errors, status: :unprocessable_entity }
