@@ -42,12 +42,7 @@ class MessagesController < ApplicationController
         format.json { render :show, status: :created, location: @message }
         format.turbo_stream
 
-        Turbo::StreamsChannel.broadcast_prepend_to(
-          :messages,
-          targets: (@message.channel || "").split(" ").push("all").map {|t| "#messages_#{t.gsub('#','')}"}.join(", "), 
-          partial: "messages/message",
-          locals: {message: @message}
-        )
+        Messager.new(current_user, current_user.curr_timezone).increase_then_broadcast_counter(@message)
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @message.errors, status: :unprocessable_entity }
@@ -71,11 +66,7 @@ class MessagesController < ApplicationController
   # DELETE /messages/1 or /messages/1.json
   def destroy
     @message.destroy
-
-    respond_to do |format|
-      format.html { redirect_to messages_url, notice: "Message was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    Messager.new(current_user, current_user.curr_timezone).decrease_then_broadcast_counter(@message)
   end
 
   private

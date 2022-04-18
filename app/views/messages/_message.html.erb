@@ -1,9 +1,13 @@
 <div id="<%= dom_id message %>" class="mb-5 text-xs">
   <p>
     <span><%= message.id %>. </span><span>by <%= message.owner.name %> |</span> <span class="font-bold"><%= message.channel %></span>
+    <% if message.user_id == current_user&.id %>
+      <%= button_to "delete", message_path(message), method: :delete %>
+    <% end %>
   </p>
 
   <p>
     <%= message.content %>
   </p>
+  <%= turbo_stream_from message %>
 </div>

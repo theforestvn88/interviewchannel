@@ -2,11 +2,14 @@
 <div class="py-2 bg-zinc-100">
     <div class="container mx-auto px-6" data-controller="message">
         <p class="font-bold">Recently Messages</p>
+        <%= turbo_stream_from :tags %>
         <% @tags.each do |(tag, count)| %>
-            <%= button_to "#{tag}(#{count})", query_messages_path(tag: tag), 
+            <%= button_to "#{tag}(#{count})", query_messages_path(tag: tag),
+                id: "tag_#{tag.gsub("#", "")}",
                 class: "hover:font-bold #{tag == '#all' ? 'font-bold' : ''}", 
                 "data-action": "click->message#selectTag",
                 "data-message-target": "#{tag == '#all' ? 'selectedTag' : 'unselectedTag'}" %>
+            
         <% end %>
     </div>
 </div>

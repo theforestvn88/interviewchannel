@@ -18,4 +18,17 @@ class Message < ApplicationRecord
   scope :by_owner, ->(owner_id) {
     where(user_id: owner_id)
   }
+
+  def tags
+    (channel || "").split(" ").push("#all")
+  end
+
+  # turbo stream
+  def targets
+    tags.map {|t| "#messages_#{t.gsub('#','')}"}.join(", ")
+  end
+
+  after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
+  after_update_commit  -> { broadcast_replace_later_to self }
+  after_destroy_commit -> { broadcast_remove_to self }
 end
