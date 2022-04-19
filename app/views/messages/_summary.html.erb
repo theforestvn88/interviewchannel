@@ -1,15 +1,17 @@
 
 <div class="py-2 bg-zinc-100">
     <div class="container mx-auto px-6" data-controller="message">
-        <p class="font-bold">Recently Messages</p>
+        <p class="font-bold underline underline-offset-4 mb-1">Messages</p>
         <%= turbo_stream_from :tags %>
         <% @tags.each do |(tag, count)| %>
+            <% view_id = "tag_#{tag.gsub('#', '')}" %>
             <%= button_to "#{tag}(#{count})", query_messages_path(tag: tag),
-                id: "tag_#{tag.gsub("#", "")}",
-                class: "hover:font-bold #{tag == '#all' ? 'font-bold' : ''}", 
-                "data-action": "click->message#selectTag",
-                "data-message-target": "#{tag == '#all' ? 'selectedTag' : 'unselectedTag'}" %>
-            
+                id: view_id,
+                class: "hover:font-bold", 
+                form: { 
+                    id: "form_#{view_id}",
+                    "data-action": "click->message#selectTag"
+                } %>
         <% end %>
     </div>
 </div>

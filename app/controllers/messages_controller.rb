@@ -38,11 +38,11 @@ class MessagesController < ApplicationController
 
     respond_to do |format|
       if @message.save
+        Messager.new(current_user, current_user.curr_timezone).increase_then_broadcast_counter(@message)
+
         format.html { redirect_to message_url(@message), notice: "Message was successfully created." }
         format.json { render :show, status: :created, location: @message }
         format.turbo_stream
-
-        Messager.new(current_user, current_user.curr_timezone).increase_then_broadcast_counter(@message)
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @message.errors, status: :unprocessable_entity }

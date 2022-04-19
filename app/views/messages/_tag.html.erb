@@ -1,5 +1,3 @@
 <%= button_tag "#{tag}(#{count})",
     id: "tag_#{tag.gsub('#', '')}",
-    class: "hover:font-bold #{tag == '#all' ? 'font-bold' : ''}", 
-    "data-action": "click->message#selectTag",
-    "data-message-target": "#{tag == '#all' ? 'selectedTag' : 'unselectedTag'}" %>
+    class: "hover:font-bold" %>

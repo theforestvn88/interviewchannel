@@ -1,11 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["selectedTag", "content", "channel"]
-
+    static targets = ["content", "channel"]
     connect() {
         this.element.addEventListener("turbo:submit-end", this.clearForm.bind(this))
-        this.selectedTag = null
+        this.selectedTagView = document.getElementById("form_tag_all")
+        this.selectedTagView.classList.add("bg-green-200")
     }
 
     clearForm() {
@@ -19,12 +19,8 @@ export default class extends Controller {
     }
 
     selectTag(event) {
-        if (this.hasSelectedTagTarget) {
-            this.selectedTagTarget.classList.remove("font-bold")
-        }
-        
-        if (this.selectedTag) this.selectedTag.classList.remove("font-bold")
-        event.target.classList.add("font-bold")
-        this.selectedTag = event.target
+        if (this.selectedTagView) this.selectedTagView.classList.remove("bg-green-200")
+        this.selectedTagView = event.target.closest("form")
+        this.selectedTagView.classList.add("bg-green-200")
     }
 }
