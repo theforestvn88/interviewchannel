@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_12_122411) do
+ActiveRecord::Schema.define(version: 2022_04_20_113325) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "applyings", force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.bigint "candidate_id", null: false
+    t.text "intro"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["candidate_id"], name: "index_applyings_on_candidate_id"
+    t.index ["message_id"], name: "index_applyings_on_message_id"
+  end
 
   create_table "interviews", force: :cascade do |t|
     t.string "note"
@@ -57,6 +67,8 @@ ActiveRecord::Schema.define(version: 2022_04_12_122411) do
     t.text "watch_tags"
   end
 
+  add_foreign_key "applyings", "messages"
+  add_foreign_key "applyings", "users", column: "candidate_id"
   add_foreign_key "interviews", "users", column: "candidate_id"
   add_foreign_key "interviews", "users", column: "interviewer_id"
   add_foreign_key "messages", "users"

@@ -4,6 +4,8 @@ class Message < ApplicationRecord
              :foreign_key => "user_id",
              :inverse_of => :sent_messages
 
+  has_many :applyings, :dependent => :destroy
+
   scope :by_updated_time, ->(time_range) {
     where(updated_at: time_range).order("updated_at DESC")
   }
