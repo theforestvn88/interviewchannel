@@ -34,6 +34,11 @@ Rails.application.routes.draw do
   resources :tags
 
   resources :messages do
+    member do
+      get '/apply', to: 'messages#apply', as: 'apply'
+      post '/apply', to: 'messages#submit_apply', as: 'submit_apply'
+    end
+
     collection do
       post '/query', to: 'messages#query', as: 'query'
     end

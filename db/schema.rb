@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 2022_04_20_113325) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["candidate_id"], name: "index_applyings_on_candidate_id"
+    t.index ["message_id", "candidate_id"], name: "index_applyings_on_message_id_and_candidate_id", unique: true
     t.index ["message_id"], name: "index_applyings_on_message_id"
   end
 

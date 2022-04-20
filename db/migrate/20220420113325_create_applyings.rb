@@ -6,6 +6,8 @@ class CreateApplyings < ActiveRecord::Migration[7.0]
       t.text :intro, limit: 200
 
       t.timestamps
+
+      t.index [:message_id, :candidate_id], unique: true
     end
   end
 end

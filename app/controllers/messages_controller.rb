@@ -1,6 +1,6 @@
 class MessagesController < ApplicationController
   before_action :ensure_user_signed_in
-  before_action :set_message, only: %i[ show edit update destroy ]
+  before_action :set_message, only: %i[ show edit update destroy apply submit_apply ]
 
   # GET /messages or /messages.json
   def index
@@ -67,6 +67,20 @@ class MessagesController < ApplicationController
   def destroy
     @message.destroy
     Messager.new(current_user, current_user.curr_timezone).decrease_then_broadcast_counter(@message)
+  end
+
+  # GET /apply
+  def apply
+    render layout: false
+  end
+
+  # POST /apply
+  def submit_apply
+    applying = Applying.new(message: @message, candidate: current_user, intro: params[:intro])
+
+    if applying.save
+      @message.touch(time: Time.now.utc)
+    end
   end
 
   private

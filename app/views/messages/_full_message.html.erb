@@ -11,9 +11,13 @@
 
     <% if message.user_id == current_user&.id %>
         <div class="flex justify-end">
-        <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "modal"}, class: "hover:font-bold" %></span>
-        <span class="mx-1"> | </span>
-        <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
+            <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "modal"}, class: "hover:font-bold" %></span>
+            <span class="mx-1"> | </span>
+            <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
+        </div>
+    <% else %>
+        <div class="flex justify-end">
+            <%= link_to "Apply Now", apply_message_path(message), data: {"turbo-frame": "modal"} %>
         </div>
     <% end %>
 </div>
