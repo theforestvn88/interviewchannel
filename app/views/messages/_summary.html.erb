@@ -2,7 +2,27 @@
 <div class="py-2 bg-zinc-100">
     <div class="container mx-auto px-6" data-controller="message">
         <p class="font-bold underline underline-offset-4 mb-1">Messages</p>
+
+        <%= button_to "#public", query_messages_path(tag: "#public"),
+            id: "tag_public",
+            class: "hover:font-bold", 
+            form: { 
+                id: "form_public",
+                "data-action": "click->message#selectTag"
+            } %>
+
+        <%= button_to "#private", query_messages_path(tag: "#private"),
+            id: "tag_private",
+            class: "hover:font-bold", 
+            form: { 
+                id: "form_private",
+                "data-action": "click->message#selectTag"
+            } %>
+
+        <hr>
+
         <%= turbo_stream_from :tags %>
+
         <% @tags.each do |(tag, count)| %>
             <% view_id = "tag_#{tag.gsub('#', '')}" %>
             <%= button_to "#{tag}(#{count})", query_messages_path(tag: tag),

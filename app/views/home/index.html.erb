@@ -5,6 +5,7 @@
   <% if user_signed_in? %>
     <div class="w-full mt-5 flex justify-between border-t-2 border-gray-300">
       <div class="mt-5">
+        <%= turbo_stream_from @private_channel %>
         <%= turbo_stream_from :messages %>
         <%= render 'messages/summary' %>
         <hr class="my-2">

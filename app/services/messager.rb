@@ -3,6 +3,7 @@
 class Messager
     include Query
     include Count
+    include PrivateChannel
 
     def initialize(user = nil, timezone = nil)
         @user = user

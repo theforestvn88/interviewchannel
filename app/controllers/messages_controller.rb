@@ -79,6 +79,11 @@ class MessagesController < ApplicationController
     applying = Applying.new(message: @message, candidate: current_user, intro: params[:intro])
 
     if applying.save
+      # send private message first
+      Messager.new(current_user, current_user.curr_timezone)
+        .send_private_message(to_user_id: @message.user_id, partial: "messages/applying_message", locals: {applying: applying})
+
+      # send update applying counter
       @message.touch(time: Time.now.utc)
     end
   end
