@@ -8,7 +8,7 @@
       <p class="font-bold inline-block">
         <%= message.content[0..78] + "..." %> </span> <span class="font-bold"><%= message.channel %></span>
       </p>
-      <p><span>by <%= message.owner.name %> | <span><%= message.updated_at %></span></p>
+      <p><span>by <%= message.owner.name %> | <span><%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span></p>
     </div>
   </div>
   <%= turbo_stream_from message %>

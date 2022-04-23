@@ -1,3 +1,3 @@
 <%= turbo_stream.replace "home-content", class: "w-full" do %>
-    <%= render template: "messages/index" %>
+    <%= render template: @template, locals: @locals || {} %>
 <% end %>

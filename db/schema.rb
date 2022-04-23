@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_20_113325) do
+ActiveRecord::Schema.define(version: 2022_04_23_083956) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -18,10 +18,12 @@ ActiveRecord::Schema.define(version: 2022_04_20_113325) do
   create_table "applyings", force: :cascade do |t|
     t.bigint "message_id", null: false
     t.bigint "candidate_id", null: false
+    t.bigint "interviewer_id", null: false
     t.text "intro"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["candidate_id"], name: "index_applyings_on_candidate_id"
+    t.index ["interviewer_id"], name: "index_applyings_on_interviewer_id"
     t.index ["message_id", "candidate_id"], name: "index_applyings_on_message_id_and_candidate_id", unique: true
     t.index ["message_id"], name: "index_applyings_on_message_id"
   end
@@ -50,6 +52,16 @@ ActiveRecord::Schema.define(version: 2022_04_20_113325) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
+  create_table "replies", force: :cascade do |t|
+    t.bigint "applying_id", null: false
+    t.bigint "user_id", null: false
+    t.string "content", limit: 150
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["applying_id"], name: "index_replies_on_applying_id"
+    t.index ["user_id"], name: "index_replies_on_user_id"
+  end
+
   create_table "tags", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
@@ -70,7 +82,10 @@ ActiveRecord::Schema.define(version: 2022_04_20_113325) do
 
   add_foreign_key "applyings", "messages"
   add_foreign_key "applyings", "users", column: "candidate_id"
+  add_foreign_key "applyings", "users", column: "interviewer_id"
   add_foreign_key "interviews", "users", column: "candidate_id"
   add_foreign_key "interviews", "users", column: "interviewer_id"
   add_foreign_key "messages", "users"
+  add_foreign_key "replies", "applyings"
+  add_foreign_key "replies", "users"
 end

@@ -1,6 +1,6 @@
 class MessagesController < ApplicationController
   before_action :ensure_user_signed_in
-  before_action :set_message, only: %i[ show edit update destroy apply submit_apply ]
+  before_action :set_message, only: %i[ show edit update destroy ]
 
   # GET /messages or /messages.json
   def index
@@ -8,7 +8,22 @@ class MessagesController < ApplicationController
   end
 
   def query
-    @messages = Messager.new(current_user, current_user.curr_timezone).recently(params[:tag])
+    tag = params[:tag]
+    messager = Messager.new(current_user, current_user.curr_timezone)
+
+    case tag
+    when "#private"
+      @template = "messages/private"
+      @locals = {applyings: messager.private_messages(current_user)}
+    when "#public"
+      @messages = messager.own_by_me
+      @template = "messages/index"
+    else
+      @messages = messager.recently(tag)
+      @template = "messages/index"
+    end
+
+
     respond_to do |format|
       format.html { }
       format.json { }
@@ -67,25 +82,6 @@ class MessagesController < ApplicationController
   def destroy
     @message.destroy
     Messager.new(current_user, current_user.curr_timezone).decrease_then_broadcast_counter(@message)
-  end
-
-  # GET /apply
-  def apply
-    render layout: false
-  end
-
-  # POST /apply
-  def submit_apply
-    applying = Applying.new(message: @message, candidate: current_user, intro: params[:intro])
-
-    if applying.save
-      # send private message first
-      Messager.new(current_user, current_user.curr_timezone)
-        .send_private_message(to_user_id: @message.user_id, partial: "messages/applying_message", locals: {applying: applying})
-
-      # send update applying counter
-      @message.touch(time: Time.now.utc)
-    end
   end
 
   private

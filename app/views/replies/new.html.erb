@@ -1,0 +1,13 @@
+<%= turbo_frame_tag "reply-#{@applying.id}" do %>
+  <div class="mx-auto w-full">
+    <%= form_with(model: [@applying, @reply], class: "w-full text-xs") do |form| %>
+        <div class="my-5">
+            <%= form.text_area :content, rows: 2, placeholder: "...", class: "block shadow rounded-md border border-gray-200 outline-none px-2 py-1 mt-1 w-full text-xs" %>
+        </div>
+
+        <div class="inline float-right">
+            <%= form.submit "reply", class: "rounded-lg py-1 px-1 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+        </div>
+    <% end %>
+  </div>
+<% end %>

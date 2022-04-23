@@ -10,5 +10,9 @@ class Messager
         def own_by_me
             MessageRepo.query(by_user: @user, by_time: @one_month_ago_utc...)
         end
+
+        def private_messages(user)
+            PrivateMessageRepo.query(by_user: user, by_time: @one_month_ago_utc...)
+        end
     end
 end

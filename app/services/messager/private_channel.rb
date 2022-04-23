@@ -22,7 +22,7 @@ class Messager
                     toChannel,
                     target: "tag_private", 
                     partial: "messages/tag",
-                    locals: {tag: "#private", count: "*"}
+                    locals: {tag: "#private", count: ""}
                 )
 
                 Turbo::StreamsChannel.broadcast_prepend_to(
@@ -30,6 +30,17 @@ class Messager
                     target: "messages_private", 
                     partial: partial,
                     locals: locals
+                )
+            end
+        end
+
+        def send_private_reply(applying, reply)
+            [private_channel(applying.candidate), private_channel(applying.interviewer)].each do |toChannel|
+                Turbo::StreamsChannel.broadcast_append_to(
+                    toChannel,
+                    target: "replies-#{applying.id}", 
+                    partial: "replies/reply",
+                    locals: {reply: reply}
                 )
             end
         end

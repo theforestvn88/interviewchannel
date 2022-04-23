@@ -2,7 +2,7 @@
   <div class="mx-auto w-full">
     <p><%= link_to "<-", message_path(@message), data: {"turbo-frame": "modal"} %> Apply</p>
 
-    <%= form_with(url: submit_apply_message_path(@message), class: "w-full text-xs") do |form| %>
+    <%= form_with(model: [@message, @applying], class: "w-full text-xs") do |form| %>
         <div class="my-5">
             <%= form.text_area :intro, rows: 7, placeholder: "briefly introduce yourself, this is private message", class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
         </div>

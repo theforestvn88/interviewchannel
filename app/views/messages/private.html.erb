@@ -1,0 +1,5 @@
+<%= turbo_frame_tag "home-content", class: "w-full" do %>
+    <div id="messages_private" class="w-full p-5">
+        <%= render partial: "applyings/applying", collection: applyings %>
+    </div>
+<% end %>

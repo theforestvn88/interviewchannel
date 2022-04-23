@@ -1,6 +1,6 @@
 <div id="<%= dom_id message %>" class="mb-5 text-xs">
     <p>
-        <span>by <%= message.owner.name %> | </span> <span><%= message.updated_at %></span>
+        <span>by <%= message.owner.name %> | </span> <span><%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span>
     </p>
     
     <p><span class="font-bold"><%= message.channel %></span></p>
@@ -16,8 +16,8 @@
             <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
         </div>
     <% else %>
-        <div class="flex justify-end">
-            <%= link_to "Apply Now", apply_message_path(message), data: {"turbo-frame": "modal"} %>
+        <div class="flex justify-end hover:underline">
+            <%= link_to "Apply Now", new_message_applying_path(message), data: {"turbo-frame": "modal"} %>
         </div>
     <% end %>
 </div>

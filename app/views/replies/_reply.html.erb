@@ -1,0 +1,6 @@
+<div class="w-full text-xs border-l-4 border-gray-300 text-xs text-gray-700 pl-1 pt-2">
+    <p class="w-1/2">
+        <%= reply.content %> 
+    </p>
+    <p><%= "- by #{reply.user.name}, #{distance_of_time_in_words(reply.created_at, Time.now.utc)} ago." %></p>
+</div>

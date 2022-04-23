@@ -1,0 +1,21 @@
+<div class="w-full pb-3">
+    <p class="text-xs underline">
+        <%= link_to applying.candidate.name, user_path(applying.candidate), class: "font-bold" %> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
+    </p>
+    <div class="pl-1 border-l-4 border-gray-300 text-xs text-gray-700">
+        <p class="text-xs w-1/2">
+            <%= applying.intro %>
+        </p>
+        <p>
+            <%= "- by #{applying.candidate.name}, #{distance_of_time_in_words(applying.created_at, Time.now.utc)} ago." %>
+        </p>
+    </div>
+
+    <%= turbo_frame_tag "replies-#{applying.id}" do %>
+        <%= render partial: "replies/reply", collection: applying.replies %>
+    <% end %>
+
+    <%= turbo_frame_tag "reply-#{applying.id}" do %>
+        <p class="p-1 border-l-4 border-gray-300 text-blue-600 text-xs"><%= link_to "reply", new_applying_reply_path(applying), data: {"turbo-frame": "reply-#{applying.id}"} %></p>
+    <% end %>
+</div>
