@@ -34,14 +34,24 @@ class Messager
             end
         end
 
-        def send_private_reply(applying, reply)
+        def send_private_reply(applying, reply, partial = "replies/reply", locals = nil)
             [private_channel(applying.candidate), private_channel(applying.interviewer)].each do |toChannel|
                 Turbo::StreamsChannel.broadcast_append_to(
                     toChannel,
                     target: "replies-#{applying.id}", 
-                    partial: "replies/reply",
-                    locals: {reply: reply}
+                    partial: partial,
+                    locals: locals || {reply: reply}
                 )
+            end
+        end
+
+        def create_and_send_private_reply(sender_id:, applying:, partial:, locals:)
+            return if sender_id.nil? or applying.nil?
+            
+            content = ApplicationController.render(formats: [ :html ], partial: partial, locals: locals)
+            reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content)
+            if reply.save
+                send_private_reply(applying, reply)
             end
         end
 

@@ -43,6 +43,7 @@
           :value => (params[:end_time] || interview.end_time.in_time_zone(current_user.curr_timezone).strftime('%Y-%m-%dT%H:%M')) %>
     </div>
 
+    <%= form.hidden_field :applying_id, value: params[:applying_id] %>
 
     <div class="flex justify-end">
       <% if interview.persisted? %>

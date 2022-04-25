@@ -17,6 +17,9 @@ class InterviewsController < ApplicationController
   # GET /interviews/new
   def new
     @interview = Interview.new
+    @interview.candidate = User.find_by(id: params[:candidate_id])
+    @interview.start_time = Time.now.utc
+    @interview.end_time = Time.now.utc + 1.hour
   end
 
   # GET /interviews/1/edit
@@ -33,6 +36,15 @@ class InterviewsController < ApplicationController
       if @interview.save
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
         format.json { render :show, status: :created, location: @interview }
+
+        if applying = @interview.applying
+          Messager.new(current_user, current_user.curr_timezone)
+            .create_and_send_private_reply(
+              applying: applying, 
+              sender_id: current_user.id, 
+              partial: "interviews/private_reply", 
+              locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count})
+        end
 
         [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
@@ -199,7 +211,7 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id)
+      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id, :applying_id)
     end
 
     def convert_time
