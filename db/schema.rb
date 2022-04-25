@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_23_083956) do
+ActiveRecord::Schema.define(version: 2022_04_25_101847) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,8 @@ ActiveRecord::Schema.define(version: 2022_04_23_083956) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "interviewer_id", null: false
     t.bigint "candidate_id", null: false
+    t.bigint "applying_id"
+    t.index ["applying_id"], name: "index_interviews_on_applying_id"
     t.index ["candidate_id"], name: "index_interviews_on_candidate_id"
     t.index ["interviewer_id"], name: "index_interviews_on_interviewer_id"
   end
@@ -55,7 +57,7 @@ ActiveRecord::Schema.define(version: 2022_04_23_083956) do
   create_table "replies", force: :cascade do |t|
     t.bigint "applying_id", null: false
     t.bigint "user_id", null: false
-    t.string "content", limit: 150
+    t.text "content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["applying_id"], name: "index_replies_on_applying_id"
@@ -83,6 +85,7 @@ ActiveRecord::Schema.define(version: 2022_04_23_083956) do
   add_foreign_key "applyings", "messages"
   add_foreign_key "applyings", "users", column: "candidate_id"
   add_foreign_key "applyings", "users", column: "interviewer_id"
+  add_foreign_key "interviews", "applyings"
   add_foreign_key "interviews", "users", column: "candidate_id"
   add_foreign_key "interviews", "users", column: "interviewer_id"
   add_foreign_key "messages", "users"

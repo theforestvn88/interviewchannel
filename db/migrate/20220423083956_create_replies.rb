@@ -3,7 +3,7 @@ class CreateReplies < ActiveRecord::Migration[7.0]
     create_table :replies do |t|
       t.references :applying, null: false, foreign_key: true
       t.references :user, null: false, foreign_key: true
-      t.string :content, limit: 150
+      t.text :content, limit: 500
 
       t.timestamps
     end
