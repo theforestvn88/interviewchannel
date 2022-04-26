@@ -17,6 +17,8 @@ class HomeController < ApplicationController
       @private_channel = messager.private_channel(current_user)
       @messages = Messager.new(current_user, current_user.curr_timezone).recently("#all")
       @next_page = 1
+
+      @month_days = @presenter.mini_month(current_user.curr_timezone)
     end
   end
 

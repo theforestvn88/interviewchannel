@@ -1,0 +1,27 @@
+<table class="table-fixed text-xs text-gray-600">
+    <tbody>
+        <tr>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200">Sun</th>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200 bg-gray-50">Mon</th>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200">Tue</th>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200 bg-gray-50">Wed</th>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200">Thu</th>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200 bg-gray-50">Fri</th>
+            <th class="w-10 border-b-2 border-l-2 border-gray-200">Sat</th>
+        </tr>
+        <% (0..4).each do |week| %>
+            <tr>
+                <% (0..6).each do |weekday| %>
+                    <% if counter = @month_days[index = week*7 + weekday] %>
+                        <% mday, date, count = counter %>
+                        <td class="h-7 text-center <%= count > 0 ? 'hover:cursor-pointer border-4 border-red-300 bg-red-200' : 'border-r-2 border-b-2 border-gray-200' %> <%= index%2==0 ? 'bg-gray-50' : '' %>" title='<%= count > 0 ? "#{count} interviews" : "" %>'>
+                            <%= button_to "#{mday}", calendar_path(display: :daily, date: date), class: "w-full h-6" %>
+                        </td>
+                    <% else %>
+                        <td class="h-7 border-r-2 border-b-2 border-gray-200 <%= index%2==0 ? 'bg-gray-50' : '' %>"></td>
+                    <% end %>
+                <% end %>
+            </tr>
+        <% end %>
+    </tbody>
+</table>

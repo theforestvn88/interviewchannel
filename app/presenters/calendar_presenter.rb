@@ -87,4 +87,22 @@ class CalendarPresenter
 
       [monthly_interviews, monthly_display, month_days]
     end
+
+    def mini_month(user_timezone)
+      start_time = Time.now.in_time_zone(user_timezone)
+      counter = @scheduler.as_role(:interviewer, :candidate)
+        .by_time(start_time.utc - 1.week, start_time.end_of_month.utc)
+        .group("start_time::date")
+        .count
+
+      counter.transform_keys! {|d| d.mday}
+      beginning_of_month = start_time.beginning_of_month
+      end_of_month = start_time.end_of_month
+
+      Array.new(beginning_of_month.wday, nil) + 
+      (beginning_of_month.mday..end_of_month.mday).map do |i|
+        [i, beginning_of_month + (i-1).days, counter[i] || 0]
+      end + 
+      Array.new(35 - end_of_month.mday, nil)
+    end
 end
