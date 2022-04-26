@@ -1,5 +1,11 @@
-<%= turbo_frame_tag "home-content", class: "w-full" do %>
-    <div id="messages_private" class="w-full p-5">
-        <%= render partial: "applyings/applying", collection: applyings %>
+<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+    <div id="messages_private" class="w-full">
+        <%= render partial: @partial, collection: messages %>
     </div>
+
+    <%= turbo_frame_tag "load_more" do %>
+        <% if next_page %>
+            <%= button_to "load more", query_messages_path(tag: tag, page: next_page), class: "text-xs text-blue-600" %>
+        <% end %>
+    <% end %>
 <% end %>

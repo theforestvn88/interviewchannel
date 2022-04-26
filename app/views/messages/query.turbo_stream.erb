@@ -1,3 +1,17 @@
-<%= turbo_stream.replace "home-content", class: "w-full" do %>
-    <%= render template: @template, locals: @locals || {} %>
+<% if @page >= 1 %>
+    <%= turbo_stream.append "messages_#{@tag&.gsub('#','') || 'all'}", class: "w-full" do %>
+        <%= render(partial: @partial, collection: @messages) if @messages %>
+    <% end %>
+
+    <%= turbo_stream.replace "load_more" do %>
+        <%= turbo_frame_tag "load_more" do %>
+            <% if @next_page %>
+                <%= button_to "load more", query_messages_path(tag: @tag, page: @next_page), class: "text-xs text-blue-600" %>
+            <% end %>
+        <% end %>
+    <% end %>
+<% else %>
+    <%= turbo_stream.replace "home-content", class: "w-full" do %>
+        <%= render template: @template, locals: @locals || {} %>
+    <% end %>
 <% end %>

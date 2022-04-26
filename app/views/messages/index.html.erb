@@ -1,18 +1,24 @@
 <%= turbo_frame_tag "home-content", class: "w-full" do %>
-<div class="w-full p-5">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-  <% end %>
+  <div class="w-full p-5">
+    <% if notice.present? %>
+      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+    <% end %>
 
-  <div class="flex justify-between">
-    <h1 class="font-bold">Recently Messages</h1>
-    <%= link_to "Post Message", new_message_path(tag: params[:tag]), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-xs" %>
-  </div>
+    <div class="flex justify-between">
+      <h1 class="font-bold">Recently Messages</h1>
+      <%= link_to "Post Message", new_message_path(tag: @tag), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-xs" %>
+    </div>
 
-  <%= turbo_frame_tag "messages", class: "w-full" do %>
-  <div id="messages_<%= params[:tag]&.gsub('#','') || 'all' %>" class="w-full">
-    <%= render @messages if @messages %>
+    <%= turbo_frame_tag "messages", class: "w-full" do %>
+      <div id="messages_<%= @tag&.gsub('#','') || 'all' %>" class="w-full">
+        <%= render @messages if @messages %>
+      </div>
+    <% end %>
+
+    <%= turbo_frame_tag "load_more" do %>
+      <% if @next_page %>
+        <%= button_to "load more", query_messages_path(tag: @tag, page: @next_page), class: "text-xs text-blue-600" %>
+      <% end %>
+    <% end %>
   </div>
-  <% end %>
-</div>
 <% end %>

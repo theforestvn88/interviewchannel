@@ -2,17 +2,20 @@
 
 class Messager
     module Query
-        def recently(*tags)
+
+        PAGE = 20
+
+        def recently(*tags, offset: 0, limit: PAGE)
             _tags = tags.filter {|t| t.to_s != "#all"}
-            MessageRepo.query(by_tags: _tags, by_time: @one_month_ago_utc...)
+            MessageRepo.query(by_tags: _tags, by_time: @one_month_ago_utc..., offset: offset, limit: limit)
         end
 
-        def own_by_me
-            MessageRepo.query(by_user: @user, by_time: @one_month_ago_utc...)
+        def own_by_me(offset: 0, limit: PAGE)
+            MessageRepo.query(by_user: @user, by_time: @one_month_ago_utc..., offset: offset, limit: limit)
         end
 
-        def private_messages(user)
-            PrivateMessageRepo.query(by_user: user, by_time: @one_month_ago_utc...)
+        def private_messages(user, offset: 0, limit: PAGE)
+            PrivateMessageRepo.query(by_user: user, by_time: @one_month_ago_utc..., offset: offset, limit: limit)
         end
     end
 end

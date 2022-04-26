@@ -16,6 +16,7 @@ class HomeController < ApplicationController
       }.unshift(["#all", messager.count_all])
       @private_channel = messager.private_channel(current_user)
       @messages = Messager.new(current_user, current_user.curr_timezone).recently("#all")
+      @next_page = 1
     end
   end
 

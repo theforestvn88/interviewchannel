@@ -2,10 +2,12 @@
 
 class MessageRepo
     class << self
-        def query(by_time:, by_tags: nil, by_user: nil)
+        def query(by_time:, by_tags: nil, by_user: nil, offset: nil, limit: nil)
             q = Message.by_updated_time(by_time)
             q = q.by_tags(by_tags) unless by_tags.blank? or by_tags == ["#all"]
             q = q.by_owner(by_user.id) if by_user
+            q = q.offset(offset) if offset
+            q = q.limit(limit) if limit
             q
         end
 
@@ -24,7 +26,7 @@ class MessageRepo
         def increase_counter_by_tags(tags)
             Rails.cache.redis.pipelined  do |pipeline|
                 tags.each do |tag|
-                    pipeline.incr "count:#{tag&.downcase} "
+                    pipeline.incr "count:#{tag&.downcase}"
                 end
             end
         end
@@ -32,7 +34,7 @@ class MessageRepo
         def decrease_counter_by_tags(tags)
             Rails.cache.redis.pipelined  do |pipeline|
                 tags.each do |tag|
-                    pipeline.decr "count:#{tag&.downcase} "
+                    pipeline.decr "count:#{tag&.downcase}"
                 end
             end
         end

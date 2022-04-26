@@ -8,21 +8,28 @@ class MessagesController < ApplicationController
   end
 
   def query
-    tag = params[:tag]
+    @page = params[:page].to_i
+    offset = @page * Messager::Query::PAGE
+    limit = Messager::Query::PAGE
+
+    @tag = params[:tag]
     messager = Messager.new(current_user, current_user.curr_timezone)
 
-    case tag
+    case @tag
     when "#private"
+      @messages = messager.private_messages(current_user, offset: offset, limit: limit)
       @template = "messages/private"
-      @locals = {applyings: messager.private_messages(current_user)}
+      @partial = "applyings/applying"
     when "#public"
-      @messages = messager.own_by_me
-      @template = "messages/index"
+      @messages = messager.own_by_me(offset: offset, limit: limit)
     else
-      @messages = messager.recently(tag)
-      @template = "messages/index"
+      @messages = messager.recently(@tag, offset: offset, limit: limit)
     end
-
+    
+    @template ||= "messages/index"
+    @partial ||= "messages/message"
+    @next_page = @messages.size >= Messager::Query::PAGE ? @page + 1 : nil
+    @locals ||= {messages: @messages, tag: @tag, page: @page, next_page: @next_page}
 
     respond_to do |format|
       format.html { }
