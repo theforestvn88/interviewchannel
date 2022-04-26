@@ -5,32 +5,32 @@
 
         <%= button_to "#public", query_messages_path(tag: "#public"),
             id: "tag_public",
-            class: "hover:font-bold", 
+            class: "w-full text-left hover:bg-green-200",
+            "data-action": "click->message#selectTag",
             form: { 
                 id: "form_public",
-                "data-action": "click->message#selectTag"
             } %>
 
         <%= button_to "#private", query_messages_path(tag: "#private"),
             id: "tag_private",
-            class: "hover:font-bold", 
+            class: "w-full text-left hover:bg-green-200",
+            "data-action": "click->message#selectTag",
             form: { 
                 id: "form_private",
-                "data-action": "click->message#selectTag"
             } %>
 
-        <hr>
+        <hr class="my-1">
 
         <%= turbo_stream_from :tags %>
 
         <% @tags.each do |(tag, count)| %>
             <% view_id = "tag_#{tag.gsub('#', '')}" %>
-            <%= button_to "#{tag}(#{count})", query_messages_path(tag: tag),
+            <%= button_to "#{tag}#{count.to_i > 0 ? "(#{count})" : ''}", query_messages_path(tag: tag),
                 id: view_id,
-                class: "hover:font-bold", 
+                class: "w-full text-left hover:bg-green-200", 
+                "data-action": "click->message#selectTag",
                 form: { 
                     id: "form_#{view_id}",
-                    "data-action": "click->message#selectTag"
                 } %>
         <% end %>
     </div>

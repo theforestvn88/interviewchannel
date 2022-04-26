@@ -1,12 +1,12 @@
 <% applying_count = message.applyings.count %>
 <%= link_to message_path(message), id: dom_id(message), class: "text-xs", data: {"turbo-frame": "modal"} do %>
   <div class="flex justify-start mb-3">
-    <div class="py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
+    <div class="h-1/2 py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
       <%= applying_count %>
     </div>
     <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
-      <p class="font-bold inline-block">
-        <%= message.content[0..78] + "..." %> </span> <span class="font-bold"><%= message.channel %></span>
+      <p class="font-bold inline-block w-3/5">
+        <%= message.content[0..250] + "..." %> </span> <span class="font-bold"><%= message.channel %></span>
       </p>
       <p><span>by <%= message.owner.name %> | <span><%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span></p>
     </div>
