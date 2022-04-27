@@ -1,0 +1,7 @@
+clear_messages:
+  cron: '0 0 0 * * 3' # 0:0:0 saturday
+  # every: 1 week
+  class: ClearMessagesJob
+  queue: low
+  args: 
+  description: 'This job clear non-applied messages from the past 3rd week, and clear all messages from the past month'
