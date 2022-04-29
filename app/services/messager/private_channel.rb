@@ -55,6 +55,22 @@ class Messager
             end
         end
 
+        def send_private_interview(interview, action:, target:, partial: "", locals: {})
+            [private_channel(interview.candidate), private_channel(interview.interviewer)].each do |toChannel|
+                if action == :remove
+                    Turbo::StreamsChannel.broadcast_remove_to(toChannel, target: target)
+                else
+                    Turbo::StreamsChannel.broadcast_action_later_to(
+                        toChannel,
+                        action: action,
+                        target: target, 
+                        partial: partial,
+                        locals: locals
+                    )
+                end
+            end
+        end
+
         private def private_channel_format(uid, email) # TODO: encrypt ???
             "%s-%s" % [uid, email]
         end

@@ -4,7 +4,8 @@ class HomeController < ApplicationController
   before_action :check_logged_in, except: :index
   before_action :ensure_turbo_frame_request, except: [:index, :calendar]
   before_action :create_scheduler_and_presenter
-  before_action :set_time, except: [:mini_calendar]
+  before_action :set_time
+  before_action :set_mini_cal_time, only: [:index, :mini_calendar]
 
   def index
     if user_signed_in?
@@ -17,17 +18,10 @@ class HomeController < ApplicationController
       @private_channel = messager.private_channel(current_user)
       @messages = Messager.new(current_user, current_user.curr_timezone).recently("#all")
       @next_page = 1
-
-      @target_date = @today = Time.now.in_time_zone(current_user.curr_timezone)
-      @month_days = @presenter.mini_month(@today)
     end
   end
 
   def mini_calendar
-    @today = Time.now.in_time_zone(current_user.curr_timezone)
-    @target_date = params[:offset].to_i == 1 ? @today.next_month : @today
-    @month_days = @presenter.mini_month(@target_date)
-
     render partial: "interviews/mini_calendar"
   end
 
@@ -91,6 +85,16 @@ class HomeController < ApplicationController
     end
 
     @tz_offset = ActiveSupport::TimeZone[current_user.curr_timezone].formatted_offset if user_signed_in?
+  end
+
+  private def set_mini_cal_time
+    return unless user_signed_in?
+
+    @today = Time.now.in_time_zone(current_user&.curr_timezone).beginning_of_day
+    @dmonths = [@today, @today.next_month.beginning_of_month, @today.next_month(2).beginning_of_month]
+    @selected_date = @target_date.beginning_of_day
+
+    @month_days = @presenter.mini_month(@selected_date)
   end
 
   private def check_logged_in

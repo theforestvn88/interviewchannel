@@ -1,14 +1,11 @@
 <%= turbo_frame_tag "mini_calendar" do %>
-    <% today_mday = @today.mday %>
-    <% this_month = @today == @target_date %>
-
     <div class="flex justify-start">
-        <% if this_month %>
-            <span class="text-sm underline mr-1"><%= @today.strftime('%B') %></span>
-            <span class="text-sm hover:underline ml-1"><%= button_to @today.next_month.strftime('%B'), mini_calendar_path, method: :get, params: {offset: 1} %></span>
-        <% else %>
-            <span class="text-sm hover:underline mr-1"><%= button_to @today.strftime('%B'), mini_calendar_path(offset: 0), method: :get %></span>
-            <span class="text-sm underline ml-1"><%= @target_date.strftime('%B') %></span>
+        <% @dmonths.each do |dmonth| %>
+            <% if dmonth == @selected_date %>
+                <span class="text-sm underline mx-1"><%= dmonth.strftime('%b') %></span>
+            <% else %>
+                <span class="text-sm hover:underline mx-1"><%= button_to dmonth.strftime('%b'), mini_calendar_path, method: :get, params: {date: dmonth} %></span>
+            <% end %>
         <% end %>
     </div>
 
@@ -28,8 +25,8 @@
                     <% (0..6).each do |weekday| %>
                         <% if counter = @month_days[index = week*7 + weekday] %>
                             <% mday, date, count = counter %>
-                            <td class="w-7 h-7 text-center border-r-2 border-b-2 border-gray-200 <%= count > 0 ? 'hover:cursor-pointer text-gray-600 bg-red-200' : 'text-gray-400' %> <%= index%2==0 ? 'bg-gray-50' : '' %>" title='<%= count > 0 ? "#{count} interviews" : "" %>'>
-                                <%= button_to "#{mday}", calendar_path(display: :daily, date: date), class: "w-full h-6 #{this_month && mday == today_mday ? 'h-full border-2 border-gray-400 rounded-full' : ''}" %>
+                            <td id="<%= date.strftime('%d-%b') %>-<%= @tz_offset %>" class="w-7 h-7 text-center border-r-2 border-b-2 border-gray-200 <%= count > 0 ? 'hover:cursor-pointer text-gray-600 bg-red-200' : 'text-gray-400' %> <%= index%2==0 ? 'bg-gray-50' : '' %>" title='<%= count > 0 ? "#{count} interviews" : "" %>'>
+                                <%= button_to "#{mday}", calendar_path(display: :daily, date: date), class: "w-full h-6 #{@today.to_date == date.to_date ? 'h-full border-2 border-gray-400 rounded-full' : ''}" %>
                             </td>
                         <% else %>
                             <td class="w-7 h-7 border-r-2 border-b-2 border-gray-200 <%= index%2==0 ? 'bg-gray-50' : '' %>"></td>
