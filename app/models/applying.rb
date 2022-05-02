@@ -1,5 +1,5 @@
 class Applying < ApplicationRecord
-  belongs_to :message
+  belongs_to :message, touch: true
   belongs_to :candidate, :class_name => "User", :foreign_key => "candidate_id"
   belongs_to :interviewer, :class_name => "User", :foreign_key => "interviewer_id"
   has_many  :interviews # keep interviews even applying be destroyed

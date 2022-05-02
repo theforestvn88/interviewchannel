@@ -17,10 +17,7 @@ class ApplyingsController < ApplicationController
         if applying.save
             # send private message first
             Messager.new(current_user, current_user.curr_timezone)
-                .send_private_message(to_user_id: @message.user_id, partial: "applyings/applying", locals: {applying: applying})
-
-            # send update applying counter
-            @message.touch(time: Time.now.utc)
+                .send_private_message(to_user_id: @message.user_id, partial: "applyings/applying", locals: {applying: applying, owner: current_user})
         end
 
         head :no_content
