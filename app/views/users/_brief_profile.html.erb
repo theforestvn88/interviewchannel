@@ -1,7 +1,0 @@
-<% if user_signed_in? %>
-    <div class="py-5 bg-zinc-100 my-3">
-        <div class="container mx-auto px-6">
-            <h3 class="bg-zinc-50"><%= link_to current_user.name, profile_user_path(current_user) %></h3>
-        </div>
-    </div>
-<% end %>

@@ -1,6 +1,6 @@
 <%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
     <div id="messages_private" class="w-full">
-        <%= render partial: @partial, collection: messages %>
+        <%= render partial: @partial, collection: @messages, locals: @locals %>
     </div>
 
     <%= turbo_frame_tag "load_more" do %>

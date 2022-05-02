@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     member do
       get 'profile'
       get 'edit_tags'
+      get 'card'
     end
   end
 

@@ -29,7 +29,7 @@ class MessagesController < ApplicationController
     @template ||= "messages/index"
     @partial ||= "messages/message"
     @next_page = @messages.size >= Messager::Query::PAGE ? @page + 1 : nil
-    @locals ||= {messages: @messages, tag: @tag, page: @page, next_page: @next_page}
+    @locals ||= {messages: @messages, tag: @tag, page: @page, next_page: @next_page, owner: current_user}
 
     respond_to do |format|
       format.html { }

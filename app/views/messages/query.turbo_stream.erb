@@ -1,6 +1,6 @@
 <% if @page >= 1 %>
     <%= turbo_stream.append "messages_#{@tag&.gsub('#','') || 'all'}", class: "w-full" do %>
-        <%= render(partial: @partial, collection: @messages) if @messages %>
+        <%= render(partial: @partial, collection: @messages, locals: @locals) if @messages %>
     <% end %>
 
     <%= turbo_stream.replace "load_more" do %>
