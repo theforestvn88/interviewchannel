@@ -1,5 +1,11 @@
 class TagsController < AdminController
+  before_action :ensure_admin!, except: [:suggest]
   before_action :set_tag, only: %i[ show edit update destroy ]
+
+  def suggest
+    suggest_tags = Tag.where("name ILIKE ?", "#{params[:key]}%")
+    render partial: "shared/select7_suggestion", locals: {items: suggest_tags, attr: params[:attr]}
+  end
 
   # GET /tags or /tags.json
   def index

@@ -99,6 +99,6 @@ class MessagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def message_params
-      params.require(:message).permit(:channel, :content, :expired_at, :user_id)
+      params.require(:message).permit(:channel, :content, :expired_at, :user_id, tags: [])
     end
 end

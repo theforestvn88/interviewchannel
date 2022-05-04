@@ -25,6 +25,10 @@ class Message < ApplicationRecord
     (channel || "").split(" ").push("#all")
   end
 
+  def tags=(_tags)
+    self.channel = _tags.map {|t| "##{t}"}.uniq.join(" ")
+  end
+
   # turbo stream
   def targets
     tags.map {|t| "#messages_#{t.gsub('#','')}"}.join(", ")
