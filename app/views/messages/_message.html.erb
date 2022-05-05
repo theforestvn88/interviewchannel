@@ -7,7 +7,7 @@
       </div>
       <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
         <p class="font-bold inline-block w-3/5">
-          <%= message.content[0..250] + "..." %> </span> <span class="font-bold"><%= message.channel %></span>
+          <span><%= message.content[0..250] + "..." %> </span> <span class="font-bold"><%= message.channel %></span>
         </p>
         <p>
           <span data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value=<%= card_user_path(message.owner) %>>

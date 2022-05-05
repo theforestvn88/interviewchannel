@@ -4,8 +4,8 @@
     </div>
 
     <%= turbo_frame_tag "load_more" do %>
-        <% if next_page %>
-            <%= button_to "load more", query_messages_path(tag: tag, page: next_page), class: "text-xs text-blue-600" %>
+        <% if offset %>
+            <%= button_to "load more", query_messages_path(tag: tag, offset: offset), class: "text-xs text-blue-600" %>
         <% end %>
     <% end %>
 <% end %>

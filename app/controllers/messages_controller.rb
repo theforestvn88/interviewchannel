@@ -8,8 +8,7 @@ class MessagesController < ApplicationController
   end
 
   def query
-    @page = params[:page].to_i
-    offset = @page * Messager::Query::PAGE
+    offset_time = DateTime.parse(params[:offset]) if params[:offset]
     limit = Messager::Query::PAGE
 
     @tag = params[:tag]
@@ -17,19 +16,19 @@ class MessagesController < ApplicationController
 
     case @tag
     when "#private"
-      @messages = messager.private_messages(current_user, offset: offset, limit: limit)
+      @messages = messager.private_messages(current_user, offset_time: offset_time, limit: limit)
       @template = "messages/private"
       @partial = "applyings/applying"
     when "#public"
-      @messages = messager.own_by_me(offset: offset, limit: limit)
+      @messages = messager.own_by_me(offset_time: offset_time, limit: limit)
     else
-      @messages = messager.recently(@tag, offset: offset, limit: limit)
+      @messages = messager.recently(@tag, offset_time: offset_time, limit: limit)
     end
     
     @template ||= "messages/index"
     @partial ||= "messages/message"
-    @next_page = @messages.size >= Messager::Query::PAGE ? @page + 1 : nil
-    @locals ||= {messages: @messages, tag: @tag, page: @page, next_page: @next_page, owner: current_user}
+    @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
+    @locals ||= {messages: @messages, tag: @tag, offset: @next_offset, owner: current_user}
 
     respond_to do |format|
       format.html { }
