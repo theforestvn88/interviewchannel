@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "profile" do %>
 <div class="w-2/3 mx-auto pl-16 pt-5 mt-10 bg-white rounded-lg relative">
     <% if user.id == current_user.id %>
-        <%= link_to edit_user_path(user), class: "flex items-center absolute top-0 right-0 bg-green-300 hover:bg-green-600 p-1 rounded-tr-lg" do %>
+        <%= link_to edit_user_path(user), class: "flex items-center absolute top-0 right-0 bg-green-300 hover:bg-green-600 p-1 rounded-tr-lg", title: "update your profile" do %>
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 494.936 494.936" style="enable-background:new 0 0 494.936 494.936;" xml:space="preserve">
             <g>
                 <g>
@@ -11,7 +11,7 @@
             </g>
             </svg>
             
-            <span><b><%= user.cv.blank? ? "! IMPORTANT" : " " %></b> update your profile</span>
+            <span><b><%= user.cv.blank? ? "!update your profile" : " " %></b></span>
         <% end %>
     <% end %>
 

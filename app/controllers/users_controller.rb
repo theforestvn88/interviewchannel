@@ -18,6 +18,7 @@ class UsersController < ApplicationController
     end
 
     def edit_tags
+        @tags = current_user.watch_tags.split(" ").map {|t| t.gsub("#", "")}
         render layout: false
     end
 
@@ -41,6 +42,6 @@ class UsersController < ApplicationController
         end
 
         def user_params
-            params.require(:user).permit(:cv, :watch_tags)
+            params.require(:user).permit(:cv, :watch_tags, tags: [])
         end
 end
