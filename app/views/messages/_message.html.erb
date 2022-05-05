@@ -11,7 +11,7 @@
         </p>
         <p>
           <span data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value=<%= card_user_path(message.owner) %>>
-          by <%= message.owner.name %> | <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span>
+          job#<%= message.id %> by <%= message.owner.name %> | <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span>
         </p>
       </div>
     </div>

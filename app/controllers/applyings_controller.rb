@@ -17,7 +17,11 @@ class ApplyingsController < ApplicationController
         if applying.save
             # send private message first
             Messager.new(current_user, current_user.curr_timezone)
-                .send_private_message(to_user_id: @message.user_id, partial: "applyings/applying", locals: {applying: applying, owner: current_user})
+                .send_private_message(
+                    to_user_id: @message.user_id, 
+                    partial: "applyings/applying", 
+                    locals: {applying: applying, owner: current_user},
+                    flash: "#{current_user.name} applied the job message ##{@message.id}")
         end
 
         head :no_content
