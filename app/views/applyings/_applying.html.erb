@@ -1,20 +1,22 @@
 <% apply_time = "#{distance_of_time_in_words(applying.created_at, Time.now.utc)} ago." %>
-<div class="w-full pb-3">
-    <p class="text-xs underline">
+<details class="w-full pb-3" open>
+    <summary class="text-xs underline">
         <%= link_to applying.candidate.name, user_path(applying.candidate), class: "font-bold hover:text-blue-600" %> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
         <span><%= apply_time %></span>
-    </p>
+    </summary>
     <div class="pl-1 border-l-4 border-gray-300 text-xs text-gray-700">
-        <p class="text-xs w-1/2">
-            <%= applying.intro %>
-        </p>
-        <p>
-            <%= "- by #{applying.candidate.name}, #{apply_time}" %>
-        </p>
+        <div class="text-xs w-1/2">
+            <p><%= applying.intro %></p>
+            <p><%= "- by #{applying.candidate.name}, #{apply_time}" %></p>
+        </div>
     </div>
 
     <%= turbo_frame_tag "replies-#{applying.id}" do %>
-        <%= render partial: "replies/reply", collection: applying.replies %>
+        <% replies = applying.replies.last(2) %>
+        <% if applying.replies.count > 2 %>
+            <%= button_to "[...]", previous_applying_replies_path(applying, date: replies.first.created_at), form: { id: "previous-replies-#{applying.id}" } %>
+        <% end %>
+        <%= render partial: "replies/reply", collection: replies %>
     <% end %>
 
     <%= turbo_frame_tag "reply-#{applying.id}" do %>
@@ -29,4 +31,4 @@
         <% end %>
         </p>
     <% end %>
-</div>
+</details>

@@ -11,6 +11,10 @@ class Applying < ApplicationRecord
     where(created_at: time_range).order("created_at DESC")
   }
 
+  scope :by_updated_time, ->(time_range) {
+    where(updated_at: time_range).order("updated_at DESC")
+  }
+
   scope :by_user_id, ->(user_id) {
     where(interviewer_id: user_id).or(where(candidate_id: user_id))
   }

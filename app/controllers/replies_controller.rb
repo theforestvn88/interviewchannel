@@ -22,6 +22,13 @@ class RepliesController < ApplicationController
         end
     end
 
+    def previous
+        @replies = Reply.where(created_at: ...DateTime.parse(params[:date])).last(6)
+        respond_to do |format|
+            format.turbo_stream { }
+        end
+    end
+
     private
 
         def set_applying

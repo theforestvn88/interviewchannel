@@ -48,6 +48,10 @@ Rails.application.routes.draw do
   end
 
   resources :applyings, only: [] do
-    resources :replies, only: [:new, :create]
+    resources :replies, only: [:new, :create] do
+      collection do
+        post 'previous'
+      end
+    end
   end
 end
