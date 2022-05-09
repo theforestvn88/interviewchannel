@@ -22,7 +22,7 @@ class Message < ApplicationRecord
   }
 
   def tags
-    (channel || "").split(" ").push("#all")
+    (channel || "").split(" ").push("#all").map(&:downcase)
   end
 
   def tags=(_tags)

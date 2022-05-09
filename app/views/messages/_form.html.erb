@@ -17,7 +17,7 @@
   </div>
 
   <div class="my-5 relative" data-controller="select7" data-select7-suggest-api-value="<%= suggest_tags_path %>" data-select7-attr-value="message[tags][]">
-    <div class="flex justify-start block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+    <div class="flex justify-start block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full overflow-auto">
       <div class="flex justify-start" data-select7-target="tagsContainer">
         <% message.channel&.split(" ") do |tag| %>
           <%= render partial: "shared/select7_item", locals: {attr: "message[tags][]", name: tag.gsub("#", ""), hidden: false} %>
@@ -25,7 +25,7 @@
       </div>
       <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none">
     </div>
-    <div data-select7-target="suggestionTags" class="hidden absolute bot-0 left-0 w-full h-20 drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
+    <div data-select7-target="suggestionTags" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
   </div>
 
   <div class="inline">

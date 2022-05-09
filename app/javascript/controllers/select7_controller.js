@@ -4,16 +4,28 @@ export default class extends Controller {
     static targets = [ "tagsContainer", "input", "suggestionTags" ]
     static values = { suggestApi: String, attr: String }
 
-    connect() {}
+    connect() {
+        this.timeoutId = null
+    }
 
     suggest() {
-        let suggestQuery = this.suggestApiValue + `?key=${this.inputTarget.value}&attr=${this.attrValue}`
-        fetch(suggestQuery)
-            .then((r) => r.text())
-            .then((html) => {
-                this.suggestionTagsTarget.innerHTML = html
-                this.suggestionTagsTarget.classList.remove("hidden")
-            })
+        if (this.timeoutId) {
+            clearTimeout(this.timeoutId)
+        }
+
+        this.timeoutId = setTimeout(() => {
+            let suggestQuery = this.suggestApiValue + `?key=${this.inputTarget.value}&attr=${this.attrValue}`
+            fetch(suggestQuery)
+                .then((r) => r.text())
+                .then((html) => {
+                    if (html != "") {
+                        this.suggestionTagsTarget.innerHTML = html
+                        this.suggestionTagsTarget.classList.remove("hidden")
+                    } else {
+                        this.suggestionTagsTarget.classList.add("hidden")
+                    }
+                })
+        }, 200) // debounce 200
     }
 
     selectTag(e) {

@@ -3,8 +3,13 @@ class TagsController < AdminController
   before_action :set_tag, only: %i[ show edit update destroy ]
 
   def suggest
-    suggest_tags = Tag.where("name ILIKE ?", "#{params[:key]}%")
-    render partial: "shared/select7_suggestion", locals: {items: suggest_tags, attr: params[:attr]}
+    search_key = params[:key]
+    suggest_tags = search_key.blank? ? [] : Tag.where("name ILIKE ?", "%#{search_key}%").first(6)
+    if suggest_tags.empty?
+      head :no_content
+    else
+      render partial: "shared/select7_suggestion", locals: {items: suggest_tags, attr: params[:attr]}
+    end
   end
 
   # GET /tags or /tags.json
