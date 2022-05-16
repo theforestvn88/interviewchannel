@@ -6,6 +6,7 @@ export default class extends Controller {
 
     connect() {
         this.timeoutId = null
+        this.element.addEventListener("turbo:submit-end", this.clearForm.bind(this))
     }
 
     suggest() {
@@ -40,5 +41,9 @@ export default class extends Controller {
     removeTag(e) {
         const removeView = e.target.parentElement
         this.tagsContainerTarget.removeChild(removeView)
+    }
+
+    clearForm() {
+        this.tagsContainerTarget.innerHTML = ""
     }
 }

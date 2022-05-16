@@ -1,0 +1,5 @@
+<%= turbo_stream.append "summary_tags" do %>
+    <% @tags.each do |tag, count| %>
+        <%= render partial: "tags/summary_tag", locals: {tag: tag, count: count} %>
+    <% end %>
+<% end %>
