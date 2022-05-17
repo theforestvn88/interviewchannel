@@ -37,4 +37,19 @@ class Message < ApplicationRecord
   after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
   after_update_commit  -> { broadcast_replace_later_to self }
   after_destroy_commit -> { broadcast_remove_to self }
+
+  def applying_count
+    Rails.cache.fetch applying_count_cache_key, expires_in: 1.day do
+      self.applyings.count
+    end
+  end
+
+  def refresh_applying_count
+    Rails.cache.delete(applying_count_cache_key)
+    applying_count
+  end
+
+  private def applying_count_cache_key
+    @applying_count_key ||= "ms_#{self.id}_ap_count"
+  end
 end

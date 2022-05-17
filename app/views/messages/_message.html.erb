@@ -1,20 +1,22 @@
-<% cache message do %>
-  <% applying_count = message.applyings.count %>
-  <%= link_to message_path(message), id: dom_id(message), class: "text-xs", data: {"turbo-frame": "modal"} do %>
-    <div class="flex justify-start mb-3">
-      <div class="h-1/2 py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
-        <%= applying_count %>
-      </div>
+<%= link_to message_path(message), id: dom_id(message), class: "text-xs", data: {"turbo-frame": "modal"} do %>
+  <div class="flex justify-start mb-3">
+  
+    <% applying_count = message.applying_count %>
+    <div class="h-1/2 py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
+      <%= applying_count %>
+    </div>
+
+    <% cache message do %>
       <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
-        <p class="font-bold inline-block w-3/5">
-          <span><%= message.content[0..250] + "..." %> </span> <span class="font-bold"><%= message.channel %></span>
+        <p class="text-gray-500 font-bold inline-block w-3/5">
+          <span class="text-gray-900">#<%= message.id %> <%= message.channel %></span> <span><%= message.content[0..250] + "..." %> </span>
         </p>
         <p>
           <span data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value=<%= card_user_path(message.owner) %>>
-          job#<%= message.id %> by <%= message.owner.name %> | <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span>
+          by <%= message.owner.name %> | <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago</span>
         </p>
       </div>
-    </div>
-    <%= turbo_stream_from message %>
-  <% end %>
+      <%= turbo_stream_from message %>
+    <% end %>
+  </div>
 <% end %>

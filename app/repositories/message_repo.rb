@@ -7,6 +7,7 @@ class MessageRepo
             q = q.by_tags(by_tags) unless by_tags.blank? or by_tags == ["#all"]
             q = q.by_owner(by_user.id) if by_user
             q = q.limit(limit) if limit
+            q = q.includes(:owner)
             q
         end
 

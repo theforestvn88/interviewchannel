@@ -15,6 +15,7 @@ class ApplyingsController < ApplicationController
         applying = Applying.new applying_params.merge({message_id: @message.id, candidate_id: current_user.id, interviewer_id: @message.user_id})
 
         if applying.save
+            @message.refresh_applying_count
             # send private message first
             Messager.new(current_user, current_user.curr_timezone)
                 .send_private_message(
