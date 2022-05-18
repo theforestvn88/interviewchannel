@@ -1,7 +1,7 @@
 <%= link_to message_path(message), id: dom_id(message), class: "text-xs", data: {"turbo-frame": "modal"} do %>
   <div class="flex justify-start mb-3">
   
-    <% applying_count = message.applying_count %>
+    <% applying_count = message.applyings.size %>
     <div class="h-1/2 py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
       <%= applying_count %>
     </div>
