@@ -39,6 +39,7 @@ class MessagesController < ApplicationController
 
   # GET /messages/1 or /messages/1.json
   def show
+    @message.update_columns views: @message.increment(:views, 1).views
     render layout: false
   end
 
