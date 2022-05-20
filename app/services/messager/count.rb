@@ -3,11 +3,11 @@
 class Messager
     module Count
         def count_by_tag(tag)
-            MessageRepo.count(by_tag: tag, by_time: @one_month_ago_utc...)
+            MessageRepo.count(by_tag: tag, by_time: @one_month_ago_utc..., expires_in: 1.day)
         end
 
         def count_by_user(user)
-            MessageRepo.count(by_user: user, by_time: @one_month_ago_utc...)
+            MessageRepo.count(by_user: user, by_time: @one_month_ago_utc..., expires_in: 1.day)
         end
 
         def count_all

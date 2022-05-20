@@ -16,8 +16,8 @@ class HomeController < ApplicationController
         [_tag, messager.count_by_tag(_tag)]
       }.unshift(["#all", messager.count_all])
       @private_channel = messager.private_channel(current_user)
-      @messages = Messager.new(current_user, current_user.curr_timezone).recently("#all")
-      @next_offset = @messages.last.updated_at
+      @messages = messager.recently("#all")
+      @next_offset = @messages.last&.updated_at
     end
   end
 

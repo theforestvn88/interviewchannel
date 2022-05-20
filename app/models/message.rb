@@ -7,7 +7,7 @@ class Message < ApplicationRecord
   has_many :applyings, :dependent => :destroy
 
   scope :by_updated_time, ->(time_range) {
-    where(updated_at: time_range).order("updated_at DESC")
+    where(updated_at: time_range)
   }
 
   scope :by_tags, ->(tags) {
