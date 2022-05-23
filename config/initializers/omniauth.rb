@@ -2,7 +2,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :github, 
             Rails.application.credentials.github_omniauth[:client_id],
             Rails.application.credentials.github_omniauth[:client_secret],
-            scope: "read:user"
+            scope: "read:user,user:email"
 
   on_failure do
     # back to home

@@ -1,0 +1,14 @@
+<% view_id = "tag_#{tag.gsub('#', '')}" %>
+<div class="w-full relative" id="watch_<%= view_id %>">
+    <%= button_to "#{tag}#{count.to_i > 0 ? "(#{count})" : ''}", query_messages_path(tag: tag),
+        id: view_id,
+        class: "w-full text-left hover:bg-green-200", 
+        "data-action": "click->message#selectTag",
+        form: { 
+            id: "form_#{view_id}",
+            class: "w-full"
+        } %>
+
+    <%= button_to "-", remove_watch_tag_user_path(current_user, tag: tag),
+        class: "text-md absolute right-0 top-0 px-2 z-10 hover:bg-red-300", title: "remove #{tag} tag" %>
+</div>

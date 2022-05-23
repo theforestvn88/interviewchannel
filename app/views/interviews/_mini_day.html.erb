@@ -1,0 +1,3 @@
+<td id="<%= interview_date.strftime('%d-%b') %>-<%= tz_offset %>" class="w-7 h-7 text-center border-r-2 border-b-2 border-gray-200 hover:cursor-pointer text-gray-600 bg-red-200" title="+1 interviews">
+    <%= button_to "#{interview_date.mday}", calendar_path(display: :daily, date: interview_date), class: "w-full h-6 #{today.to_date == interview_date.to_date ? 'h-full border-2 border-gray-400 rounded-full' : ''}" %>
+</td>

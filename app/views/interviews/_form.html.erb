@@ -1,4 +1,4 @@
-<div data-controller="form" class="relative" data-form-suggest-user-url-value="<%= suggest_user_path %>">
+<div data-controller="form" class="relative" data-form-suggest-user-url-value="<%= suggest_users_path %>">
   <%= form_with(model: interview, class: "contents") do |form| %>
     <% if interview.errors.any? %>
       <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
@@ -43,6 +43,7 @@
           :value => (params[:end_time] || interview.end_time.in_time_zone(current_user.curr_timezone).strftime('%Y-%m-%dT%H:%M')) %>
     </div>
 
+    <%= form.hidden_field :applying_id, value: params[:applying_id] %>
 
     <div class="flex justify-end">
       <% if interview.persisted? %>

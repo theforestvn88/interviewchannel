@@ -1,8 +1,9 @@
-# frozen_string_literal: true
+# frozen_string_literal: true 
 
 class Interview < ApplicationRecord
     belongs_to  :interviewer, class_name: "User" # required
     belongs_to  :candidate, class_name: "User", optional: true # allow unregister users, interviewer could use `note` to note candidate info.
+    belongs_to  :applying, optional: true
 
     validates :note, presence: true
     

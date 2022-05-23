@@ -1,0 +1,14 @@
+<%= turbo_stream.replace "reply-#{@applying.id}" do %>
+    <%= turbo_frame_tag "reply-#{@applying.id}" do %>
+        <p class="p-1 border-l-4 border-gray-300 text-blue-600 text-xs">
+            <%= link_to "reply", new_applying_reply_path(@applying) %>
+        <% if @applying.interviewer_id == current_user.id %>
+            <span>
+                <%= link_to " | create interview", 
+                    new_interview_path(candidate_id: @applying.candidate_id, applying_id: @applying.id), 
+                    data: {turbo_frame: :modal} %>
+            </span>
+        <% end %>
+        </p>
+    <% end %>
+<% end %>

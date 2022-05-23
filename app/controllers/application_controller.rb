@@ -20,8 +20,16 @@ class ApplicationController < ActionController::Base
       !!current_user
     end
 
-    private def ensure_turbo_frame_request
+    def ensure_user_signed_in
+      redirect_to root_path unless user_signed_in?
+    end
+
+    def ensure_turbo_frame_request
       redirect_to root_path unless turbo_frame_request?
+    end
+
+    def render_not_found
+      render :file => "#{Rails.root}/public/404.html", :status => 404
     end
 end
 

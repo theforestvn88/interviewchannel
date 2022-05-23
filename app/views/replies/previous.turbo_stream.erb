@@ -1,0 +1,6 @@
+<%= turbo_stream.replace "previous-replies-#{@applying.id}" do %>
+    <% if @replies.size > 0 %>
+        <%= button_to "[...]", previous_applying_replies_path(@applying, date: @replies.first.created_at), form: { id: "previous-replies-#{@applying.id}" } %>
+        <%= render partial: "replies/reply", collection: @replies %>
+    <% end %>
+<% end %>

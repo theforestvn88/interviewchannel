@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "home-content" do %>
+    <%= turbo_frame_tag "home-content", class: "w-full" do %>
+        <%= render :partial => "interviews/calendar",  :formats => :html %>
+    <% end %>
+<% end %>

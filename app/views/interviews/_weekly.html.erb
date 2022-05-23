@@ -1,5 +1,4 @@
 <%= turbo_frame_tag "interviews" do %>
-<%= turbo_stream_from :interviews %>
 <% @weekly_interviews.each do |interview| %>
     <%= turbo_stream_from interview %>
 <% end %>

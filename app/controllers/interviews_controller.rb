@@ -17,6 +17,9 @@ class InterviewsController < ApplicationController
   # GET /interviews/new
   def new
     @interview = Interview.new
+    @interview.candidate = User.find_by(id: params[:candidate_id])
+    @interview.start_time = Time.now.utc
+    @interview.end_time = Time.now.utc + 1.hour
   end
 
   # GET /interviews/1/edit
@@ -34,32 +37,51 @@ class InterviewsController < ApplicationController
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
         format.json { render :show, status: :created, location: @interview }
 
+        messager = Messager.new(current_user, current_user.curr_timezone)
+
+        if applying = @interview.applying
+            messager.create_and_send_private_reply(
+              applying: applying, 
+              sender_id: current_user.id, 
+              partial: "interviews/private_reply", 
+              locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count})
+        end
+
         [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-          Turbo::StreamsChannel.broadcast_append_to(
-            :interviews,
-            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
+          interview_date = @interview.start_time.in_time_zone(timezone)
+
+          messager.send_private_interview(
+            @interview, 
+            action: :replace,
+            target: "#{interview_date.strftime('%d-%b')}-#{tz_offset}", 
+            partial: "interviews/mini_day",
+            locals: {interview_date: interview_date, today: Time.now.in_time_zone(current_user.curr_timezone), tz_offset: tz_offset})
+
+          messager.send_private_interview(
+            @interview, 
+            action: :append,
+            target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
             locals: CalendarPresenter.interview_daily_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
-          )
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
-          Turbo::StreamsChannel.broadcast_append_to(
-            :interviews,
-            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
+          messager.send_private_interview(
+            @interview, 
+            action: :append,
+            target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",
             locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
-          )
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
-          Turbo::StreamsChannel.broadcast_append_to(
-            :interviews,
-            target: "interviews-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-monthly#{tz_offset}", 
+          messager.send_private_interview(
+            @interview, 
+            action: :append,
+            target: "interviews-#{interview_date.strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
             locals: CalendarPresenter.interview_monthly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
-          )
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
         end
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -75,50 +97,53 @@ class InterviewsController < ApplicationController
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
         format.json { render :show, status: :ok, location: @interview }
 
+        messager = Messager.new(current_user, current_user.curr_timezone)
+
         [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
+          interview_date = @interview.start_time.in_time_zone(timezone)
 
           # day
-          Turbo::StreamsChannel.broadcast_remove_to(
-            @interview,
-            target: "interview-#{@interview.id}-timespan-daily#{tz_offset}"
-          )
+          messager.send_private_interview(
+            @interview, 
+            action: :remove,
+            target: "interview-#{@interview.id}-timespan-daily#{tz_offset}")
 
-          Turbo::StreamsChannel.broadcast_append_to(
-            :interviews,
-            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-daily#{tz_offset}", 
+          messager.send_private_interview(
+            @interview, 
+            action: :append,
+            target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
             locals: CalendarPresenter.interview_daily_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
-          )
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
           # week
-          Turbo::StreamsChannel.broadcast_remove_to(
-            @interview,
-            target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}"
-          )
+          messager.send_private_interview(
+            @interview, 
+            action: :remove,
+            target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}")
 
-          Turbo::StreamsChannel.broadcast_append_to(
-            :interviews,
-            target: "interview-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-#{@interview.start_time.in_time_zone(timezone).hour}-weekly#{tz_offset}", 
+          messager.send_private_interview(
+            @interview, 
+            action: :append,
+            target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",
             locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
-          )
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
           # month
-          Turbo::StreamsChannel.broadcast_remove_to(
-            @interview,
-            target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}"
-          )
+          messager.send_private_interview(
+            @interview, 
+            action: :remove,
+            target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}")
 
-          Turbo::StreamsChannel.broadcast_append_to(
-            :interviews,
-            target: "interviews-#{@interview.start_time.in_time_zone(timezone).strftime('%F')}-monthly#{tz_offset}", 
+          messager.send_private_interview(
+            @interview, 
+            action: :append,
+            target: "interviews-#{interview_date.strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
             locals: CalendarPresenter.interview_monthly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create)
-          )
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
         end
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -135,23 +160,25 @@ class InterviewsController < ApplicationController
       format.html { redirect_to interviews_url, notice: "Interview was successfully destroyed." }
       format.json { head :no_content }
 
+      messager = Messager.new(current_user, current_user.curr_timezone)
+
       [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
         tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-        Turbo::StreamsChannel.broadcast_remove_to(
-          @interview,
-          target: "interview-#{@interview.id}-timespan-daily#{tz_offset}"
-        )
+        messager.send_private_interview(
+          @interview, 
+          action: :remove,
+          target: "interview-#{@interview.id}-timespan-daily#{tz_offset}")
 
-        Turbo::StreamsChannel.broadcast_remove_to(
-          @interview,
-          target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}"
-        )
+        messager.send_private_interview(
+          @interview, 
+          action: :remove,
+          target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}")
 
-        Turbo::StreamsChannel.broadcast_remove_to(
-          @interview,
-          target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}"
-        )
+        messager.send_private_interview(
+          @interview, 
+          action: :remove,
+          target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}")
       end
     end
   end
@@ -199,7 +226,7 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id)
+      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id, :applying_id)
     end
 
     def convert_time

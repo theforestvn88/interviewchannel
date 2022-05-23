@@ -1,0 +1,31 @@
+<%= turbo_frame_tag "home-content", class: "w-full" do %>
+  <div class="w-full p-5">
+    <% if notice.present? %>
+      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+    <% end %>
+
+    <div class="flex justify-between">
+      <div class="flex justify-start items-center">
+        <h1 class="text-base font-bold">Recently Messages</h1>
+      </div>
+      <%= link_to "Post Job Message", new_message_path(tag: @tag), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-sm" %>
+    </div>
+    <div class="mb-3 text-xs flex justify-start">
+      <%= button_to "active", query_messages_path(tag: @tag), class: "px-1 #{params[:sort_by].nil? ? 'font-bold' : ''}" %>  | 
+      <%= button_to "#views", query_messages_path(tag: @tag, sort_by: "views"), class: "px-1  #{params[:sort_by] == 'views' ? 'font-bold' : ''}" %>  | 
+      <%= button_to "#applyings", query_messages_path(tag: @tag, sort_by: "applyings_count"), class: "px-1 #{params[:sort_by] == 'applyings_count' ? 'font-bold' : ''}" %>
+    </div>
+
+    <%= turbo_frame_tag "messages", class: "w-full" do %>
+      <div id="messages_<%= @tag&.gsub('#','') || 'all' %>" class="w-full">
+        <%= render @messages if @messages %>
+      </div>
+    <% end %>
+
+    <%= turbo_frame_tag "load_more" do %>
+      <% if @next_offset %>
+        <%= button_to "load more", query_messages_path(tag: @tag, offset: @next_offset), class: "text-sm text-blue-600" %>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

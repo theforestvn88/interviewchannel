@@ -1,0 +1,34 @@
+<%= form_with(model: message, class: "w-full text-xs") do |form| %>
+  <% if message.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+      <h2><%= pluralize(message.errors.count, "error") %> prohibited this message from being saved:</h2>
+
+      <ul>
+        <% message.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.limit_text_area :content, limit: 500, rows: 7, placeholder: "content: in code we trust ...", class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full", 
+        "data-message-target": "content" %>
+  </div>
+
+  <div class="my-5 relative" data-controller="select7" data-select7-suggest-api-value="<%= suggest_tags_path %>" data-select7-attr-value="message[tags][]">
+    <div class="flex justify-start block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full overflow-auto">
+      <div class="flex justify-start" data-select7-target="tagsContainer">
+        <% message.channel&.split(" ") do |tag| %>
+          <%= render partial: "shared/select7_item", locals: {attr: "message[tags][]", name: tag.gsub("#", ""), hidden: false} %>
+        <% end %>
+      </div>
+      <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none">
+    </div>
+    <div data-select7-target="suggestionTags" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
+  </div>
+
+  <div class="inline">
+    <%= form.submit "Submit", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

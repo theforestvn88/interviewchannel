@@ -1,0 +1,11 @@
+<div class="mx-auto md:w-2/3 w-full flex">
+  <div class="mx-auto">
+    <%= render @tag %>
+
+    <%= link_to 'Edit this tag', edit_tag_path(@tag), class: "mt-2 rounded-sm py-1 px-2 bg-gray-100 inline-block" %>
+    <div class="inline-block ml-2">
+      <%= button_to 'Destroy this tag', tag_path(@tag), method: :delete, class: "mt-2 rounded-sm py-1 px-2 bg-gray-100" %>
+    </div>
+    <%= link_to '< Back to tags', tags_path, class: "ml-2 rounded-lg py-1 px-2 bg-gray-100 inline-block" %>
+  </div>
+</div>

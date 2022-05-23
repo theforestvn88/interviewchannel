@@ -13,7 +13,7 @@ class CalendarPresenter
         top: (start_time_in_min%60) * 100 / 60,
         height: (end_time_in_min - start_time_in_min)/6,
         text: interview.note,
-        color: "red" # TODO: base on tags
+        color: "gray" # TODO: base on tags
       }
     end
 
@@ -36,7 +36,7 @@ class CalendarPresenter
         top: (start_time_in_min%60) * 100 / 60,
         height: (end_time_in_min - start_time_in_min)/6,
         text: interview.note.slice(0, 30),
-        color: "red" # TODO: base on tags
+        color: "gray" # TODO: base on tags
       }
     end
 
@@ -60,7 +60,7 @@ class CalendarPresenter
         id: interview.id,
         top: interview.start_time.in_time_zone(user_timezone).hour * 3,
         text: interview.note&.slice(0, 28) + "...",
-        color: "red" # TODO: base on tags
+        color: "gray" # TODO: base on tags
       }
     end
 
@@ -75,7 +75,7 @@ class CalendarPresenter
 
       beginning_day = aday_in_month.in_time_zone(user_timezone).beginning_of_month
       end_day = aday_in_month.in_time_zone(user_timezone).end_of_month
-      month_days = (0..35).map do |i|
+      month_days = (0..42).map do |i|
         if i < beginning_day.wday
           nil
         elsif (d = beginning_day + (i - beginning_day.wday).days) <= end_day
@@ -86,5 +86,22 @@ class CalendarPresenter
       end
 
       [monthly_interviews, monthly_display, month_days]
+    end
+
+    def mini_month(target_date)
+      counter = @scheduler.as_role(:interviewer, :candidate)
+        .by_time(target_date.beginning_of_day.utc, target_date.end_of_month.utc)
+        .group("start_time::date")
+        .count
+
+      counter.transform_keys! {|d| d.mday}
+      beginning_of_month = target_date.beginning_of_month
+      end_of_month = target_date.end_of_month
+
+      Array.new(beginning_of_month.wday, nil) + 
+      (beginning_of_month.mday..end_of_month.mday).map do |i|
+        [i, beginning_of_month + (i-1).days, counter[i] || 0]
+      end + 
+      Array.new(42 - end_of_month.mday, nil)
     end
 end
