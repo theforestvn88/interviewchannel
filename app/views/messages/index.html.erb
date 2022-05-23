@@ -12,8 +12,8 @@
     </div>
     <div class="mb-3 text-xs flex justify-start">
       <%= button_to "active", query_messages_path(tag: @tag), class: "px-1 #{params[:sort_by].nil? ? 'font-bold' : ''}" %>  | 
-      <%= button_to "views", query_messages_path(tag: @tag, sort_by: "views"), class: "px-1  #{params[:sort_by] == 'views' ? 'font-bold' : ''}" %>  | 
-      <%= button_to "applyings", query_messages_path(tag: @tag, sort_by: "applyings_count"), class: "px-1 #{params[:sort_by] == 'applyings_count' ? 'font-bold' : ''}" %>
+      <%= button_to "#views", query_messages_path(tag: @tag, sort_by: "views"), class: "px-1  #{params[:sort_by] == 'views' ? 'font-bold' : ''}" %>  | 
+      <%= button_to "#applyings", query_messages_path(tag: @tag, sort_by: "applyings_count"), class: "px-1 #{params[:sort_by] == 'applyings_count' ? 'font-bold' : ''}" %>
     </div>
 
     <%= turbo_frame_tag "messages", class: "w-full" do %>

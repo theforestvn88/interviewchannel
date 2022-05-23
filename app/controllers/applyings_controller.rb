@@ -15,13 +15,14 @@ class ApplyingsController < ApplicationController
         applying = Applying.new applying_params.merge({message_id: @message.id, candidate_id: current_user.id, interviewer_id: @message.user_id})
 
         if applying.save
-            # send private message first
             Messager.new(current_user, current_user.curr_timezone)
-                .send_private_message(
+                .send_private_message( # send private message first
                     to_user_id: @message.user_id, 
                     partial: "applyings/applying", 
                     locals: {applying: applying, owner: current_user},
-                    flash: "#{current_user.name} applied the job message ##{@message.id}")
+                    flash: "#{current_user.name} applied the job message ##{@message.id}"
+                )
+                .broadcast_replace(@message) # broadcast due to counter-cache update
         end
 
         head :no_content

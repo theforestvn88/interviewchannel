@@ -31,6 +31,8 @@ class Messager
                     locals: {tag: tag, count: count}
                 )
             end
+
+            self
         end
     end
 end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Messager
+    include Model
     include Query
     include Count
     include PrivateChannel

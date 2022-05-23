@@ -22,6 +22,8 @@ class Messager
                 partial: "shared/flash",
                 locals: {content: content}
             )
+
+            self
         end
 
         def send_private_message(to_user_id:, partial:, locals:, flash: nil)
@@ -43,6 +45,8 @@ class Messager
             end
 
             send_flash(channel: toChannels.last, content: flash) if flash
+
+            self
         end
 
         def send_private_reply(applying, reply, partial = "replies/reply", locals = nil)
@@ -57,6 +61,8 @@ class Messager
 
                 send_flash(channel: toChannel, content: "@#{reply.user.name}: " + reply.content[0..50] + "...") if toChannel != owner_channel
             end
+
+            self
         end
 
         def create_and_send_private_reply(sender_id:, applying:, partial:, locals:)
@@ -67,6 +73,8 @@ class Messager
             if reply.save
                 send_private_reply(applying, reply)
             end
+
+            self
         end
 
         def send_private_interview(interview, action:, target:, partial: "", locals: {})
@@ -83,6 +91,8 @@ class Messager
                     )
                 end
             end
+
+            self
         end
 
         private def private_channel_format(uid, email) # TODO: encrypt ???
