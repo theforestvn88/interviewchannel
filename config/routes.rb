@@ -6,7 +6,8 @@ Rails.application.routes.draw do
   get '/cal/weekly', to: 'home#weekly', as: "calendar_weekly"
   get '/cal/monthly', to: 'home#monthly', as: "calendar_monthly"
 
-  get 'auth/github/callback', to: 'sessions#callback'
+  get '/sign_in', to: 'sessions#new'
+  match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post]
   get '/sign_out', to: 'sessions#destroy'
 
   resources :users, only: [:edit, :update] do

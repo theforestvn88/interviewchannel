@@ -1,0 +1,11 @@
+<%= render "layouts/modal", width: "" do %>
+  <div class="flex flex-col items-center">
+    <h2 class="font-bold mb-5">Sign In</h2>
+    <%= button_to 'Sign in with Github', '/auth/github', method: :post, data: {turbo: "false"}, params: {timezone: "UTC"},
+        class: "bg-emerald-500 hover:bg-emerald-600 rounded-md text-xs h-10 my-2 px-10",
+        "data-controller": "auth" %>
+    <%= button_to 'Sign in with Google', '/auth/google_oauth2', method: :post, data: {turbo: "false"}, params: {timezone: "UTC"},
+        class: "bg-red-500 hover:bg-red-600 rounded-md text-xs h-10 my-2 px-10",
+        "data-controller": "auth" %>
+  </div>
+<% end %>

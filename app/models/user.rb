@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  include OmniAuthParser
+
   has_many :sent_messages,
            :class_name => "Message",
            :foreign_key => "user_id",
@@ -8,15 +10,14 @@ class User < ApplicationRecord
            :dependent => :destroy
 
   def self.find_or_create_from_omniauth(auth)
-    user = find_by(uid: auth['uid'])
+    user_uid = parse_user_uid(auth)
+    user = find_by(uid: user_uid)
     return user if user.present?
 
     create! do |user|
-      user.uid = auth['uid']
-      user.name = auth.info['nickname']
-      user.email = auth.info['email']
-      user.image = auth.info['image']
-      user.github = auth.info["urls"]['GitHub']
+      user.uid = user_uid
+      user.name, user.email, user.image = parse_user_info(auth)
+      user.github = parse_github(auth)
     end
   end
 
