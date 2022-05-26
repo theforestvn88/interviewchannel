@@ -2,7 +2,7 @@
 
 class MessageRepo
     class << self
-        def query(by_time:, by_tags: nil, by_user: nil, sort_by: [:updated_at, :desc], limit: nil)
+        def query(by_time:, by_tags: nil, by_user: nil, sort_by: [[:updated_at, :desc]], limit: nil)
             q = Message.by_updated_time(by_time)
             q = q.by_tags(by_tags) unless by_tags.blank? or by_tags == ["#all"]
             q = q.by_owner(by_user.id) if by_user

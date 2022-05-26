@@ -20,8 +20,12 @@ class ApplicationController < ActionController::Base
       !!current_user
     end
 
-    def ensure_user_signed_in
+    def require_user_signed_in
       redirect_to root_path unless user_signed_in?
+    end
+
+    def ensure_user_signed_in
+      redirect_to sign_in_path unless user_signed_in?
     end
 
     def ensure_turbo_frame_request

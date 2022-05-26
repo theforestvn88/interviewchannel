@@ -19,10 +19,14 @@ class Messager
         end
 
         def own_by_me(offset_time: Time.now.utc, limit: PAGE)
+            return [] if @user.nil?
+
             MessageRepo.query(by_user: @user, by_time: @one_month_ago_utc..offset_time, limit: limit)
         end
 
         def private_messages(user, offset_time: Time.now.utc, limit: PAGE)
+            return [] if user.nil?
+
             PrivateMessageRepo.query(by_user: user, by_time: @one_month_ago_utc..offset_time, limit: limit)
         end
     end

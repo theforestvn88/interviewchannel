@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class RepliesController < ApplicationController
-    before_action :ensure_user_signed_in
+    before_action :require_user_signed_in
     before_action :set_applying
 
     def new

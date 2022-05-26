@@ -1,17 +1,17 @@
 class MessagesController < ApplicationController
-  before_action :ensure_user_signed_in
+  before_action :ensure_user_signed_in, except: %i[ index query ]
   before_action :set_message, only: %i[ show edit update destroy ]
 
   # GET /messages or /messages.json
   def index
-    @messages = Messager.new(current_user, current_user.curr_timezone).recently(params[:tag])
+    @messages = Messager.new.recently(params[:tag])
   end
 
   def query
     offset_time = DateTime.parse(params[:offset]) if params[:offset]
     limit = Messager::Query::PAGE
 
-    messager = Messager.new(current_user, current_user.curr_timezone)
+    messager = Messager.new(current_user, current_user&.curr_timezone)
 
     @tag = params[:tag]
     case @tag

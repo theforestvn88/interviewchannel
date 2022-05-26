@@ -1,23 +1,24 @@
 # frozen_string_literal:true
 
 class HomeController < ApplicationController
-  before_action :check_logged_in, except: :index
+  before_action :require_user_signed_in, except: :index
   before_action :ensure_turbo_frame_request, except: [:index, :calendar]
   before_action :create_scheduler_and_presenter
   before_action :set_time
   before_action :set_mini_cal_time, only: [:index, :mini_calendar]
 
   def index
+    # messages
+    messager = Messager.new
+    @messages = messager.recently("#all")
+    @next_offset = @messages.last&.updated_at
+
     if user_signed_in?
-      # messages
-      messager = Messager.new(current_user, current_user.curr_timezone)
       @tags = (current_user.watch_tags || "").split(" ").map { |tag|
         _tag = tag.strip.downcase
         [_tag, messager.count_by_tag(_tag)]
       }.unshift(["#all", messager.count_all])
       @private_channel = messager.private_channel(current_user)
-      @messages = messager.recently("#all")
-      @next_offset = @messages.last&.updated_at
     end
   end
 
@@ -95,9 +96,5 @@ class HomeController < ApplicationController
     @selected_date = @target_date.beginning_of_day
 
     @month_days = @presenter.mini_month(@selected_date)
-  end
-
-  private def check_logged_in
-    redirect_to root_path unless user_signed_in?
   end
 end
