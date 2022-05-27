@@ -1,15 +1,11 @@
-<div class="mx-auto md:w-2/3 w-full flex">
-  <div class="mx-auto">
-    <% if notice.present? %>
-      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-    <% end %>
+<% if @finished %>
+  <p>This Interview Is Finished.</p>
+<% elsif @countdown > 0 %>
+  <p class="mx-auto mt-10">This Interview Will Start About: <span class="ml-1 font-bold" data-controller="countdown" data-countdown-time-value="<%= @countdown %>" data-countdown-redirecturl-value="<%= interview_path(@interview)%>"></span></p>
+<% else %>
+  <%= stylesheet_link_tag "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/tomorrow-night-blue.min.css", "data-turbo-track": "reload", class: "codestyle" %>
+  <%= stylesheet_link_tag "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/github.min.css", "data-turbo-track": "reload", class: "codestyle" %>
+  <%= javascript_import_module_tag("interview") %>
 
-    <%= render @interview %>
-
-    <%= link_to 'Edit this interview', edit_interview_path(@interview), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <div class="inline-block ml-2">
-      <%= button_to 'Destroy this interview', interview_path(@interview), method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
-    </div>
-    <%= link_to 'Back to interviews', interviews_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-  </div>
-</div>
+  <%= interview_stream @interview %>
+<% end %>

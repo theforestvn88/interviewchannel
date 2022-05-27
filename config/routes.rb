@@ -26,7 +26,6 @@ Rails.application.routes.draw do
 
   resources :interviews do
     member do
-      get 'room'
       get 'card'
       get 'confirm'
     end

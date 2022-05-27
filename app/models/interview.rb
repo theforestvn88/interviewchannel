@@ -33,6 +33,10 @@ class Interview < ApplicationRecord
         return interviewer.id == user.id
     end
 
+    def involve?(user)
+        self.interviewer_id == user.id || self.candidate_id == user.id
+    end
+
     class ModifyingPolicy < RuntimeError; end
 
     def start_time_minutes(timezone = "UTC")
