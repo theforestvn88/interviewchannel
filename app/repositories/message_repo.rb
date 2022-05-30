@@ -12,7 +12,7 @@ class MessageRepo
         end
 
         def count(by_time:, by_tag: nil, by_user: nil, expires_in: 1.minute)
-            Rails.cache.fetch("count:#{by_tag&.downcase}#{by_user&.id}", expires_in: expires_in) {
+            Rails.cache.fetch("count:#{by_tag&.downcase}#{by_user&.id}", expires_in: expires_in, raw: true) {
                 MessageRepo.fetch(by_time: by_time, by_tags: Array(by_tag), by_user: by_user).count
             }
         end

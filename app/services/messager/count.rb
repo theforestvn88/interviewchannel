@@ -15,6 +15,7 @@ class Messager
         end
 
         def increase_then_broadcast_counter(message)
+            message.tags.each { |tag| count_by_tag(tag) } # fetch tag-counter before increase, for sure
             broadcast_tags message.tags.zip(MessageRepo.increase_counter_by_tags(message.tags))
         end
 
