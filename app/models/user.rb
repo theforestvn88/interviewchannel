@@ -9,14 +9,24 @@ class User < ApplicationRecord
            :inverse_of => :owner,
            :dependent => :destroy
 
-  def self.find_or_create_from_omniauth(auth)
-    user_uid = parse_user_uid(auth)
-    user = find_by(uid: user_uid)
-    return user if user.present?
+  def self.find_or_create_by_omniauth(auth)
+    # exist user ?
+    user = where(email: parse_user_emails(auth)).first
+    if user.present?
+      # update merge infomation
+      if user.github.nil? && (gihub = parse_github(auth)).present?
+        user.github = gihub
+        user.save
+      end
+      return user
+    end
 
+    # create new user !
     create! do |user|
-      user.uid = user_uid
-      user.name, user.email, user.image = parse_user_info(auth)
+      user.uid = parse_user_uid(auth)
+      user.name = parse_user_name(auth)
+      user.email = parse_user_primary_email(auth)
+      user.image = parse_user_image(auth)
       user.github = parse_github(auth)
     end
   end
