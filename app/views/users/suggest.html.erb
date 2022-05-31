@@ -1,3 +1,5 @@
 <% @users.each do |user| %>
-    <p id="<%= user.id %>" class="hover:bg-gray-200 hover:cursor-pointer px-2 py-1" data-action="click->form#pickSuggestUser"><%= user.name %><p>
+    <p id="<%= user.id %>" class="hover:bg-gray-200 hover:cursor-pointer px-2 py-1" data-action="click->form#pickSuggestUser" data-selected="<%= user.name %> <%= user.email %>">
+        <span class="text-xs font-bold pointer-events-none"><%= user.name %></span><span class="ml-1 text-xs font-light italic pointer-events-none"><%= user.email %></span>
+    <p>
 <% end %>

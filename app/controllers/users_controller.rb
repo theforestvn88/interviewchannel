@@ -6,8 +6,12 @@ class UsersController < ApplicationController
     before_action :allow_only_current_user, only: [:edit_profile, :update_profile, :add_watch_tag, :remove_watch_tag]
 
     def suggest
-        @users = User.suggest(params[:key])
-        render layout: false
+        if params[:key].empty?
+            head :no_content
+        else
+            @users = User.suggest(params[:key]).first(6)
+            render layout: false
+        end
     end
 
     def profile
