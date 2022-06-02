@@ -35,6 +35,10 @@ class Message < ApplicationRecord
     self.expired_at <= Time.now.utc
   end
 
+  def applied_by?(user)
+    Applying.where(message_id: self.id, candidate_id: user.id).first.present?
+  end
+
   # turbo stream
   def targets
     tags.map {|t| "#messages_#{t.gsub('#','')}"}.join(", ")
