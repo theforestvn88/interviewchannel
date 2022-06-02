@@ -11,13 +11,13 @@ class MessageRepo
             q
         end
 
-        def count(by_time:, by_tag: nil, by_user: nil, expires_in: 1.minute)
+        def count(by_time:, by_tag: nil, by_user: nil, expires_in: 30.seconds)
             Rails.cache.fetch("count:#{by_tag&.downcase}#{by_user&.id}", expires_in: expires_in, raw: true) {
                 MessageRepo.fetch(by_time: by_time, by_tags: Array(by_tag), by_user: by_user).count
             }
         end
 
-        def fetch(by_time:, by_tags: nil, by_user: nil, sort_by: [], expires_in: 1.minute)
+        def fetch(by_time:, by_tags: nil, by_user: nil, sort_by: [], expires_in: 30.seconds)
             cache_key = "ids:#{by_tags&.map(&:downcase)&.join("#")}#{by_user&.id}-#{sort_by}"
             Rails.cache.fetch(cache_key, expires_in: expires_in) {
                 MessageRepo.query(by_time: by_time, by_tags: by_tags, by_user: by_user, sort_by: sort_by).pluck(:id)

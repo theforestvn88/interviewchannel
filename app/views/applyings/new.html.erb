@@ -1,13 +1,13 @@
 <%= render "layouts/modal" do %>
   <div class="mx-auto w-full">
-    <p><%= link_to "<-", message_path(@message), data: {"turbo-frame": "modal"} %> Apply</p>
+    <p><%= link_to "<-", message_path(@message), data: {"turbo-frame": "modal"} %> Back</p>
 
     <%= form_with(model: [@message, @applying], class: "w-full text-xs") do |form| %>
         <div class="my-5">
-            <%= form.limit_text_area :intro, limit: 500, rows: 7, placeholder: "briefly introduce yourself, this is private message", class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+            <%= form.limit_text_area :intro, limit: 500, rows: 14, placeholder: "briefly introduce yourself, this is private message", class: "block rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
         </div>
 
-        <div class="inline">
+        <div class="flex justify-end inline">
             <%= form.submit "Submit", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
         </div>
     <% end %>
