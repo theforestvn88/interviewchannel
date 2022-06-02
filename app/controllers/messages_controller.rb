@@ -28,7 +28,7 @@ class MessagesController < ApplicationController
     @template ||= "messages/index"
     @partial ||= "messages/message"
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
-    @locals ||= {messages: @messages, tag: @tag, offset: @next_offset, owner: current_user}
+    @locals ||= {messages: @messages, tag: @tag, offset: @next_offset, owner: current_user, user: current_user}
 
     respond_to do |format|
       format.html { }

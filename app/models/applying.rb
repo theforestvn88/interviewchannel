@@ -18,4 +18,8 @@ class Applying < ApplicationRecord
   scope :by_user_id, ->(user_id) {
     where(interviewer_id: user_id).or(where(candidate_id: user_id))
   }
+
+  def control_by?(user)
+    self.interviewer_id == user.id
+  end
 end

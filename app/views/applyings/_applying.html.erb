@@ -4,7 +4,7 @@
         <%= link_to applying.candidate.name, user_path(applying.candidate), class: "font-bold hover:text-blue-600" %> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
         <span><%= apply_time %></span>
     </summary>
-    <div class="pl-1 border-l-4 border-gray-300 text-xs text-gray-700">
+    <div class="ml-3 pl-1 border-l-4 border-gray-300 text-xs text-gray-700">
         <div class="text-xs w-1/2">
             <p><%= applying.intro %></p>
             <p><%= "- by #{applying.candidate.name}, #{apply_time}" %></p>
@@ -19,16 +19,5 @@
         <%= render partial: "replies/reply", collection: replies %>
     <% end %>
 
-    <%= turbo_frame_tag "reply-#{applying.id}" do %>
-        <p class="p-1 border-l-4 border-gray-300 text-blue-600 text-xs">
-            <%= link_to "reply", new_applying_reply_path(applying) %>
-        <% if applying.interviewer_id == owner.id %>
-            <span>
-                <%= link_to " | create interview", 
-                    new_interview_path(candidate_id: applying.candidate_id, applying_id: applying.id), 
-                    data: {turbo_frame: :modal} %>
-            </span>
-        <% end %>
-        </p>
-    <% end %>
+    <%= render partial: "applyings/toolbar", locals: {applying: applying, user: user} %>
 </details>

@@ -50,6 +50,11 @@ Rails.application.routes.draw do
   end
 
   resources :applyings, only: [] do
+    member do
+      post 'close'
+      post 'open'
+    end
+
     resources :replies, only: [:new, :create] do
       collection do
         post 'previous'
