@@ -56,19 +56,9 @@ class MessagesController < ApplicationController
 
   # POST /messages or /messages.json
   def create
-    @message = Message.new(message_params.merge({user_id: current_user.id, expired_at: 1.hour.from_now}))
-
     respond_to do |format|
-      if @message.save
-        Messager.new(current_user, current_user.curr_timezone).increase_then_broadcast_counter(@message)
-
-        format.html { redirect_to message_url(@message), notice: "Message was successfully created." }
-        format.json { render :show, status: :created, location: @message }
-        format.turbo_stream
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @message.errors, status: :unprocessable_entity }
-      end
+      @message = Messager.new(current_user, current_user.curr_timezone).create_message(message_params)
+      format.turbo_stream
     end
   end
 

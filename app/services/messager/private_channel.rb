@@ -15,17 +15,6 @@ class Messager
             private_channel_format(uid, email)
         end
 
-        def send_flash(channel:, content:)
-            Turbo::StreamsChannel.broadcast_replace_to(
-                channel,
-                target: "flash", 
-                partial: "shared/flash",
-                locals: {content: content}
-            )
-
-            self
-        end
-
         def send_private_message(to_user_id:, partial:, locals:, flash: nil)
             toChannels = [private_channel(@user), private_channel_from_user_id(to_user_id)].uniq
             toChannels.each do |toChannel|
@@ -44,7 +33,7 @@ class Messager
                 )
             end
 
-            send_flash(channel: toChannels.last, content: flash) if flash
+            send_private_flash(channel: toChannels.last, content: flash) if flash
 
             self
         end
@@ -59,7 +48,7 @@ class Messager
                     locals: locals || {reply: reply}
                 )
 
-                send_flash(channel: toChannel, content: "@#{reply.user.name}: " + reply.content[0..50] + "...") if toChannel != owner_channel
+                send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + reply.content[0..50] + "...") if toChannel != owner_channel
             end
 
             self
