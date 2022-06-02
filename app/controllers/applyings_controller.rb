@@ -15,7 +15,7 @@ class ApplyingsController < ApplicationController
     def create
         messager =  Messager.new(current_user, current_user.curr_timezone)
 
-        if @message.expired_at?
+        if @message.expired?
             messager.send_error_flash(error: "This message is expired !!!")
         else
             applying = Applying.new applying_params.merge({message_id: @message.id, candidate_id: current_user.id, interviewer_id: @message.user_id})

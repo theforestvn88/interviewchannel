@@ -31,6 +31,10 @@ class Message < ApplicationRecord
     self.channel = _tags.map {|t| "##{t}"}.uniq.join(" ")
   end
 
+  def expired?
+    self.expired_at <= Time.now.utc
+  end
+
   # turbo stream
   def targets
     tags.map {|t| "#messages_#{t.gsub('#','')}"}.join(", ")
