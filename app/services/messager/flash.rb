@@ -13,8 +13,12 @@ class Messager
             self
         end
 
-        def send_error_flash(channel:, content:)
-            send_flash(channel: channel, content: content, css: "w-full absolute top-20 inset-x-0 z-100 pl-5 pr-10 py-2 shadow-xl drop-shadow-2xl border-y-2 border-l-2 border-red-900 bg-red-400 text-white")
+        def send_error_flash(channel: nil, error:)
+            send_flash(channel: channel || private_channel_from_user_id(@user.id), content: error, css: "w-full absolute top-20 inset-x-0 z-100 pl-5 pr-10 py-2 shadow-xl drop-shadow-2xl border-y-2 border-l-2 border-red-900 bg-red-400 text-white")
+        end
+
+        def send_model_error_flash(model)
+            send_error_flash(error: model.errors.first.full_message)
         end
 
         def send_private_flash(channel:, content:)
