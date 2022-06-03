@@ -1,6 +1,7 @@
-<div class="w-full text-xs border-l-4 border-gray-300 text-xs text-gray-700 pl-1 pt-2">
+<li class="mt-2 pb-2 ml-4 text-xs">
+    <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+    <time class="font-normal leading-none text-gray-400 dark:text-gray-500"><%= "#{distance_of_time_in_words(reply.created_at, Time.now.utc)} ago, by " %><span class="font-bold"><%= reply.user.name %></span></time>
     <div class="w-1/2">
         <%= reply.content.html_safe %> 
     </div>
-    <p><%= "- by #{reply.user.name}, #{distance_of_time_in_words(reply.created_at, Time.now.utc)} ago." %></p>
-</div>
+</li>
