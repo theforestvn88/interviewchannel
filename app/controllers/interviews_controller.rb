@@ -35,7 +35,7 @@ class InterviewsController < ApplicationController
   # POST /interviews or /interviews.json
   def create
     @interview = Interview.new(interview_params)
-    @interview.interviewer = current_user
+    @interview.owner = current_user
 
     respond_to do |format|
       if @interview.save
@@ -49,43 +49,49 @@ class InterviewsController < ApplicationController
               applying: applying, 
               sender_id: current_user.id, 
               partial: "interviews/private_reply", 
-              locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count})
+              locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count},
+              flash: "I scheduled the interview. Good Luck!")
         end
 
-        [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
+        [@interview.interviewer, @interview.candidate].uniq.each do |user|
+          presenter = CalendarPresenter.new(Scheduler.new(user))
+          timezone = user.curr_timezone
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
-
           interview_date = @interview.start_time.in_time_zone(timezone)
 
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :replace,
             target: "#{interview_date.strftime('%d-%b')}-#{tz_offset}", 
             partial: "interviews/mini_day",
             locals: {interview_date: interview_date, today: Time.now.in_time_zone(current_user.curr_timezone), tz_offset: tz_offset})
 
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :append,
             target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
-            locals: CalendarPresenter.interview_daily_display(@interview, timezone)
+            locals: presenter.interview_daily_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user, 
             action: :append,
             target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",
-            locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
+            locals: presenter.interview_weekly_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :append,
             target: "interviews-#{interview_date.strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
-            locals: CalendarPresenter.interview_monthly_display(@interview, timezone)
+            locals: presenter.interview_monthly_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
         end
       else
@@ -104,51 +110,59 @@ class InterviewsController < ApplicationController
 
         messager = Messager.new(current_user, current_user.curr_timezone)
 
-        [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
+        [current_user, @interview.candidate].uniq.each do |user|
+          presenter = CalendarPresenter.new(Scheduler.new(user))
+          timezone = user.curr_timezone
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
           interview_date = @interview.start_time.in_time_zone(timezone)
 
           # day
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :remove,
             target: "interview-#{@interview.id}-timespan-daily#{tz_offset}")
 
           messager.send_private_interview(
             @interview, 
+            user,
             action: :append,
             target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-daily#{tz_offset}", 
             partial: "interviews/timespan_daily",
-            locals: CalendarPresenter.interview_daily_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
+            locals: presenter.interview_daily_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
 
           # week
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :remove,
             target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}")
 
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :append,
             target: "interview-#{interview_date.strftime('%F')}-#{interview_date.hour}-weekly#{tz_offset}", 
             partial: "interviews/timespan_weekly",
-            locals: CalendarPresenter.interview_weekly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
+            locals: presenter.interview_weekly_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
 
           # month
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :remove,
             target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}")
 
           messager.send_private_interview(
-            @interview, 
+            @interview,
+            user,
             action: :append,
             target: "interviews-#{interview_date.strftime('%F')}-monthly#{tz_offset}", 
             partial: "interviews/timespan_monthly",
-            locals: CalendarPresenter.interview_monthly_display(@interview, timezone)
-                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
+            locals: presenter.interview_monthly_display(@interview, timezone)
+                      .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
         end
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -167,21 +181,25 @@ class InterviewsController < ApplicationController
 
       messager = Messager.new(current_user, current_user.curr_timezone)
 
-      [current_user, @interview.candidate].map(&:curr_timezone).uniq.each do |timezone|
+      [current_user, @interview.candidate].uniq.each do |user|
+        timezone = user.curr_timezone
         tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
         messager.send_private_interview(
           @interview, 
+          user,
           action: :remove,
           target: "interview-#{@interview.id}-timespan-daily#{tz_offset}")
 
         messager.send_private_interview(
-          @interview, 
+          @interview,
+          user,
           action: :remove,
           target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}")
 
         messager.send_private_interview(
-          @interview, 
+          @interview,
+          user,
           action: :remove,
           target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}")
       end
@@ -192,7 +210,7 @@ class InterviewsController < ApplicationController
   def search
     @interviews = \
       Scheduler.new(current_user)\
-        .as_role(:interviewer, :candidate)
+        .as_role(:owner, :interviewer, :candidate)
         .by_keyword(params[:keyword])
         .offset(offset = params[:offset].to_i).limit(SEARCH_LIMIT)
     
@@ -231,7 +249,7 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :candidate_id, :applying_id)
+      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id)
     end
 
     def convert_time

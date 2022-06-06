@@ -38,7 +38,7 @@ class Messager
             self
         end
 
-        def send_private_reply(applying, reply, partial = "replies/reply", locals = nil)
+        def send_private_reply(applying, reply, partial: "replies/reply", locals: nil, flash: nil)
             owner_channel = private_channel_from_user_id(reply.user_id)
             [private_channel(applying.candidate), private_channel(applying.interviewer)].uniq.each do |toChannel|
                 Turbo::StreamsChannel.broadcast_append_to(
@@ -48,37 +48,36 @@ class Messager
                     locals: locals || {reply: reply}
                 )
 
-                send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + reply.content[0..50] + "...") if toChannel != owner_channel
+                send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + (flash || reply.content[0..50] + "...")) if toChannel != owner_channel
             end
 
             self
         end
 
-        def create_and_send_private_reply(sender_id:, applying:, partial:, locals:)
+        def create_and_send_private_reply(sender_id:, applying:, partial:, locals:, flash: nil)
             return if sender_id.nil? or applying.nil?
             
             content = ApplicationController.render(formats: [ :html ], partial: partial, locals: locals)
             reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content)
             if reply.save
-                send_private_reply(applying, reply)
+                send_private_reply(applying, reply, flash: flash)
             end
 
             self
         end
 
-        def send_private_interview(interview, action:, target:, partial: "", locals: {})
-            [private_channel(interview.candidate), private_channel(interview.interviewer)].uniq.each do |toChannel|
-                if action == :remove
-                    Turbo::StreamsChannel.broadcast_remove_to(toChannel, target: target)
-                else
-                    Turbo::StreamsChannel.broadcast_action_later_to(
-                        toChannel,
-                        action: action,
-                        target: target, 
-                        partial: partial,
-                        locals: locals
-                    )
-                end
+        def send_private_interview(interview, user, action:, target:, partial: "", locals: {})
+            to_channel = private_channel(user)
+            if action == :remove
+                Turbo::StreamsChannel.broadcast_remove_to(to_channel, target: target)
+            else
+                Turbo::StreamsChannel.broadcast_action_later_to(
+                    to_channel,
+                    action: action,
+                    target: target, 
+                    partial: partial,
+                    locals: locals
+                )
             end
 
             self

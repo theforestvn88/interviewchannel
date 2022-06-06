@@ -1,7 +1,7 @@
 <div class="w-full flex justify-start">
-    <div>I created an</div> 
+    <div>I scheduled the</div> 
     <div class="px-1 font-bold text-blue-600" data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value="<%= card_interview_path(interview) %>">
         <%= link_to "interview##{index}", interview_path(interview), data: {turbo: "false"} %>
     </div>
-    <div>for you. Good Luck!</div>
+    <div>. Good Luck!</div>
 </div>
