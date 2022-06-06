@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_02_135156) do
+ActiveRecord::Schema.define(version: 2022_06_06_080220) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,9 +40,11 @@ ActiveRecord::Schema.define(version: 2022_06_02_135156) do
     t.bigint "interviewer_id", null: false
     t.bigint "candidate_id", null: false
     t.bigint "applying_id"
+    t.bigint "owner_id", null: false
     t.index ["applying_id"], name: "index_interviews_on_applying_id"
     t.index ["candidate_id"], name: "index_interviews_on_candidate_id"
     t.index ["interviewer_id"], name: "index_interviews_on_interviewer_id"
+    t.index ["owner_id"], name: "index_interviews_on_owner_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -92,6 +94,7 @@ ActiveRecord::Schema.define(version: 2022_06_02_135156) do
   add_foreign_key "interviews", "applyings"
   add_foreign_key "interviews", "users", column: "candidate_id"
   add_foreign_key "interviews", "users", column: "interviewer_id"
+  add_foreign_key "interviews", "users", column: "owner_id"
   add_foreign_key "messages", "users"
   add_foreign_key "replies", "applyings"
   add_foreign_key "replies", "users"

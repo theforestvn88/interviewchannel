@@ -1,12 +1,17 @@
 # frozen_string_literal: true 
 
 class Interview < ApplicationRecord
+    belongs_to  :owner, class_name: "User" # required, the owner could be HR or the interviewer himself
     belongs_to  :interviewer, class_name: "User" # required
-    belongs_to  :candidate, class_name: "User", optional: true # allow unregister users, interviewer could use `note` to note candidate info.
+    belongs_to  :candidate, class_name: "User" # required
     belongs_to  :applying, optional: true
 
     validates :note, presence: true
     
+    scope :as_owner, ->(owner) {
+        where(owner_id: owner.id)
+    }
+
     scope :as_interviewer, ->(interviewer) {
         where(interviewer_id: interviewer.id)
     }
