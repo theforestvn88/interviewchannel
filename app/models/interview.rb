@@ -7,7 +7,10 @@ class Interview < ApplicationRecord
     belongs_to  :applying, optional: true
 
     validates :note, presence: true
-    
+    validate  :could_not_change_if_finnished, on: :update  
+    validate  :could_not_change_candidate, on: :update
+    validate  :timespan_ok?
+
     scope :as_owner, ->(owner) {
         where(owner_id: owner.id)
     }
@@ -35,7 +38,7 @@ class Interview < ApplicationRecord
     }
 
     def owner?(user)
-        return interviewer.id == user.id
+        return self.owner_id == user.id
     end
 
     def involve?(user)
@@ -50,5 +53,27 @@ class Interview < ApplicationRecord
 
     def end_time_minutes(timezone = "UTC")
         (self.end_time.in_time_zone(timezone).seconds_since_midnight/60).floor
+    end
+
+    def finished?
+        self.end_time <= Time.now.utc
+    end
+
+    def timespan_ok?
+        unless self.end_time > self.start_time && self.start_time > Time.now.utc
+            self.errors.add(:time, "is not appropriate!")
+        end
+    end
+
+    def could_not_change_candidate
+        if candidate_id_changed? && self.persisted?
+            self.errors.add(:candidate, "is not allowed to change!")
+        end
+    end
+
+    def could_not_change_if_finnished
+        if self.persisted? && self.finished?
+            self.errors.add(:interview, "is finished!")
+        end
     end
 end
