@@ -25,10 +25,17 @@ class InterviewsController < ApplicationController
     @interview.candidate = User.find_by(id: params[:candidate_id])
     @interview.start_time = Time.now.utc
     @interview.end_time = Time.now.utc + 1.hour
-
+    
     if params[:applying_id]
-      applying = Applying.find_by(id: params[:applying_id])
-      @interview.title = "Job##{applying.message_id} Interview for @#{applying.candidate.name}"
+      @interview.applying = Applying.find_by(id: params[:applying_id])
+      @interview.title = "Job##{@interview.applying.message_id} Interview for @#{@interview.applying.candidate.name}"
+      
+      last_interview = Interview.where(applying_id: @interview.applying.id).last
+      @interview.round = (last_interview&.round || 0) + 1
+      @interview.head_id = last_interview&.head_id || last_interview&.id
+    else
+      @interview.round = 1
+      @interview.head_id = nil
     end
   end
 
@@ -54,7 +61,7 @@ class InterviewsController < ApplicationController
             applying: applying, 
             sender_id: current_user.id, 
             partial: "interviews/private_reply", 
-            locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count},
+            locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R')},
             flash: "I scheduled the interview. Good Luck!")
         end
 
@@ -254,7 +261,8 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:title, :note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id)    end
+      @interview_params ||= params.require(:interview).permit(:title, :note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id, :round, :head_id)    
+    end
 
     def convert_time
       interview_params.merge!({

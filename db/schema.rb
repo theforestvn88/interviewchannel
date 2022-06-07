@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_07_085456) do
+ActiveRecord::Schema.define(version: 2022_06_07_122203) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,8 +42,11 @@ ActiveRecord::Schema.define(version: 2022_06_07_085456) do
     t.bigint "applying_id"
     t.bigint "owner_id", null: false
     t.string "title"
+    t.integer "round", default: 1
+    t.bigint "head_id"
     t.index ["applying_id"], name: "index_interviews_on_applying_id"
     t.index ["candidate_id"], name: "index_interviews_on_candidate_id"
+    t.index ["head_id"], name: "index_interviews_on_head_id"
     t.index ["interviewer_id"], name: "index_interviews_on_interviewer_id"
     t.index ["owner_id"], name: "index_interviews_on_owner_id"
   end
@@ -93,6 +96,7 @@ ActiveRecord::Schema.define(version: 2022_06_07_085456) do
   add_foreign_key "applyings", "users", column: "candidate_id"
   add_foreign_key "applyings", "users", column: "interviewer_id"
   add_foreign_key "interviews", "applyings"
+  add_foreign_key "interviews", "interviews", column: "head_id"
   add_foreign_key "interviews", "users", column: "candidate_id"
   add_foreign_key "interviews", "users", column: "interviewer_id"
   add_foreign_key "interviews", "users", column: "owner_id"

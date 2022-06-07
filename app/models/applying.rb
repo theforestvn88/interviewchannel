@@ -2,7 +2,7 @@ class Applying < ApplicationRecord
   belongs_to :message, counter_cache: true
   belongs_to :candidate, :class_name => "User", :foreign_key => "candidate_id"
   belongs_to :interviewer, :class_name => "User", :foreign_key => "interviewer_id"
-  has_many  :interviews # keep interviews even applying be destroyed
+  has_many  :interviews, :dependent => :nullify # keep interviews even applying be destroyed
   has_many :replies, :dependent => :destroy
 
   validates :candidate, uniqueness: { scope: :message }
