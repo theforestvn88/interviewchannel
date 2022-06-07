@@ -13,7 +13,7 @@ class CalendarPresenter
         is_owner: @scheduler.owner?(interview),
         top: (start_time_in_min%60) * 100 / 60,
         height: (end_time_in_min - start_time_in_min)/6,
-        text: interview.note,
+        text: interview.title,
         color: "gray" # TODO: base on tags
       }
     end

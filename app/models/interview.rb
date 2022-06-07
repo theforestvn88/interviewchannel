@@ -6,7 +6,7 @@ class Interview < ApplicationRecord
     belongs_to  :candidate, class_name: "User" # required
     belongs_to  :applying, optional: true
 
-    validates :note, presence: true
+    validates :title, presence: true
     validate  :could_not_change_if_finnished, on: :update  
     validate  :could_not_change_candidate, on: :update
     validate  :timespan_ok?

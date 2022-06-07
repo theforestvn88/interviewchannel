@@ -14,14 +14,14 @@
 
     <div class="my-5">
       <%= form.label :title %>
-      <%= form.text_area :note, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+      <%= form.text_field :title, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
     </div>
 
     <div class="my-5 relative" data-controller="suggestion" data-suggestion-url-value="<%= suggest_users_path %>">
       <%= form.label :interviewer %>
       <%= form.hidden_field :interviewer_id, value: "#{current_user.id}", "data-suggestion-target": "suggestionObjectId" %>
       <input value="<%= current_user.name %>  <%= current_user.email %>"
-        data-suggestion-target="suggestionInput" data-action="input->suggestion#suggestObjects",
+        data-suggestion-target="suggestionInput" data-action="input->suggestion#suggestObjects" 
         class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
       <div data-suggestion-target="suggestionObject" class="hidden absolute bot-0 left-0 w-full h-28 drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
     </div>
@@ -29,9 +29,13 @@
     <div class="my-5 relative" data-controller="suggestion" data-suggestion-url-value="<%= suggest_users_path %>">
       <%= form.label :candidate %>
       <%= form.hidden_field :candidate_id, value: "#{interview.candidate&.id}", "data-suggestion-target": "suggestionObjectId" %>
-      <input value="<%= interview.candidate&.name %> <%= interview.candidate&.email %>"
-        data-suggestion-target="suggestionInput" data-action="input->suggestion#suggestObjects",
-        class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+      <% if interview.candidate.present? %>
+        <input value="<%= interview.candidate&.name %> <%= interview.candidate&.email %>"
+          class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" disabled>
+      <% else %>
+        <input data-suggestion-target="suggestionInput" data-action="input->suggestion#suggestObjects" 
+          class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+      <% end %>
       <div data-suggestion-target="suggestionObject" class="hidden absolute bot-0 left-0 w-full h-28 drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
     </div>
 
@@ -45,6 +49,11 @@
       <%= form.label :end_time %>
       <%= form.datetime_field :end_time, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full",
           :value => (params[:end_time] || interview.end_time.in_time_zone(current_user.curr_timezone).strftime('%Y-%m-%dT%H:%M')) %>
+    </div>
+
+    <div class="my-5">
+      <%= form.label "note(private)" %>
+      <%= form.text_area :note, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
     </div>
 
     <%= form.hidden_field :applying_id, value: params[:applying_id] %>

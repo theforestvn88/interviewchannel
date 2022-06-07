@@ -25,6 +25,11 @@ class InterviewsController < ApplicationController
     @interview.candidate = User.find_by(id: params[:candidate_id])
     @interview.start_time = Time.now.utc
     @interview.end_time = Time.now.utc + 1.hour
+
+    if params[:applying_id]
+      applying = Applying.find_by(id: params[:applying_id])
+      @interview.title = "Job##{applying.message_id} Interview for @#{applying.candidate.name}"
+    end
   end
 
   # GET /interviews/1/edit
@@ -45,12 +50,12 @@ class InterviewsController < ApplicationController
         messager = Messager.new(current_user, current_user.curr_timezone)
 
         if applying = @interview.applying
-            messager.create_and_send_private_reply(
-              applying: applying, 
-              sender_id: current_user.id, 
-              partial: "interviews/private_reply", 
-              locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count},
-              flash: "I scheduled the interview. Good Luck!")
+          messager.create_and_send_private_reply(
+            applying: applying, 
+            sender_id: current_user.id, 
+            partial: "interviews/private_reply", 
+            locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R'), index: applying.interviews.count},
+            flash: "I scheduled the interview. Good Luck!")
         end
 
         [@interview.interviewer, @interview.candidate].uniq.each do |user|
@@ -249,8 +254,7 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id)
-    end
+      @interview_params ||= params.require(:interview).permit(:title, :note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id)    end
 
     def convert_time
       interview_params.merge!({
