@@ -6,6 +6,11 @@ class Interview < ApplicationRecord
     belongs_to  :candidate, class_name: "User" # required
     belongs_to  :applying, optional: true
 
+    has_many    :rounds, class_name: "Interview", foreign_key: "head_id", inverse_of: :head, dependent: :nullify
+    belongs_to  :head, class_name: "Interview", foreign_key: "head_id", inverse_of: :rounds, optional: true
+
+    enum state: { wait: 'wait', in_process: 'in_process', finish: 'finish', canceled: 'canceled' }
+
     validates :title, presence: true
     validate  :could_not_change_if_finnished, on: :update  
     validate  :could_not_change_candidate, on: :update
@@ -45,6 +50,36 @@ class Interview < ApplicationRecord
         self.interviewer_id == user.id || self.candidate_id == user.id
     end
 
+    def started?
+        !self.canceled? && !self.finish? && (self.in_process? || try_start!)
+    end
+
+    def try_start!
+        if self.start_time >= Time.now.utc
+            self.in_process!
+            true
+        else
+            false
+        end
+    end
+
+    def finished?
+        !self.canceled? && (self.finish? || set_finish!)
+    end
+
+    def set_finish!
+        if over_time?
+            self.finish!
+            true
+        else
+            false
+        end
+    end
+
+    def over_time?
+        self.end_time < Time.now.utc
+    end
+
     class ModifyingPolicy < RuntimeError; end
 
     def start_time_minutes(timezone = "UTC")
@@ -53,10 +88,6 @@ class Interview < ApplicationRecord
 
     def end_time_minutes(timezone = "UTC")
         (self.end_time.in_time_zone(timezone).seconds_since_midnight/60).floor
-    end
-
-    def finished?
-        self.end_time <= Time.now.utc
     end
 
     def timespan_ok?
@@ -72,8 +103,12 @@ class Interview < ApplicationRecord
     end
 
     def could_not_change_if_finnished
-        if self.persisted? && self.finished?
+        if self.persisted? && (self.finish? || self.over_time?)
             self.errors.add(:interview, "is finished!")
         end
+    end
+
+    def timeline
+        [self] + self.rounds
     end
 end

@@ -10,10 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_07_122203) do
+ActiveRecord::Schema.define(version: 2022_06_09_122851) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  # Custom types defined in this database.
+  # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "interview_state", ["wait", "in_process", "finish", "canceled"]
 
   create_table "applyings", force: :cascade do |t|
     t.bigint "message_id", null: false
@@ -44,6 +48,7 @@ ActiveRecord::Schema.define(version: 2022_06_07_122203) do
     t.string "title"
     t.integer "round", default: 1
     t.bigint "head_id"
+    t.enum "state", default: "wait", null: false, enum_type: "interview_state"
     t.index ["applying_id"], name: "index_interviews_on_applying_id"
     t.index ["candidate_id"], name: "index_interviews_on_candidate_id"
     t.index ["head_id"], name: "index_interviews_on_head_id"

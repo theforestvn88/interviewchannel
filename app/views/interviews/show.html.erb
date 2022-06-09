@@ -1,11 +1,36 @@
-<% if @finished %>
-  <p>This Interview Is Finished.</p>
-<% elsif @countdown > 0 %>
-  <p class="mx-auto mt-10">This Interview Will Start About: <span class="ml-1 font-bold" data-controller="countdown" data-countdown-time-value="<%= @countdown %>" data-countdown-redirecturl-value="<%= interview_path(@interview)%>"></span></p>
-<% else %>
-  <%= stylesheet_link_tag "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/tomorrow-night-blue.min.css", "data-turbo-track": "reload", class: "codestyle" %>
-  <%= stylesheet_link_tag "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/github.min.css", "data-turbo-track": "reload", class: "codestyle" %>
-  <%= javascript_import_module_tag("interview") %>
+<div class="container mx-auto my-10">
+<% @interview.timeline.each do |round| %>
+  <div class="text-xs w-1/2 border border-gray-300 rounded-md p-2 mb-0">
+      <p><%= round.title %></p>
+      <p><%= "Round: #{round.round}" %></p>
+  </div>
 
-  <%= interview_stream @interview %>
+  <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
+    <li class="mt-2 pb-2 ml-4 text-xs">
+      <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+      <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is created by <span class="font-bold"><%= round.owner.name %></span><span><%= ", #{distance_of_time_in_words(round.created_at, Time.now.utc)} ago" %></span></time>
+    </li>
+
+    <li class="mt-2 pb-2 ml-4 text-xs">
+      <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+      <% if round.started? %>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time %></time>
+      <% elsif round.wait? %>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview will be starting in <span class="ml-1 font-bold" data-controller="countdown" data-countdown-time-value="<%= @countdown %>" data-countdown-redirecturl-value="<%= interview_path(round)%>"></span></time>
+      <% end %>
+    </li>
+
+    <% if round.finished? %>
+      <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is finished at <%= round.end_time %></time>
+      </li>
+    <% elsif round.canceled? %>
+      <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is canceled</time>
+      </li>     
+    <% end %>
+  </ol>
 <% end %>
+</div>
