@@ -1,6 +1,6 @@
 class InterviewsController < ApplicationController
   before_action :ensure_user_signed_in
-  before_action :set_interview, only: %i[ show edit update destroy card confirm ]
+  before_action :set_interview, only: %i[ show room edit update destroy card confirm ]
   before_action :convert_time, only: %i[ create update ]
 
   # GET /interviews or /interviews.json
@@ -10,11 +10,13 @@ class InterviewsController < ApplicationController
 
   # GET /interviews/1 or /interviews/1.json
   def show
-    if @interview && @interview.involve?(current_user)
-      now_tz = Time.now.in_time_zone(current_user.curr_timezone)
-      @finished = @interview.end_time.in_time_zone(current_user.curr_timezone) < now_tz
-      @countdown = (@interview.start_time.in_time_zone(current_user.curr_timezone) - now_tz).round unless @finished
-    else
+    unless @interview && @interview.involve?(current_user)
+      redirect_to root_path
+    end
+  end
+
+  def room
+    unless @interview && @interview.involve?(current_user) && @interview.started?
       redirect_to root_path
     end
   end
