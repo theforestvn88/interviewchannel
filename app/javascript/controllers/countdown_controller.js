@@ -1,17 +1,23 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static values = { time: Number, redirecturl: String }
+    static targets = [ "clockView", "waitView" ]
+    static values = { time: Number }
 
     connect() {
         this.countdown()
 
         var countdownId = setInterval(() => {
             this.timeValue -= 1
-            this.countdown()
-            if (this.timeValue <= 0) {
+            if (this.timeValue < 0) {
                 clearInterval(countdownId)
-                location.reload()
+
+                this.clockViewTarget.classList.add("hidden")
+                if (this.hasWaitViewTarget) {
+                    this.waitViewTarget.classList.remove("hidden")
+                }
+            } else {
+                this.countdown()
             }
         }, 1000)
     }
@@ -23,6 +29,6 @@ export default class extends Controller {
         const hours = Math.floor((this.timeValue % daySeconds) / hourSeconds)
         const minutes = Math.floor((this.timeValue % hourSeconds) / 60)
         const seconds = this.timeValue % 60
-        this.element.textContent = `${days} day(s) :: ${hours} hour(s) :: ${minutes} minute(s) :: ${seconds} second(s)`
+        this.clockViewTarget.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`
     }
 }

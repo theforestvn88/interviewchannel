@@ -9,7 +9,11 @@ class Interview < ApplicationRecord
     has_many    :rounds, class_name: "Interview", foreign_key: "head_id", inverse_of: :head, dependent: :nullify
     belongs_to  :head, class_name: "Interview", foreign_key: "head_id", inverse_of: :rounds, optional: true
 
-    enum state: { wait: 'wait', in_process: 'in_process', finish: 'finish', canceled: 'canceled' }
+    STATE_WAIT = 'wait'
+    STATE_IN_PROCESS = 'in_process'
+    STATE_FINISH = 'finish'
+    STATE_CANCELED = 'canceled'
+    enum state: { wait: STATE_WAIT, in_process: STATE_IN_PROCESS, finish: STATE_FINISH, canceled: STATE_CANCELED }
 
     validates :title, presence: true
     validate  :could_not_change_if_finnished, on: :update  
@@ -51,11 +55,11 @@ class Interview < ApplicationRecord
     end
 
     def started?
-        !self.canceled? && !self.finish? && (self.in_process? || try_start!)
+        !self.canceled? && (self.finish? || (self.in_process? || try_start!))
     end
 
     def try_start!
-        if self.start_time >= Time.now.utc
+        if rush_time?
             self.in_process!
             true
         else
@@ -77,7 +81,15 @@ class Interview < ApplicationRecord
     end
 
     def over_time?
-        self.end_time < Time.now.utc
+        self.end_time.utc < Time.now.utc
+    end
+
+    def rush_time?
+        self.start_time.utc <= Time.now.utc
+    end
+
+    def countdown
+        self.finished? ? 0 : (self.start_time - Time.now.utc).round
     end
 
     class ModifyingPolicy < RuntimeError; end
@@ -91,24 +103,25 @@ class Interview < ApplicationRecord
     end
 
     def timespan_ok?
-        unless self.end_time > self.start_time && self.start_time > Time.now.utc
+        unless self.end_time > self.start_time && 
+            ((!self.persisted? && !rush_time?) || (self.persisted? && (!self.start_time_changed? || !rush_time?)))
             self.errors.add(:time, "is not appropriate!")
         end
     end
 
     def could_not_change_candidate
-        if candidate_id_changed? && self.persisted?
+        if self.persisted? && candidate_id_changed?
             self.errors.add(:candidate, "is not allowed to change!")
         end
     end
 
     def could_not_change_if_finnished
-        if self.persisted? && (self.finish? || self.over_time?)
+        if self.persisted? && self.state_was == STATE_FINISH
             self.errors.add(:interview, "is finished!")
         end
     end
 
     def timeline
-        [self] + self.rounds
+        [self] + self.rounds.sort_by(&:round)
     end
 end

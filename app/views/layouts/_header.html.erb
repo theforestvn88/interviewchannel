@@ -1,9 +1,11 @@
-<h1><b><\ interview ></b> Channel</h1>
-<% if user_signed_in? %>
-    <div class="flex justify-end">
-        <%= link_to current_user.name, profile_user_path(current_user), class: "hover:font-bold" %>
-        <%= link_to 'sign out', '/sign_out', class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
-    </div>
-<% else %>
-    <%= link_to "sign in", sign_in_path, data: {"turbo-frame": "modal"}, class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
-<% end %>
+<div class="w-full flex justify-between border-b border-gray-300 pb-3">
+    <h1><b><\ interview ></b> Channel</h1>
+    <% if user_signed_in? %>
+        <div class="flex justify-end">
+            <%= link_to current_user.name, profile_user_path(current_user), class: "hover:font-bold" %>
+            <%= link_to 'sign out', '/sign_out', class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
+        </div>
+    <% else %>
+        <%= link_to "sign in", sign_in_path, data: {"turbo-frame": "modal"}, class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
+    <% end %>
+</div>

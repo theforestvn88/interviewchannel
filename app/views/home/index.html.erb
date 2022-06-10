@@ -1,9 +1,8 @@
 <div class="w-full m-5">
-  <div class="w-full flex justify-between">
-    <%= render 'layouts/header' %>
-  </div>
-    <div class="w-full mt-5 flex justify-between border-t-2 border-gray-300">
-  <% if user_signed_in? %>
+  <%= render 'layouts/header' %>
+
+  <div class="w-full mt-5 flex justify-between">
+    <% if user_signed_in? %>
       <%= turbo_stream_from @private_channel %>
       <%= turbo_stream_from :messages %>
       <div class="w-72 mt-5 relative">
@@ -12,7 +11,8 @@
         <%= render 'messages/summary' %>
       </div>
       <div id="flash" class="hidden absolute top-0 right-0 z-100 drop-shadow-xl border-b-2 border-x-2 border-gray-200 bg-white"></div>
-  <% end %>
-      <%= render template: 'messages/index' %>
-    </div>
+    <% end %>
+    
+    <%= render template: 'messages/index' %>
+  </div>
 </div>
