@@ -55,6 +55,7 @@ class InterviewsController < ApplicationController
       if @interview.save
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
         format.json { render :show, status: :created, location: @interview }
+        format.turbo_stream { }
 
         messager = Messager.new(current_user, current_user.curr_timezone)
 
@@ -121,6 +122,7 @@ class InterviewsController < ApplicationController
       if @interview.update(interview_params)
         format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
         format.json { render :show, status: :ok, location: @interview }
+        format.turbo_stream { }
 
         messager = Messager.new(current_user, current_user.curr_timezone)
 
@@ -263,13 +265,11 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:title, :note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id, :round, :head_id)    
+      @interview_params ||= params.require(:interview).permit(:title, :note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id, :round, :head_id, :state)    
     end
 
     def convert_time
-      interview_params.merge!({
-        start_time: interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc,
-        end_time: interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc
-      })
+      interview_params[:start_time] = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc if interview_params.has_key?(:start_time)
+      interview_params[:end_time] = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc if interview_params.has_key?(:end_time)
     end
 end

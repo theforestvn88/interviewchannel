@@ -1,0 +1,47 @@
+<%= turbo_frame_tag "round#{round.id}" do %>
+    <%= turbo_stream_from round %>
+    <div class="text-xs border border-gray-300 rounded-md p-2 bg-gray-50">
+        <p><%= round.title %></p>
+        <p><%= "Round: #{round.round}" %></p>
+    </div>
+
+    <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
+    <li class="py-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is created at <%= round.created_at.in_time_zone(current_user.curr_timezone) %>, by <span class="font-bold"><%= round.owner.name %></span>.</time>
+    </li>
+
+    <% if round.started? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time.in_time_zone(current_user.curr_timezone) %>
+            <% unless round.finished? %>
+            <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600" %>
+            <% end %>
+        </time>
+        </li>
+    <% elsif round.wait? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500" data-controller="countdown" data-countdown-time-value="<%= round.countdown %>">this interview will be starting in 
+            <span class="ml-1 font-bold" data-countdown-target="clockView"></span>
+            <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600 hidden", "data-countdown-target": "waitView" %>
+        </time>
+        </li>
+    <% end %>
+
+    <% if round.finished? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is finished at <%= round.end_time.in_time_zone(current_user.curr_timezone) %></time>
+        </li>
+    <% elsif round.canceled? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is canceled</time>
+        </li>
+    <% else %>
+        <%= button_to "cancel", interview_path(round), method: :put, params: {interview: {state: "canceled"}}, class: "-ml-3 bg-white text-red-600" %>
+    <% end %>
+    </ol>
+<% end %>
