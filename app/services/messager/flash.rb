@@ -14,7 +14,7 @@ class Messager
         end
 
         def send_error_flash(channel: nil, error:)
-            send_flash(channel: channel || private_channel_from_user_id(@user.id), content: error, css: "w-full absolute top-20 inset-x-0 z-100 pl-5 pr-10 py-2 shadow-xl drop-shadow-2xl border-y-2 border-l-2 border-red-900 bg-red-400 text-white")
+            send_flash(channel: channel || private_channel_from_user_id(@user.id), content: error, css: "w-full fixed top-0 inset-x-0 z-50 pl-5 pr-10 py-2 shadow-xl drop-shadow-2xl border-y-2 border-l-2 border-red-900 bg-red-400 text-white")
         end
 
         def send_model_error_flash(model)

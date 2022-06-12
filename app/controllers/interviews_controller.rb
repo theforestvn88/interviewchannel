@@ -13,6 +13,9 @@ class InterviewsController < ApplicationController
     unless @interview && @interview.involve?(current_user)
       redirect_to root_path
     end
+
+    messager = Messager.new(current_user, current_user.curr_timezone)
+    @private_channel = messager.private_channel(current_user)
   end
 
   def room
@@ -119,13 +122,9 @@ class InterviewsController < ApplicationController
   # PATCH/PUT /interviews/1 or /interviews/1.json
   def update
     respond_to do |format|
+      messager = Messager.new(current_user, current_user.curr_timezone)
+
       if @interview.update(interview_params)
-        format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
-        format.json { render :show, status: :ok, location: @interview }
-        format.turbo_stream { }
-
-        messager = Messager.new(current_user, current_user.curr_timezone)
-
         [current_user, @interview.candidate].uniq.each do |user|
           presenter = CalendarPresenter.new(Scheduler.new(user))
           timezone = user.curr_timezone
@@ -181,9 +180,13 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
         end
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @interview.errors, status: :unprocessable_entity }
+        messager.send_error_flash(error: @interview.errors.first.full_message)
+        @interview.reload
       end
+
+      format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
+      format.json { render :show, status: :ok, location: @interview }
+      format.turbo_stream { }
     end
   end
 
