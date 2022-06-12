@@ -8,7 +8,7 @@
       <% end %>
     <% end %>
 
-    <div class="h-5 ml-4 border-l border-gray-200 dark:border-gray-400"></div>
+    <div class="h-10 ml-4 border-l border-gray-200 dark:border-gray-400"></div>
     <%= turbo_frame_tag "rounds-toolbar-#{@interview.id}" do %>
       <%= link_to "create new row", 
           new_interview_path(candidate_id: @interview.candidate_id, applying_id: @interview.applying_id), 

@@ -1,8 +1,11 @@
 <%= turbo_frame_tag "round#{round.id}" do %>
     <%= turbo_stream_from round %>
-    <div class="text-xs border border-gray-300 rounded-md p-2 bg-gray-50">
+    <div class="relative text-xs border border-gray-300 rounded-md p-2 bg-gray-50">
         <p><%= round.title %></p>
         <p><%= "Round: #{round.round}" %></p>
+        <% if round.owner?(current_user) %>
+            <%= link_to "edit", edit_interview_path(round), data: {"turbo-frame": "modal"}, class: "absolute top-1 right-2 text-blue-600 underline" %>
+        <% end %>
     </div>
 
     <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
@@ -41,7 +44,11 @@
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is canceled</time>
         </li>
     <% else %>
-        <%= button_to "cancel", interview_path(round), method: :put, params: {interview: {state: "canceled"}}, class: "-ml-3 bg-white text-red-600" %>
+        <div class="flex justify-start ml-4">
+            <%= button_to "delay 10 minutes", interview_path(round), method: :put, params: {interview: {start_time: round.start_time.in_time_zone(current_user.curr_timezone) + 10.minutes}}, class: "bg-white text-red-600 px-1 border border-gray-200 hover:border-gray-400" %>
+            <span class="mx-1 text-xs">  </span>
+            <%= button_to "cancel", interview_path(round), method: :put, params: {interview: {state: "canceled"}}, class: "bg-white text-red-600 px-1 border border-gray-200 hover:border-gray-400" %>
+        </div>
     <% end %>
     </ol>
 <% end %>
