@@ -44,7 +44,7 @@ class User < ApplicationRecord
   end
 
   scope :suggest, ->(keyword) {
-    keywords = ["%#{keyword}%"] * 2
+    keywords = ["%#{keyword.strip}%"] * 2
     where("name ILIKE ? OR email ILIKE ?", *keywords)
   }
 end

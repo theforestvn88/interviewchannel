@@ -41,8 +41,8 @@ class Interview < ApplicationRecord
         return self if keyword.nil?
 
         keywords = ["%#{keyword}%"] * 2
-        joins("INNER JOIN users ON interviews.interviewer_id = users.id OR interviews.candidate_id = users.id")
-            .where("users.name ILIKE ? OR interviews.note ILIKE ?", *keywords)
+        joins("INNER JOIN users ON interviews.interviewer_id = users.id OR interviews.candidate_id = users.id OR interviews.owner_id = users.id")
+            .where("users.name ILIKE ? OR interviews.title ILIKE ?", *keywords)
             .distinct
     }
 
