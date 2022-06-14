@@ -6,6 +6,9 @@ class Interview < ApplicationRecord
     belongs_to  :candidate, class_name: "User" # required
     belongs_to  :applying, optional: true
 
+    has_many    :assignments, dependent: :destroy
+    has_many    :interviewers, through: :assignments, source: :user
+
     has_many    :rounds, class_name: "Interview", foreign_key: "head_id", inverse_of: :head, dependent: :nullify
     belongs_to  :head, class_name: "Interview", foreign_key: "head_id", inverse_of: :rounds, optional: true
 
