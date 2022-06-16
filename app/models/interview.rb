@@ -7,6 +7,7 @@ class Interview < ApplicationRecord
 
     has_many    :assignments, dependent: :destroy
     has_many    :interviewers, through: :assignments, source: :user
+    accepts_nested_attributes_for :assignments, allow_destroy: true
 
     has_many    :rounds, class_name: "Interview", foreign_key: "head_id", inverse_of: :head, dependent: :nullify
     belongs_to  :head, class_name: "Interview", foreign_key: "head_id", inverse_of: :rounds, optional: true

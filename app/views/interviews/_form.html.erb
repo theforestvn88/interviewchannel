@@ -17,31 +17,41 @@
       <%= form.text_field :title, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
     </div>
 
-    <div class="my-5 relative" data-controller="suggestion" data-suggestion-url-value="<%= suggest_users_path %>">
-      <%= form.label :interviewer %>
-      <%= form.hidden_field :interviewer_id, value: "#{current_user.id}", "data-suggestion-target": "suggestionObjectId" %>
-      <% if interview.finished? || interview.canceled? %>
-        <input value="<%= interview.interviewer&.name %> <%= interview.interviewer&.email %>"
-          class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" disabled>
-      <% else %>
-        <input value="<%= interview.interviewer&.name %>  <%= interview.interviewer&.email %>"
-          data-suggestion-target="suggestionInput" data-action="input->suggestion#suggestObjects" 
-          class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
-      <% end %>
-      <div data-suggestion-target="suggestionObject" class="hidden absolute bot-0 left-0 w-full h-28 drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
+    <div class="my-5 relative" data-controller="select7" 
+      data-select7-suggest-api-value="<%= suggest_users_path %>" 
+      data-select7-name-value="interview[assignments_attributes][0][user_id]"
+      data-select7-multiple-value="true">
+
+      <%= form.label :interviewers %>
+      
+      <div data-select7-target="template" class="hidden border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center">
+        <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+      </div>
+
+      <div class="flex justify-start block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full overflow-auto">
+        <div data-select7-target="selected" class="flex justify-start">
+          <% interview.assignments.includes(:interviewer).each do |assignment| %>
+            <div class="border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center"
+              data-remove-id=<%= "interview[assignments_attributes][#{assignment.id}][_destroy]" %> 
+              data-remove-value="true" >
+              <input type="hidden" name=<%= "interview[assignments_attributes][#{assignment.id}][id]" %> value="<%= assignment.id %>">
+              <input type="hidden" name=<%= "interview[assignments_attributes][#{assignment.id}][user_id]" %> value="<%= assignment.interviewer.id %>">
+              <span class="text-xs font-bold pointer-events-none"><%= assignment.interviewer.name %></span><span class="ml-1 text-xs font-light italic pointer-events-none"><%= "<#{assignment.interviewer.email}>" %></span>
+              <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+            </div>
+          <% end %>
+        </div>
+        <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none">
+      </div>
+      <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
     </div>
 
-    <div class="my-5 relative" data-controller="suggestion" data-suggestion-url-value="<%= suggest_users_path %>">
+    <div class="my-5 relative" data-controller="select7" data-select7-suggest-api-value="<%= suggest_users_path %>" data-select7-name-value="interview[candidate_id]">
       <%= form.label :candidate %>
-      <%= form.hidden_field :candidate_id, value: "#{interview.candidate&.id}", "data-suggestion-target": "suggestionObjectId" %>
-      <% if interview.candidate.present? || interview.finished? || interview.canceled? %>
-        <input value="<%= interview.candidate&.name %> <%= interview.candidate&.email %>"
-          class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" disabled>
-      <% else %>
-        <input data-suggestion-target="suggestionInput" data-action="input->suggestion#suggestObjects" 
-          class="block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
-      <% end %>
-      <div data-suggestion-target="suggestionObject" class="hidden absolute bot-0 left-0 w-full h-28 drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
+      <div data-select7-target="selected"></div>
+      <input data-select7-target="input" data-action="input->select7#suggest" value="<%= interview.candidate_id.present? ? "#{interview.candidate.name}<#{interview.candidate.email}>" : "" %>"
+        class="shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+      <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
     </div>
 
     <div class="my-5">
