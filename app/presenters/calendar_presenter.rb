@@ -23,7 +23,7 @@ class CalendarPresenter
 
   def daily(day_in_tz, user_timezone)
     daily_interviews_display = \
-      (interviews = @scheduler.day(day_in_tz, :interviewer, :candidate))
+      (interviews = @scheduler.day(day_in_tz, :interviewer, :candidate, :owner))
         .inject(Hash.new) do |interviews, interview|
           interviews[interview.start_time_minutes(user_timezone)/60] = interview_daily_display(interview, user_timezone)
           interviews
@@ -48,7 +48,7 @@ class CalendarPresenter
 
   def weekly(aday_in_week, user_timezone)
     weekly_interviews_display = \
-      (weekly_interviews = @scheduler.week(aday_in_week, :interviewer, :candidate))
+      (weekly_interviews = @scheduler.week(aday_in_week, :interviewer, :candidate, :owner))
         .inject(Hash.new {|h,k| h[k] = Hash.new}) do |interviews, interview|
           interview_weekday = interview.start_time.in_time_zone(user_timezone).wday
           interviews[interview.start_time_minutes(user_timezone)/60][interview_weekday] = interview_weekly_display(interview, user_timezone)
@@ -74,7 +74,7 @@ class CalendarPresenter
   end
 
   def monthly(aday_in_month, user_timezone)
-    monthly_interviews = @scheduler.month(aday_in_month, :interviewer, :candidate)
+    monthly_interviews = @scheduler.month(aday_in_month, :interviewer, :candidate, :owner)
     monthly_display = monthly_interviews.inject(Hash.new {|h,k| h[k] = []}) do |interviews, interview|
       interviews[interview.start_time.in_time_zone(user_timezone).mday].push(
         interview_monthly_display(interview, user_timezone)
@@ -98,7 +98,7 @@ class CalendarPresenter
   end
 
   def mini_month(target_date)
-    counter = @scheduler.as_role(:interviewer, :candidate)
+    counter = @scheduler.as_role(:interviewer, :candidate, :owner)
       .by_time(target_date.beginning_of_day.utc, target_date.end_of_month.utc)
       .group("start_time::date")
       .count

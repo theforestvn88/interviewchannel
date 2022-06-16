@@ -2,7 +2,6 @@
 
 class Interview < ApplicationRecord
     belongs_to  :owner, class_name: "User" # required, the owner could be HR or the interviewer himself
-    belongs_to  :interviewer, class_name: "User" # required
     belongs_to  :candidate, class_name: "User" # required
     belongs_to  :applying, optional: true
 
@@ -23,12 +22,20 @@ class Interview < ApplicationRecord
     validate  :could_not_change_candidate, on: :update
     validate  :timespan_ok?
 
+    scope :as_role, ->(user, *roles) {
+        by_role = Interview.joins(:assignments).send("as_#{roles.pop}".to_sym, user)
+        roles.each do |role|
+            by_role = by_role.or(Interview.send("as_#{role}".to_sym, user))
+        end
+        by_role
+    }
+
     scope :as_owner, ->(owner) {
         where(owner_id: owner.id)
     }
 
     scope :as_interviewer, ->(interviewer) {
-        where(interviewer_id: interviewer.id)
+        where(assignments: {user_id: interviewer.id})
     }
 
     scope :as_candidate, ->(candidate) {
@@ -54,7 +61,7 @@ class Interview < ApplicationRecord
     end
 
     def involve?(user)
-        self.interviewer_id == user.id || self.candidate_id == user.id
+        self.interviewers.pluck(:id).include?(user.id) || self.candidate_id == user.id
     end
 
     def started?

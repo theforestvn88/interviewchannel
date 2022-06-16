@@ -71,7 +71,7 @@ class InterviewsController < ApplicationController
             flash: "I scheduled the interview. Good Luck!")
         end
 
-        [@interview.interviewer, @interview.candidate].uniq.each do |user|
+        (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
           presenter = CalendarPresenter.new(Scheduler.new(user))
           timezone = user.curr_timezone
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
@@ -125,7 +125,7 @@ class InterviewsController < ApplicationController
       messager = Messager.new(current_user, current_user.curr_timezone)
 
       if @interview.update(interview_params)
-        [current_user, @interview.candidate].uniq.each do |user|
+        (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
           presenter = CalendarPresenter.new(Scheduler.new(user))
           timezone = user.curr_timezone
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
@@ -200,7 +200,7 @@ class InterviewsController < ApplicationController
 
       messager = Messager.new(current_user, current_user.curr_timezone)
 
-      [current_user, @interview.candidate].uniq.each do |user|
+      (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
         timezone = user.curr_timezone
         tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
@@ -268,7 +268,9 @@ class InterviewsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def interview_params
-      @interview_params ||= params.require(:interview).permit(:title, :note, :start_time, :end_time, :interviewer_id, :candidate_id, :applying_id, :round, :head_id, :state)    
+      @interview_params ||= \
+        params.require(:interview)
+          .permit(:title, :note, :start_time, :end_time, :candidate_id, :applying_id, :round, :head_id, :state, assignments_attributes: [:id, :user_id, :_destroy])    
     end
 
     def convert_time
