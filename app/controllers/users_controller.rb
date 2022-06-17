@@ -23,7 +23,7 @@ class UsersController < ApplicationController
     end
 
     def edit_tags
-        @tags = current_user.watch_tags.split(" ").map {|t| t.gsub("#", "")}
+        @tags = (current_user.watch_tags || "").split(" ").map {|t| t.gsub("#", "")}
         render layout: false
     end
 

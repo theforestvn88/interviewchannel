@@ -40,7 +40,11 @@ class User < ApplicationRecord
   end
 
   def tags=(tags_input)
-    self.watch_tags = tags_input.map {|t| "##{t}"}.join(" ")
+    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip
+  end
+
+  def afk?
+    self.watch_tags.blank?
   end
 
   scope :suggest, ->(keyword) {

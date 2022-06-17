@@ -62,13 +62,15 @@ export default class extends Controller {
     removeTag(e) {
         const removeView = e.target.parentElement
 
-        const input = document.createElement("input")
-        input.setAttribute("type", "hidden")
-        input.setAttribute("name", removeView.getAttribute("data-remove-id"))
-        input.setAttribute("value", removeView.getAttribute("data-remove-value"))
+        if (removeView.hasAttribute("data-remove-id")) {
+            const input = document.createElement("input")
+            input.setAttribute("type", "hidden")
+            input.setAttribute("name", removeView.getAttribute("data-remove-id"))
+            input.setAttribute("value", removeView.getAttribute("data-remove-value"))
 
-        this.selectedTarget.appendChild(input)
-        removeView.querySelectorAll('input').forEach(v => this.selectedTarget.appendChild(v))
+            this.selectedTarget.appendChild(input)
+            removeView.querySelectorAll('input').forEach(v => this.selectedTarget.appendChild(v))
+        }
 
         this.selectedTarget.removeChild(removeView)
     }

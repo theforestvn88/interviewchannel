@@ -4,12 +4,7 @@ class TagsController < AdminController
 
   def suggest
     search_key = params[:key]
-    suggest_tags = search_key.blank? ? [] : Tag.where("name ILIKE ?", "%#{search_key}%").first(6)
-    if suggest_tags.empty?
-      head :no_content
-    else
-      render partial: "shared/select7_suggestion", locals: {items: suggest_tags, attr: params[:attr]}
-    end
+    @tags = search_key.blank? ? [] : Tag.where("name ILIKE ?", "%#{search_key}%").first(6)
   end
 
   # GET /tags or /tags.json
