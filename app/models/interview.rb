@@ -6,7 +6,7 @@ class Interview < ApplicationRecord
     belongs_to  :applying, optional: true
 
     has_many    :assignments, dependent: :destroy
-    has_many    :interviewers, through: :assignments, source: :user
+    has_many    :interviewers, through: :assignments, source: :interviewer
     accepts_nested_attributes_for :assignments, allow_destroy: true
 
     has_many    :rounds, class_name: "Interview", foreign_key: "head_id", inverse_of: :head, dependent: :nullify
@@ -52,7 +52,7 @@ class Interview < ApplicationRecord
         return self if keyword.nil?
 
         keywords = ["%#{keyword}%"] * 2
-        joins("INNER JOIN users ON interviews.interviewer_id = users.id OR interviews.candidate_id = users.id OR interviews.owner_id = users.id")
+        joins("INNER JOIN users ON assignments.user_id = users.id OR interviews.candidate_id = users.id OR interviews.owner_id = users.id")
             .where("users.name ILIKE ? OR interviews.title ILIKE ?", *keywords)
             .distinct
     }

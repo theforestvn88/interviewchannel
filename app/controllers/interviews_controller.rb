@@ -231,7 +231,8 @@ class InterviewsController < ApplicationController
       Scheduler.new(current_user)\
         .as_role(:owner, :interviewer, :candidate)
         .by_keyword(params[:keyword])
-        .offset(offset = params[:offset].to_i).limit(SEARCH_LIMIT)
+        .offset(offset = params[:offset].to_i)
+        .limit(SEARCH_LIMIT)
     
     @prev_offset = [offset - SEARCH_LIMIT, 0].max
     @next_offset = offset + @interviews.size
