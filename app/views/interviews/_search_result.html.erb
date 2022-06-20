@@ -4,13 +4,18 @@
     <% else %>
         <% @interviews.each do |interview| %>
             <div class="mt-10 mb-3 mx-5 text-xs">
-                <%= link_to show_state(interview) + interview.title, interview_path(interview), data: {turbo: false}, class: "font-bold hover:underline" %>
+                <%= link_to show_state(interview) + interview.title, interview_path(interview), data: {turbo: false}, class: "font-bold text-blue-400 hover:underline" %>
                 <p>interviewers: 
                     <% interview.interviewers.each do |interviewer| %>
-                        <span class="font-bold"><%= interviewer.name %></span><span class="mr-1"><%= "<#{interviewer.email}>" %></span>
+                        <%= link_to profile_user_path(interviewer), data: {turbo: false}, class: "hover:underline" do %>
+                            <span class="font-bold"><%= interviewer.name %></span><span class="mr-1"><%= "<#{interviewer.email}>" %></span>
+                        <% end %>
                     <% end %>
                 </p>
-                <p>candidate: <span class="font-bold"><%= interview.candidate.name %></span><span><%= "<#{interview.candidate.email}>" %></span></p>
+                <p>candidate: 
+                    <%= link_to profile_user_path(interview.candidate), data: {turbo: false}, class: "hover:underline" do %>
+                        <span class="font-bold"><%= interview.candidate.name %></span><span><%= "<#{interview.candidate.email}>" %></span></p>
+                    <% end %>
                 <p>round: <%= interview.round %></p>
                 <p>start Time: <%= interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%F %R') %></p>
                 <p>end Time: <%= interview.end_time.in_time_zone(current_user.curr_timezone).strftime('%F %R') %></p>

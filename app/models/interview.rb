@@ -24,7 +24,7 @@ class Interview < ApplicationRecord
     validate  :timespan_ok?
 
     scope :as_role, ->(user, *roles) {
-        by_role = Interview.joins(:assignments).send("as_#{roles.pop}".to_sym, user)
+        by_role = Interview.left_outer_joins(:assignments).send("as_#{roles.pop}".to_sym, user)
         roles.each do |role|
             by_role = by_role.or(Interview.send("as_#{role}".to_sym, user))
         end
@@ -62,7 +62,7 @@ class Interview < ApplicationRecord
     end
 
     def involve?(user)
-        self.interviewers.pluck(:id).include?(user.id) || self.candidate_id == user.id
+        self.interviewers.pluck(:id).include?(user.id) || self.owner_id == user.id || self.candidate_id == user.id
     end
 
     def started?
