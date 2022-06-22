@@ -16,16 +16,31 @@
         "data-message-target": "content" %>
   </div>
 
-  <div class="my-5 relative" data-controller="select7" data-select7-suggest-api-value="<%= suggest_tags_path %>" data-select7-attr-value="message[tags][]">
+  <div class="my-5 relative" 
+    data-controller="select7" 
+    data-select7-suggest-api-value="<%= suggest_tags_path %>" 
+    data-select7-name-value="message[tags][]"
+    data-select7-multiple-value="true">
+
+      <%= form.label :tags %>
+      
+      <div data-select7-target="template" class="hidden border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center">
+        <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+      </div>
+
     <div class="flex justify-start block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full overflow-auto">
-      <div class="flex justify-start" data-select7-target="tagsContainer">
+      <div class="flex justify-start" data-select7-target="selected">
         <% message.channel&.split(" ") do |tag| %>
-          <%= render partial: "shared/select7_item", locals: {attr: "message[tags][]", name: tag.gsub("#", ""), hidden: false} %>
+          <div class="border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center">
+            <input type="hidden" name="message[tags][]" value="<%= tag %>">
+            <span class="text-xs font-bold pointer-events-none"><%= tag %></span>
+            <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+          </div>
         <% end %>
       </div>
       <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none">
     </div>
-    <div data-select7-target="suggestionTags" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
+    <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
   </div>
 
   <div class="inline">

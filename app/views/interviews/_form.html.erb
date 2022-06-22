@@ -46,13 +46,19 @@
       <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
     </div>
 
-    <div class="my-5 relative" data-controller="select7" data-select7-suggest-api-value="<%= suggest_users_path %>" data-select7-name-value="interview[candidate_id]">
+    <% if interview.candidate.present? %>
       <%= form.label :candidate %>
-      <div data-select7-target="selected"></div>
-      <input data-select7-target="input" data-action="input->select7#suggest" value="<%= interview.candidate_id.present? ? "#{interview.candidate.name}<#{interview.candidate.email}>" : "" %>"
-        class="shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
-      <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
-    </div>
+      <%= form.hidden_field :candidate_id %>
+      <p><span class="font-bold"><%= interview.candidate.name %></span><span><%= "<#{interview.candidate.email}>" %></span></p>
+    <% else %>
+      <div class="my-5 relative" data-controller="select7" data-select7-suggest-api-value="<%= suggest_users_path %>" data-select7-name-value="interview[candidate_id]">
+        <%= form.label :candidate %>
+        <div data-select7-target="selected"></div>
+        <input data-select7-target="input" data-action="input->select7#suggest" 
+          class="shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+        <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
+      </div>
+    <% end %>
 
     <div class="my-5">
       <%= form.label :round %>

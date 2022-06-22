@@ -36,10 +36,10 @@ export default class extends Controller {
 
         const input = document.createElement("input")
         input.setAttribute("type", "hidden")
-        input.setAttribute("name", this.nameValue.replace("[0]", `[${this.count}]`))
         input.setAttribute("value", selectedView.getAttribute("value"))
 
         if (this.multipleValue) {
+            input.setAttribute("name", this.nameValue.replace("[0]", `[${this.count}]`))
             const selectedItem = this.templateTarget.cloneNode(true)
             selectedItem.appendChild(input)
             selectedItem.insertAdjacentHTML("afterbegin", selectedView.innerHTML)
@@ -48,6 +48,7 @@ export default class extends Controller {
             
             this.inputTarget.value = ""
         } else {
+            input.setAttribute("name", this.nameValue)
             this.inputTarget.value = selectedView.getAttribute("selected-display")
             this.selectedTarget.innerHTML = ""
             this.selectedTarget.appendChild(input)
@@ -56,7 +57,7 @@ export default class extends Controller {
         this.suggestionTarget.innerHTML = ""
         this.suggestionTarget.classList.add("hidden")
 
-        this.count++
+        this.count--
     }
 
     removeTag(e) {
