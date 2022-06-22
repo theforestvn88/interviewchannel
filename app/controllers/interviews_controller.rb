@@ -66,8 +66,8 @@ class InterviewsController < ApplicationController
           messager.create_and_send_private_reply(
             applying: applying, 
             sender_id: current_user.id, 
-            partial: "interviews/private_reply", 
-            locals: {interview: @interview, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R')},
+            partial: "interviews/create_interview_reply", 
+            locals: {interview: @interview, timezone: current_user.curr_timezone, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R')},
             flash: "I scheduled the interview. Good Luck!")
         end
 

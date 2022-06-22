@@ -38,14 +38,14 @@ class Messager
             self
         end
 
-        def send_private_reply(applying, reply, partial: "replies/reply", locals: nil, flash: nil)
+        def send_private_reply(applying, reply, partial: "replies/reply", locals: {}, flash: nil)
             owner_channel = private_channel_from_user_id(reply.user_id)
             [private_channel(applying.candidate), private_channel(applying.interviewer)].uniq.each do |toChannel|
                 Turbo::StreamsChannel.broadcast_append_to(
                     toChannel,
                     target: "replies-#{applying.id}", 
                     partial: partial,
-                    locals: locals || {reply: reply}
+                    locals: {reply: reply}.merge(locals)
                 )
 
                 send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + (flash || reply.content[0..50] + "...")) if toChannel != owner_channel
@@ -58,9 +58,9 @@ class Messager
             return if sender_id.nil? or applying.nil?
             
             content = ApplicationController.render(formats: [ :html ], partial: partial, locals: locals)
-            reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content)
+            reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content, milestone: true)
             if reply.save
-                send_private_reply(applying, reply, flash: flash)
+                send_private_reply(applying, reply, flash: flash, locals: locals)
             end
 
             self
