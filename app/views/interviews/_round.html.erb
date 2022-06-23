@@ -17,13 +17,13 @@
     <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
     <li class="py-2 ml-4 text-xs">
         <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
-        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is created at <%= round.created_at.in_time_zone(current_user.curr_timezone) %>, by <span class="font-bold"><%= round.owner.name %></span>.</time>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is created at <%= round.created_at.in_time_zone(timezone) %>, by <span class="font-bold"><%= round.owner.name %></span>.</time>
     </li>
 
     <% if round.started? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
         <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
-        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time.in_time_zone(current_user.curr_timezone) %>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time.in_time_zone(timezone) %>
             <% unless round.finished? %>
             <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600" %>
             <% end %>
@@ -42,7 +42,7 @@
     <% if round.finished? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
         <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
-        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is finished at <%= round.end_time.in_time_zone(current_user.curr_timezone) %></time>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is finished at <%= round.end_time.in_time_zone(timezone) %></time>
         </li>
     <% elsif round.canceled? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
@@ -50,20 +50,7 @@
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is <b>canceled</b></time>
         </li>
     <% else %>
-        <div class="flex justify-start ml-4">
-            <%= link_to "assign interviewer", assign_interview_path(round), data: {turbo_frame: :modal}, class: "mx-1 px-1 text-blue-400 hover:underline border border-gray-300 hover:border-gray-400" %>
-            <div class="flex justify-start bg-white text-red-600 px-1 border border-gray-200 hover:border-gray-400">
-                <span>delay</span>
-                <%= button_to "10m", interview_path(round), method: :put, 
-                    params: {interview: {start_time: Time.now.in_time_zone(current_user.curr_timezone) + 10.minutes, state: "wait"}}, class: "hover:underline px-1" %>
-                <%= button_to "20m", interview_path(round), method: :put, 
-                    params: {interview: {start_time: Time.now.in_time_zone(current_user.curr_timezone) + 20.minutes, state: "wait"}}, class: "hover:underline px-1" %>
-                <%= button_to "30m", interview_path(round), method: :put, 
-                    params: {interview: {start_time: Time.now.in_time_zone(current_user.curr_timezone) + 30.minutes, state: "wait"}}, class: "hover:underline px-1" %>
-            </div>
-            <span class="mx-1 text-xs">  </span>
-            <%= button_to "cancel", interview_path(round), method: :put, params: {interview: {state: "canceled"}}, class: "bg-white text-red-600 px-1 border border-gray-200 hover:border-gray-400" %>
-        </div>
+        <%= render partial: "interviews/toolbar", locals: {interview: round, timezone: timezone} %>
     <% end %>
     </ol>
 <% end %>

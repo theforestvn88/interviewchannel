@@ -7,7 +7,7 @@
   <div class="w-full container mx-auto my-10">
     <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
       <% @interview.timeline.each do |round| %>
-        <%= render partial: "interviews/round", locals: {round: round} %>
+        <%= render partial: "interviews/round", locals: {round: round, timezone: current_user.curr_timezone} %>
       <% end %>
     <% end %>
 

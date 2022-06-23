@@ -68,7 +68,7 @@ class InterviewsController < ApplicationController
             applying: applying, 
             sender_id: current_user.id, 
             partial: "replies/create_interview_reply", 
-            locals: {interview: @interview, timezone: current_user.curr_timezone, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R')},
+            locals: {interview: @interview, timezone: current_user.curr_timezone},
             flash: "I scheduled the interview. Good Luck!")
         end
 
@@ -127,32 +127,41 @@ class InterviewsController < ApplicationController
     respond_to do |format|
       if @interview.update(interview_params)
         if applying = @interview.applying
-          if dropped_assignments.present?
+          if @interview.canceled?
             messager.create_and_send_private_reply(
               applying: applying, 
               sender_id: current_user.id, 
-              partial: "replies/remove_interviewers_reply", 
-              locals: {
-                interview: @interview, 
-                timezone: current_user.curr_timezone, 
-                interviewers: dropped_assignments,
-                owner: current_user
-              },
-              flash: "")
-          end
+              partial: "replies/cancel_interview_reply", 
+              locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
+              flash: "")            
+          else
+            if dropped_assignments.present?
+              messager.create_and_send_private_reply(
+                applying: applying, 
+                sender_id: current_user.id, 
+                partial: "replies/remove_interviewers_reply", 
+                locals: {
+                  interview: @interview, 
+                  timezone: current_user.curr_timezone, 
+                  interviewers: dropped_assignments,
+                  owner: current_user
+                },
+                flash: "")
+            end
 
-          if new_assignments.present?
-            messager.create_and_send_private_reply(
-              applying: applying, 
-              sender_id: current_user.id, 
-              partial: "replies/assign_interviewers_reply", 
-              locals: {
-                interview: @interview, 
-                timezone: current_user.curr_timezone, 
-                interviewers: new_assignments,
-                owner: current_user
-              },
-              flash: "")
+            if new_assignments.present?
+              messager.create_and_send_private_reply(
+                applying: applying, 
+                sender_id: current_user.id, 
+                partial: "replies/assign_interviewers_reply", 
+                locals: {
+                  interview: @interview, 
+                  timezone: current_user.curr_timezone, 
+                  interviewers: new_assignments,
+                  owner: current_user
+                },
+                flash: "")
+            end
           end
         end
 

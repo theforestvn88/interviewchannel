@@ -1,3 +1,3 @@
 <%= turbo_stream.replace "round#{@interview.id}" do %>
-    <%= render partial: "interviews/round", locals: {round: @interview} %>
+    <%= render partial: "interviews/round", locals: {round: @interview, timezone: current_user.curr_timezone} %>
 <% end %>
