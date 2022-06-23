@@ -19,7 +19,7 @@ class Interview < ApplicationRecord
     enum state: { wait: STATE_WAIT, in_process: STATE_IN_PROCESS, finish: STATE_FINISH, canceled: STATE_CANCELED }
 
     validates :title, presence: true
-    validate  :could_not_change_if_finnished, on: :update  
+    validate  :could_not_change_if_finnished_or_canceled, on: :update  
     validate  :could_not_change_candidate, on: :update
     validate  :timespan_ok?
 
@@ -126,9 +126,9 @@ class Interview < ApplicationRecord
         end
     end
 
-    def could_not_change_if_finnished
-        if self.persisted? && self.state_was == STATE_FINISH
-            self.errors.add(:interview, "is finished!")
+    def could_not_change_if_finnished_or_canceled
+        if self.persisted? && (self.state_was == STATE_FINISH || self.state_was == STATE_CANCELED)
+            self.errors.add(:interview, "is #{self.state_was}!")
         end
     end
 
