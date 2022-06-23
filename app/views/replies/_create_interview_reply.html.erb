@@ -1,7 +1,7 @@
 <div class="w-full flex justify-start">
     <div><%= link_to interview.owner.name, user_path(interview.owner), class: "font-bold text-blue hover:underline" %> scheduled the </div> 
     <div class="px-1 font-bold text-blue-600" data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value="<%= card_interview_path(interview) %>">
-        <%= link_to "interview##{interview.round}", interview_path(interview), data: {turbo: "false"} %>
+        <%= link_to "interview##{interview.id}@round#{interview.round}.", interview_path(interview), data: {turbo: "false"} %>
     </div>
-    <p>. Good Luck!</p>
 </div>
+<%= link_to "assign interviewer", assign_interview_path(interview), data: {turbo_frame: :modal}, class: "text-blue-400 hover:underline px-1 border border-gray-300 hover:border-gray-400" %>

@@ -3,6 +3,12 @@
     <div class="relative text-xs border border-gray-300 rounded-md p-2 bg-gray-50">
         <p><%= round.title %></p>
         <p><%= "Round: #{round.round}" %></p>
+        <p>Interviewers: 
+            <% round.interviewers.each do |interviewer| %>
+                <span class="font-bold"><%= interviewer.name %></span><span class="mr-1"><%= "<#{interviewer.email}>, " %></span>
+            <% end %>
+        </p>
+        <p>Candidate: <span class="font-bold"><%= round.candidate.name %></span><span class="ml-1"><%= round.candidate.email %></span></p>
         <% if round.owner?(current_user) %>
             <%= link_to "edit", edit_interview_path(round), data: {"turbo-frame": "modal"}, class: "absolute top-1 right-2 text-blue-600 underline" %>
         <% end %>
@@ -45,6 +51,7 @@
         </li>
     <% else %>
         <div class="flex justify-start ml-4">
+            <%= link_to "assign interviewer", assign_interview_path(round), data: {turbo_frame: :modal}, class: "mx-1 px-1 text-blue-400 hover:underline border border-gray-300 hover:border-gray-400" %>
             <div class="flex justify-start bg-white text-red-600 px-1 border border-gray-200 hover:border-gray-400">
                 <span>delay</span>
                 <%= button_to "10m", interview_path(round), method: :put, 

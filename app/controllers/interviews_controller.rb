@@ -1,6 +1,7 @@
 class InterviewsController < ApplicationController
   before_action :ensure_user_signed_in
-  before_action :set_interview, only: %i[ show room edit update destroy card confirm ]
+  before_action :set_interview, only: %i[ show room edit update destroy card confirm assign ]
+  before_action :allow_only_owner, only: %i[ edit update destroy assign ]
   before_action :convert_time, only: %i[ create update ]
 
   # GET /interviews or /interviews.json
@@ -66,7 +67,7 @@ class InterviewsController < ApplicationController
           messager.create_and_send_private_reply(
             applying: applying, 
             sender_id: current_user.id, 
-            partial: "interviews/create_interview_reply", 
+            partial: "replies/create_interview_reply", 
             locals: {interview: @interview, timezone: current_user.curr_timezone, date: @interview.start_time.in_time_zone(current_user.curr_timezone).strftime('%FT%R')},
             flash: "I scheduled the interview. Good Luck!")
         end
@@ -121,10 +122,40 @@ class InterviewsController < ApplicationController
 
   # PATCH/PUT /interviews/1 or /interviews/1.json
   def update
-    respond_to do |format|
-      messager = Messager.new(current_user, current_user.curr_timezone)
+    messager = Messager.new(current_user, current_user.curr_timezone)
 
+    respond_to do |format|
       if @interview.update(interview_params)
+        if applying = @interview.applying
+          if dropped_assignments.present?
+            messager.create_and_send_private_reply(
+              applying: applying, 
+              sender_id: current_user.id, 
+              partial: "replies/remove_interviewers_reply", 
+              locals: {
+                interview: @interview, 
+                timezone: current_user.curr_timezone, 
+                interviewers: dropped_assignments,
+                owner: current_user
+              },
+              flash: "")
+          end
+
+          if new_assignments.present?
+            messager.create_and_send_private_reply(
+              applying: applying, 
+              sender_id: current_user.id, 
+              partial: "replies/assign_interviewers_reply", 
+              locals: {
+                interview: @interview, 
+                timezone: current_user.curr_timezone, 
+                interviewers: new_assignments,
+                owner: current_user
+              },
+              flash: "")
+          end
+        end
+
         (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
           presenter = CalendarPresenter.new(Scheduler.new(user))
           timezone = user.curr_timezone
@@ -188,6 +219,10 @@ class InterviewsController < ApplicationController
       format.json { render :show, status: :ok, location: @interview }
       format.turbo_stream { }
     end
+  end
+
+  def assign
+    render layout: false
   end
 
   # DELETE /interviews/1 or /interviews/1.json
@@ -267,11 +302,31 @@ class InterviewsController < ApplicationController
       @interview = Interview.find(params[:id])
     end
 
+    def allow_only_owner
+      @interview.owner?(current_user)
+    end
+
     # Only allow a list of trusted parameters through.
     def interview_params
       @interview_params ||= \
         params.require(:interview)
           .permit(:title, :note, :start_time, :end_time, :candidate_id, :applying_id, :round, :head_id, :state, assignments_attributes: [:id, :user_id, :_destroy])    
+    end
+
+    def new_assignments
+      assignments = @interview_params[:assignments_attributes]&.select do |id, assignment|
+        assignment[:id].nil? && assignment[:_destroy].nil? && assignment[:user_id].present?
+      end&.to_hash
+      
+      assignments.present? ? User.where(id: assignments.values.map{|a| a["user_id"]}) : []
+    end
+
+    def dropped_assignments
+      assignments = @interview_params[:assignments_attributes]&.select do |id, assignment|
+        assignment[:id].present? && assignment[:_destroy].present?
+      end&.to_hash
+
+      assignments.present? ? User.where(id: assignments.values.map{|a| a["user_id"]}) : []
     end
 
     def convert_time
