@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_21_123350) do
+ActiveRecord::Schema.define(version: 2022_06_25_135104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -103,6 +103,7 @@ ActiveRecord::Schema.define(version: 2022_06_21_123350) do
     t.string "github"
     t.text "cv"
     t.text "watch_tags"
+    t.json "social"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

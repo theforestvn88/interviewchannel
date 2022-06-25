@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     member do
       get 'profile'
       get 'card'
-      get 'edit_tags'
+      get 'edit_profile'
       post 'add_watch_tag'
       post 'remove_watch_tag'
     end

@@ -18,21 +18,21 @@ class UsersController < ApplicationController
         render_not_found unless @user = User.find_by(id: params[:id])
     end
 
-    def edit
+    def edit # edit user's cv only
         render layout: false
     end
 
-    def edit_tags
+    def edit_profile
         @tags = (current_user.watch_tags || "").split(" ").map {|t| t.gsub("#", "")}
         render layout: false
     end
 
     def update
-        if current_user.update(user_params)
-            render partial: "users/#{params[:partial]}", locals: {user: current_user}, layout: false
-        else
-            render :edit
-        end
+      if current_user.update(user_params)
+          render partial: "users/#{params[:partial]}", locals: {user: current_user, editable: true}, layout: false
+      else
+          render :edit
+      end
     end
 
     def card
@@ -79,7 +79,10 @@ class UsersController < ApplicationController
         end
 
         def user_params
-            params.require(:user).permit(:cv, :watch_tags, tags: [])
+            _user_params = params.require(:user).permit(:cv, :blog, :hackerrank, :leetcode, "dev.to", :watch_tags, tags: [])
+            _social = _user_params.extract!(:blog, :hackerrank, :leetcode, "dev.to")
+            _user_params[:social] = (current_user.social || {}).merge(_social)
+            _user_params
         end
 
         def get_user
