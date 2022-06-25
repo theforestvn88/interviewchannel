@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "profile" do %>
+<%= turbo_frame_tag "cv" do %>
   <%= form_with(model: current_user, class: "contents") do |form| %>
     <% if current_user.errors.any? %>
       <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
@@ -12,14 +12,15 @@
       </div>
     <% end %>
 
-    <div class="my-5">
+    <div class="my-5 px-2">
       <%= form.label :your_profile %>
-      <%= form.text_area :cv, rows: 10, cols: 50, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+      <input id="x" type="hidden" name="user[cv]" value="<%= current_user.cv %>">
+      <trix-editor input="x"></trix-editor>
     </div>
 
     <input type="hidden" id="partial" name="partial" value="cv" />
-    <div class="flex justify-end">
-      <%= form.submit "Update", class: "rounded-lg py-2 px-4 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+    <div class="flex justify-end mr-5 mb-2">
+      <%= form.submit "Update", class: "rounded-sm border p-2 inline-block font-medium cursor-pointer hover:border-gray-900" %>
     </div>
   <% end %>
 <% end %>
