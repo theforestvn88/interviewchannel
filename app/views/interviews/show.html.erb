@@ -1,18 +1,24 @@
-<div class="w-full m-5">
-  <%= render 'layouts/header' %>
+<% if @showable %>  
+  <%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+    <div class="w-2/3 border border-gray-200 rounded-md p-5">
+      <%= button_to "<-applying", applying_path(@interview.applying_id),
+        method: :get,
+        id: "tag_inbox",
+        class: "text-left hover:underline mb-3" %>
 
-  <div class="w-full container mx-auto my-10">
-    <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
-      <% @interview.timeline.each do |round| %>
-        <%= render partial: "interviews/round", locals: {round: round, timezone: current_user.curr_timezone} %>
-      <% end %>
-    <% end %>
+        <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
+          <% @interview.timeline.each do |round| %>
+            <%= render partial: "interviews/round", locals: {round: round, timezone: current_user.curr_timezone} %>
+          <% end %>
+        <% end %>
 
-    <div class="h-10 ml-4 border-l border-gray-200 dark:border-gray-400"></div>
-    <%= turbo_frame_tag "rounds-toolbar-#{@interview.id}" do %>
-      <%= link_to "create new row", 
-          new_interview_path(candidate_id: @interview.candidate_id, applying_id: @interview.applying_id), 
-          data: {turbo_frame: :modal}, class: "mt-5 p-1 text-xs font-bold text-gray-600 rounded-md border border-gray-600 hover:bg-gray-100" %>
-    <% end %>
-  </div>
-</div>
+        <div class="h-10 ml-4 border-l border-gray-200 dark:border-gray-400"></div>
+        <%= turbo_frame_tag "rounds-toolbar-#{@interview.id}" do %>
+          <%= link_to "create new round", 
+              new_interview_path(candidate_id: @interview.candidate_id, applying_id: @interview.applying_id), 
+              data: {turbo_frame: :modal}, class: "mt-5 p-1 text-xs font-bold text-gray-600 rounded-md border border-gray-600 hover:bg-gray-100" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

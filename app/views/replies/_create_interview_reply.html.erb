@@ -1,6 +1,6 @@
 <div class="flex justify-start">
     <div><%= link_to interview.owner.name, user_path(interview.owner), class: "font-bold text-blue hover:underline" %> scheduled the </div> 
     <div class="px-1 font-bold text-blue-600" data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value="<%= card_interview_path(interview) %>">
-        <%= link_to "interview##{interview.id}@round#{interview.round}.", interview_path(interview), class: "bg-red-200", data: {turbo: "false"} %>
+        <%= link_to "interview##{interview.id}@round#{interview.round}.", interview_path(interview), data: {turbo_frame: "home-content"}, class: "bg-red-200 font-bold text-blue-600 ml-1" %>
     </div>
 </div>

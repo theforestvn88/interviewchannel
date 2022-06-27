@@ -1,41 +1,41 @@
 <% apply_time = "#{distance_of_time_in_words(applying.created_at, Time.now.utc)} ago." %>
 <%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
-<div class="w-2/3 border border-gray-200 rounded-md p-5">
-  <%= button_to "<-inbox", query_messages_path(tag: "#inbox"),
-    id: "tag_inbox",
-    class: "text-left hover:underline mb-3",
-    form: { id: "form_inbox" } %>
+  <div class="w-2/3 border border-gray-200 rounded-md p-5">
+    <%= button_to "<-inbox", query_messages_path(tag: "#inbox"),
+      id: "tag_inbox",
+      class: "text-left hover:underline mb-3",
+      form: { id: "form_inbox" } %>
 
-  <p class="underline"
-    data-controller="card" 
-    data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" 
-    data-card-url-value=<%= card_user_path(applying.candidate)%>
-  >
-    <%= link_to applying.candidate.name, profile_user_path(applying.candidate), data: {turbo: false}, class: "font-bold hover:text-blue-600" %> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
-    <span><%= apply_time %></span>
-  </p>
+    <p class="underline"
+      data-controller="card" 
+      data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" 
+      data-card-url-value=<%= card_user_path(applying.candidate)%>
+    >
+      <%= link_to applying.candidate.name, profile_user_path(applying.candidate), data: {turbo: false}, class: "font-bold hover:text-blue-600" %> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
+      <span><%= apply_time %></span>
+    </p>
 
-  <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
-      <li class="py-2 ml-4">
-          <div class="text-xs w-full">
-              <p><%= applying.intro %></p>
-          </div>
-      </li>
+    <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
+        <li class="py-2 ml-4">
+            <div class="text-xs w-full">
+                <p><%= applying.intro %></p>
+            </div>
+        </li>
 
-      <%= turbo_frame_tag "replies-#{applying.id}" do %>
-          <% replies = applying.replies.last(2) %>
-          <% if applying.replies.count > 2 %>
-            <%= turbo_frame_tag "previous-replies-#{applying.id}" do %>
-              <%= button_to "[...]", previous_applying_replies_path(applying, date: replies.first.created_at), class: "hover:font-bold hover:text-blue-600", form: { class: "absolute -left-2.5 bg-white" } %>
-              <br>
+        <%= turbo_frame_tag "replies-#{applying.id}" do %>
+            <% replies = applying.replies.last(2) %>
+            <% if applying.replies.count > 2 %>
+              <%= turbo_frame_tag "previous-replies-#{applying.id}" do %>
+                <%= button_to "[...]", previous_applying_replies_path(applying, date: replies.first.created_at), class: "hover:font-bold hover:text-blue-600", form: { class: "absolute -left-2.5 bg-white" } %>
+                <br>
+              <% end %>
             <% end %>
-          <% end %>
-          <%= render partial: "replies/reply", collection: replies, locals: {timezone: timezone, separator: true} %>
-      <% end %>
+            <%= render partial: "replies/reply", collection: replies, locals: {timezone: timezone, separator: true} %>
+        <% end %>
 
-  </ol>
-      
-  <hr class="my-2">
-  <%= render partial: "applyings/toolbar", locals: {applying: applying, user: user} %>
-</div>
+    </ol>
+        
+    <hr class="my-2">
+    <%= render partial: "applyings/toolbar", locals: {applying: applying, user: user} %>
+  </div>
 <% end %>

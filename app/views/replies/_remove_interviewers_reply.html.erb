@@ -1,9 +1,11 @@
-<div class="w-full flex justify-start">
-    <%= link_to owner.name, user_path(owner), class: "font-bold text-blue hover:underline" %> 
-    <span class="ml-1">remove </span>
-    <% interviewers.each do |interviewer| %>
-        <%= link_to "#{interviewer.name}<#{interviewer.email}> ", user_path(owner), class: "font-bold text-blue hover:underline ml-1" %>
-    <% end %>
-    <p class="ml-1"> from the </p>
-    <%= link_to "interview##{interview.id}@round#{interview.round}.", interview_path(interview), data: {turbo: "false"}, class: "font-bold text-blue-600 ml-1" %>
+<div class="w-full">
+    <%= link_to "interview##{interview.id}@round#{interview.round}", interview_path(interview), data: {turbo_frame: "home-content"}, class: "bg-red-200 font-bold text-blue-600" %>
+    
+    <div class="w-full flex justify-start">
+      <%= link_to owner.name, user_path(owner), class: "font-bold text-blue hover:underline" %> 
+      <span class="ml-1">removed </span>
+      <% interviewers.each do |interviewer| %>
+          <%= link_to "#{interviewer.name}<#{interviewer.email}>.", user_path(owner), class: "font-bold text-blue hover:underline ml-1" %>
+      <% end %>
+    </div>
 </div>

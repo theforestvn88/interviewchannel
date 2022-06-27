@@ -16,13 +16,13 @@
 
     <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
     <li class="py-2 ml-4 text-xs">
-        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is created at <%= round.created_at.in_time_zone(timezone) %>, by <span class="font-bold"><%= round.owner.name %></span>.</time>
     </li>
 
     <% if round.started? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
-        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time.in_time_zone(timezone) %>
             <% unless round.finished? %>
             <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600" %>
@@ -31,7 +31,7 @@
         </li>
     <% elsif round.wait? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
-        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500" data-controller="countdown" data-countdown-time-value="<%= round.countdown %>">this interview will be starting in 
             <span class="ml-1 font-bold" data-countdown-target="clockView"></span>
             <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600 hidden", "data-countdown-target": "waitView" %>
@@ -41,12 +41,12 @@
 
     <% if round.finished? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
-        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is finished at <%= round.end_time.in_time_zone(timezone) %></time>
         </li>
     <% elsif round.canceled? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
-        <div class="absolute w-2 h-2 bg-gray-200 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is <b>canceled</b></time>
         </li>
     <% else %>

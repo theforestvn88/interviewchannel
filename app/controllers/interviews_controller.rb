@@ -11,9 +11,8 @@ class InterviewsController < ApplicationController
 
   # GET /interviews/1 or /interviews/1.json
   def show
-    unless @interview && @interview.involve?(current_user)
-      redirect_to root_path
-    end
+    @showable = @interview && @interview.involve?(current_user)
+    render layout: false
   end
 
   def room
