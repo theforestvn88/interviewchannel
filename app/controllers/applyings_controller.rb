@@ -11,6 +11,9 @@ class ApplyingsController < ApplicationController
         render layout: false
     end
 
+    def show
+    end
+
     # POST /applyings
     def create
         if @message.expired?
@@ -21,7 +24,7 @@ class ApplyingsController < ApplicationController
                 @messager.send_private_message( # send private message first
                     to_user_id: @message.user_id, 
                     partial: "applyings/applying", 
-                    locals: {applying: applying, user: current_user},
+                    locals: {applying: applying, user: current_user, timezone: current_user.curr_timezone},
                     flash: "#{current_user.name} applied the job message ##{@message.id}"
                 )
                 .broadcast_replace(@message) # broadcast due to counter-cache update

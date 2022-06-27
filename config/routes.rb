@@ -51,7 +51,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :applyings, only: [] do
+  resources :applyings, only: [:show] do
     member do
       post 'close'
       post 'open'
