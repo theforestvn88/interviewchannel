@@ -13,14 +13,12 @@ class ApplyingsController < ApplicationController
 
     # POST /applyings
     def create
-        messager =  Messager.new(current_user, current_user.curr_timezone)
-
         if @message.expired?
-            messager.send_error_flash(error: "This message is expired !!!")
+            @messager.send_error_flash(error: "This message is expired !!!")
         else
             applying = Applying.new applying_params.merge({message_id: @message.id, candidate_id: current_user.id, interviewer_id: @message.user_id})
             if applying.save
-                messager.send_private_message( # send private message first
+                @messager.send_private_message( # send private message first
                     to_user_id: @message.user_id, 
                     partial: "applyings/applying", 
                     locals: {applying: applying, user: current_user},
@@ -28,7 +26,7 @@ class ApplyingsController < ApplicationController
                 )
                 .broadcast_replace(@message) # broadcast due to counter-cache update
             else
-                messager.send_model_error_flash(applying)
+                @messager.send_model_error_flash(applying)
             end
         end
 

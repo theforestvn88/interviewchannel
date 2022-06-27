@@ -4,25 +4,23 @@ class MessagesController < ApplicationController
 
   # GET /messages or /messages.json
   def index
-    @messages = Messager.new.recently(params[:tag])
+    @messages = @messager.recently(params[:tag])
   end
 
   def query
     offset_time = DateTime.parse(params[:offset]) if params[:offset]
     limit = Messager::Query::PAGE
 
-    messager = Messager.new(current_user, current_user&.curr_timezone)
-
     @tag = params[:tag]
     case @tag
     when "#private"
-      @messages = messager.private_messages(current_user, offset_time: offset_time, limit: limit)
+      @messages = @messager.private_messages(current_user, offset_time: offset_time, limit: limit)
       @template = "messages/private"
       @partial = "applyings/applying"
     when "#public"
-      @messages = messager.own_by_me(offset_time: offset_time, limit: limit)
+      @messages = @messager.own_by_me(offset_time: offset_time, limit: limit)
     else
-      @messages = messager.recently(@tag, offset_time: offset_time, sort_by: Array(params[:sort_by]), limit: limit)
+      @messages = @messager.recently(@tag, offset_time: offset_time, sort_by: Array(params[:sort_by]), limit: limit)
     end
 
     @template ||= "messages/index"
@@ -57,7 +55,7 @@ class MessagesController < ApplicationController
   # POST /messages or /messages.json
   def create
     respond_to do |format|
-      @message = Messager.new(current_user, current_user.curr_timezone).create_message(message_params)
+      @message = @messager.create_message(message_params)
       format.turbo_stream
     end
   end
@@ -78,7 +76,7 @@ class MessagesController < ApplicationController
   # DELETE /messages/1 or /messages/1.json
   def destroy
     @message.destroy
-    Messager.new(current_user, current_user.curr_timezone).decrease_then_broadcast_counter(@message)
+    @messager.decrease_then_broadcast_counter(@message)
   end
 
   private

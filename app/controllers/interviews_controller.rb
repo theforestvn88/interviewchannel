@@ -14,9 +14,6 @@ class InterviewsController < ApplicationController
     unless @interview && @interview.involve?(current_user)
       redirect_to root_path
     end
-
-    messager = Messager.new(current_user, current_user.curr_timezone)
-    @private_channel = messager.private_channel(current_user)
   end
 
   def room
@@ -61,10 +58,8 @@ class InterviewsController < ApplicationController
         format.json { render :show, status: :created, location: @interview }
         format.turbo_stream { }
 
-        messager = Messager.new(current_user, current_user.curr_timezone)
-
         if applying = @interview.applying
-          messager.create_and_send_private_reply(
+          @messager.create_and_send_private_reply(
             applying: applying, 
             sender_id: current_user.id, 
             partial: "replies/create_interview_reply", 
@@ -78,7 +73,7 @@ class InterviewsController < ApplicationController
           tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
           interview_date = @interview.start_time.in_time_zone(timezone)
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :replace,
@@ -86,7 +81,7 @@ class InterviewsController < ApplicationController
             partial: "interviews/mini_day",
             locals: {interview_date: interview_date, today: Time.now.in_time_zone(current_user.curr_timezone), tz_offset: tz_offset})
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :append,
@@ -95,7 +90,7 @@ class InterviewsController < ApplicationController
             locals: presenter.interview_daily_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user, 
             action: :append,
@@ -104,7 +99,7 @@ class InterviewsController < ApplicationController
             locals: presenter.interview_weekly_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :append,
@@ -114,21 +109,22 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
         end
       else
+        @messager.send_error_flash(error: @interview.errors.first.full_message)
+
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @interview.errors, status: :unprocessable_entity }
+        format.turbo_stream { }
       end
     end
   end
 
   # PATCH/PUT /interviews/1 or /interviews/1.json
   def update
-    messager = Messager.new(current_user, current_user.curr_timezone)
-
     respond_to do |format|
       if @interview.update(interview_params)
         if applying = @interview.applying
           if @interview.canceled?
-            messager.create_and_send_private_reply(
+            @messager.create_and_send_private_reply(
               applying: applying, 
               sender_id: current_user.id, 
               partial: "replies/cancel_interview_reply", 
@@ -136,7 +132,7 @@ class InterviewsController < ApplicationController
               flash: "")            
           else
             if dropped_assignments.present?
-              messager.create_and_send_private_reply(
+              @messager.create_and_send_private_reply(
                 applying: applying, 
                 sender_id: current_user.id, 
                 partial: "replies/remove_interviewers_reply", 
@@ -150,7 +146,7 @@ class InterviewsController < ApplicationController
             end
 
             if new_assignments.present?
-              messager.create_and_send_private_reply(
+              @messager.create_and_send_private_reply(
                 applying: applying, 
                 sender_id: current_user.id, 
                 partial: "replies/assign_interviewers_reply", 
@@ -172,13 +168,13 @@ class InterviewsController < ApplicationController
           interview_date = @interview.start_time.in_time_zone(timezone)
 
           # day
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :remove,
             target: "interview-#{@interview.id}-timespan-daily#{tz_offset}")
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview, 
             user,
             action: :append,
@@ -188,13 +184,13 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
 
           # week
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :remove,
             target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}")
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :append,
@@ -204,13 +200,13 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
 
           # month
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :remove,
             target: "interview-#{@interview.id}-timespan-monthly#{tz_offset}")
 
-          messager.send_private_interview(
+          @messager.send_private_interview(
             @interview,
             user,
             action: :append,
@@ -220,7 +216,7 @@ class InterviewsController < ApplicationController
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
         end
       else
-        messager.send_error_flash(error: @interview.errors.first.full_message)
+        @messager.send_error_flash(error: @interview.errors.first.full_message)
         @interview.reload
       end
 
@@ -242,25 +238,23 @@ class InterviewsController < ApplicationController
       format.html { redirect_to interviews_url, notice: "Interview was successfully destroyed." }
       format.json { head :no_content }
 
-      messager = Messager.new(current_user, current_user.curr_timezone)
-
       (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
         timezone = user.curr_timezone
         tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
 
-        messager.send_private_interview(
+        @messager.send_private_interview(
           @interview, 
           user,
           action: :remove,
           target: "interview-#{@interview.id}-timespan-daily#{tz_offset}")
 
-        messager.send_private_interview(
+        @messager.send_private_interview(
           @interview,
           user,
           action: :remove,
           target: "interview-#{@interview.id}-timespan-weekly#{tz_offset}")
 
-        messager.send_private_interview(
+        @messager.send_private_interview(
           @interview,
           user,
           action: :remove,

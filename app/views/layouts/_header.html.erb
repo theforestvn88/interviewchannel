@@ -1,5 +1,10 @@
-<div class="w-full flex justify-between border-b border-gray-300 pb-3">
-    <h1><b><\ interview ></b> Channel</h1>
+<div class="w-full flex justify-between border-b border-gray-300 pb-3 relative">
+    <% if user_signed_in? %>
+      <%= turbo_stream_from @private_channel %>
+      <div id="flash" class="hidden absolute top-0 right-0 z-50 drop-shadow-xl border-b-2 border-x-2 border-gray-200 bg-white"></div>
+    <% end %>
+
+    <a href="/" class="absolute top-0 leftt-20"><span class="font-bold"><\ interview ></span> Channel</a>
     <% if user_signed_in? %>
         <div class="flex justify-end">
             <%= link_to current_user.name, profile_user_path(current_user), class: "hover:font-bold" %>

@@ -2,7 +2,7 @@
 
 class Messager
     module PrivateChannel
-        def private_channel(user)
+        def private_channel(user = @user)
             return nil if user.nil?
 
             private_channel_format(user.uid, user.email)
@@ -16,7 +16,7 @@ class Messager
         end
 
         def send_private_message(to_user_id:, partial:, locals:, flash: nil)
-            toChannels = [private_channel(@user), private_channel_from_user_id(to_user_id)].uniq
+            toChannels = [private_channel, private_channel_from_user_id(to_user_id)].uniq
             toChannels.each do |toChannel|
                 Turbo::StreamsChannel.broadcast_replace_to(
                     toChannel,

@@ -13,8 +13,7 @@ class RepliesController < ApplicationController
         @reply = Reply.new reply_params.merge({applying_id: @applying.id, user_id: current_user.id})
 
         if @reply.save
-            Messager.new(current_user, current_user.curr_timezone)
-                .send_private_reply(@applying, @reply, locals: {timezone: current_user.curr_timezone})
+            @messager.send_private_reply(@applying, @reply, locals: {timezone: current_user.curr_timezone})
         end
 
         respond_to do |format|

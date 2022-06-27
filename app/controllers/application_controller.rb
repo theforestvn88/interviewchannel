@@ -8,6 +8,8 @@ class ApplicationController < ActionController::Base
   end
 
   helper_method :current_user, :user_signed_in?
+
+  before_action :setup_messager
   
   private
 
@@ -34,6 +36,11 @@ class ApplicationController < ActionController::Base
 
     def render_not_found
       render :file => "#{Rails.root}/public/404.html", :status => 404
+    end
+
+    def setup_messager
+      @messager ||= Messager.new(current_user, current_user&.curr_timezone)
+      @private_channel ||= @messager.private_channel
     end
 end
 

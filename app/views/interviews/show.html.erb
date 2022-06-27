@@ -1,9 +1,6 @@
 <div class="w-full m-5">
   <%= render 'layouts/header' %>
 
-  <%= turbo_stream_from @private_channel %>
-  <div id="flash" class="hidden fixed top-10 right-0 z-50 drop-shadow-xl border-b-2 border-x-2 border-gray-200 bg-white"></div>
-
   <div class="w-full container mx-auto my-10">
     <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
       <% @interview.timeline.each do |round| %>

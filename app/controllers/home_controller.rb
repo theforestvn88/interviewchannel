@@ -9,16 +9,14 @@ class HomeController < ApplicationController
 
   def index
     # messages
-    messager = Messager.new
-    @messages = messager.recently("#all")
+    @messages = @messager.recently("#all")
     @next_offset = @messages.last&.updated_at
 
     if user_signed_in?
       @tags = (current_user.watch_tags || "").split(" ").map { |tag|
         _tag = tag.strip.downcase
-        [_tag, messager.count_by_tag(_tag)]
-      }.unshift(["#all", messager.count_all])
-      @private_channel = messager.private_channel(current_user)
+        [_tag, @messager.count_by_tag(_tag)]
+      }.unshift(["#all", @messager.count_all])
     end
   end
 
