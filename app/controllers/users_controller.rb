@@ -31,7 +31,7 @@ class UsersController < ApplicationController
       if current_user.update(user_params)
           render partial: "users/#{params[:partial]}", locals: {user: current_user, editable: true}, layout: false
       else
-          render :edit
+        @messager.send_error_flash(error: current_user.errors.first.full_message)
       end
     end
 
@@ -44,8 +44,7 @@ class UsersController < ApplicationController
             user_curr_tags = (current_user.watch_tags || "").split(" ")
             param_tags = params[:watch_tag].map { |t| "##{t}"}
 
-            messager = Messager.new(current_user, current_user.curr_timezone)
-            @tags = (param_tags - user_curr_tags).map {|t| [t, messager.count_by_tag(t)]}
+            @tags = (param_tags - user_curr_tags).map {|t| [t, @messager.count_by_tag(t)]}
 
             if @tags.present?
                 current_user.watch_tags = (user_curr_tags + @tags.map(&:first)).join(" ")

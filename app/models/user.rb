@@ -2,12 +2,20 @@
 
 class User < ApplicationRecord
   include OmniAuthParser
+  include SocialLinks
 
   has_many :sent_messages,
            :class_name => "Message",
            :foreign_key => "user_id",
            :inverse_of => :owner,
            :dependent => :destroy
+
+  validate :validate_social_links
+
+  scope :suggest, ->(keyword) {
+    keywords = ["%#{keyword.strip}%"] * 2
+    where("name ILIKE ? OR email ILIKE ?", *keywords)
+  }
 
   def self.find_or_create_by_omniauth(auth)
     # exist user ?
@@ -47,9 +55,18 @@ class User < ApplicationRecord
     self.watch_tags.blank?
   end
 
-  scope :suggest, ->(keyword) {
-    keywords = ["%#{keyword.strip}%"] * 2
-    where("name ILIKE ? OR email ILIKE ?", *keywords)
-  }
+  def validate_social_links
+    return if social.nil?
+
+    social_support.each do |social_domain|
+      if social.has_key?(social_domain)
+        errors.add(:social, "Error: Invalid #{social_domain} link") unless social_link_valid?(social_domain, social[social_domain])
+      end
+    end
+  end
+
+  def social_links
+    social || {}
+  end
 end
 
