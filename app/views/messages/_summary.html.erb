@@ -2,20 +2,20 @@
     <div class="container mx-auto pl-4 pr-2" data-controller="message">
         <p class="font-bold underline underline-offset-4 mb-1">Messages</p>
 
-        <%= button_to "#public", query_messages_path(tag: "#public"),
-            id: "tag_public",
+        <%= button_to "#inbox", query_messages_path(tag: "#inbox"),
+            id: "tag_inbox",
             class: "w-full text-left hover:bg-green-200",
             "data-action": "click->message#selectTag",
             form: { 
-                id: "form_public",
+                id: "form_inbox",
             } %>
 
-        <%= button_to "#private", query_messages_path(tag: "#private"),
-            id: "tag_private",
+        <%= button_to "#sent", query_messages_path(tag: "#sent"),
+            id: "tag_sent",
             class: "w-full text-left hover:bg-green-200",
             "data-action": "click->message#selectTag",
             form: { 
-                id: "form_private",
+                id: "form_sent",
             } %>
 
         <hr class="my-1">

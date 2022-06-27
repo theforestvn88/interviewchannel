@@ -20,14 +20,14 @@ class Messager
             toChannels.each do |toChannel|
                 Turbo::StreamsChannel.broadcast_replace_to(
                     toChannel,
-                    target: "tag_private", 
+                    target: "tag_inbox", 
                     partial: "messages/tag",
-                    locals: {tag: "#private", count: ""}
+                    locals: {tag: "#inbox", count: ""}
                 )
 
                 Turbo::StreamsChannel.broadcast_prepend_to(
                     toChannel,
-                    target: "messages_private", 
+                    target: "messages_inbox", 
                     partial: partial,
                     locals: locals
                 )

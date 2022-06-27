@@ -22,7 +22,7 @@ class Messager
         end
 
         def send_private_flash(channel:, content:)
-            send_flash(channel: channel, content: content, tag: "#private")
+            send_flash(channel: channel, content: content, tag: "#inbox")
         end
     end
 end

@@ -1,0 +1,16 @@
+<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+    <div id="messages_inbox" class="w-2/3 border border-gray-200 rounded-md">
+      <div class="p-2">
+        <p>Inbox</p>
+      </div>
+
+      <%= render partial: "messages/applying", collection: @messages, as: :applying, locals: @locals %>
+
+      <%= turbo_frame_tag "load_more" do %>
+          <% if offset %>
+              <%= button_to "load more", query_messages_path(tag: tag, offset: offset), class: "text-xs text-blue-600" %>
+          <% end %>
+      <% end %>
+
+    </div>
+<% end %>

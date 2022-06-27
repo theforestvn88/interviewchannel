@@ -1,0 +1,28 @@
+<% apply_time = "#{distance_of_time_in_words(applying.created_at, Time.now.utc)} ago." %>
+<%= button_to applying_path(applying), method: :get, class: "w-full text-left" do %>
+  <div class="w-full text-xs hover:bg-gray-50">
+    <hr>
+
+    <p class="mt-4 ml-2 text-xs"
+      data-controller="card" 
+      data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" 
+      data-card-url-value=<%= card_user_path(applying.candidate)%>
+    >
+      <span class="font-bold">
+        <%= link_to applying.candidate.name, profile_user_path(applying.candidate), data: {turbo: false} %>
+      </span> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
+      <span><%= apply_time %></span>
+    </p>
+
+    <div class="ml-4 py-1">
+    <%= turbo_frame_tag "replies-#{applying.id}" do %>
+      <% if last_reply = applying.replies.last %>
+          <p>...</p>
+          <%= render partial: "replies/reply", locals: {reply: last_reply, timezone: timezone} %>
+      <% else %>
+        <p class="ml-4 py-1"><%= applying.intro[0..200] + "..." %></p>
+      <% end %>
+    <% end %>
+    </div>
+  </div>
+<% end %>
