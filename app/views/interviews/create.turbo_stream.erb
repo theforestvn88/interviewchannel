@@ -1,3 +1,5 @@
-<%= turbo_stream.append("rounds-of-#{@interview.head_id}") do %>
-    <%= render partial: "interviews/round", locals: {round: @interview, timezone: current_user.curr_timezone} %>
+<% if @interview.errors.empty? %>
+  <%= turbo_stream.append("rounds-of-#{@interview.head_id}") do %>
+      <%= render partial: "interviews/round", locals: {round: @interview, user: current_user, timezone: current_user.curr_timezone} %>
+  <% end %>
 <% end %>

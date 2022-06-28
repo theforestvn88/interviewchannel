@@ -8,15 +8,17 @@
 
         <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
           <% @interview.timeline.each do |round| %>
-            <%= render partial: "interviews/round", locals: {round: round, timezone: current_user.curr_timezone} %>
+            <%= render partial: "interviews/round", locals: {round: round, user: current_user, timezone: current_user.curr_timezone} %>
           <% end %>
         <% end %>
 
         <div class="h-10 ml-4 border-l border-gray-200 dark:border-gray-400"></div>
-        <%= turbo_frame_tag "rounds-toolbar-#{@interview.id}" do %>
-          <%= link_to "create new round", 
-              new_interview_path(candidate_id: @interview.candidate_id, applying_id: @interview.applying_id), 
-              data: {turbo_frame: :modal}, class: "mt-5 p-1 text-xs font-bold text-gray-600 rounded-md border border-gray-600 hover:bg-gray-100" %>
+        <% if @interview.owner?(current_user) %>
+          <%= turbo_frame_tag "rounds-toolbar-#{@interview.id}" do %>
+            <%= link_to "create new round", 
+                new_interview_path(candidate_id: @interview.candidate_id, applying_id: @interview.applying_id), 
+                data: {turbo_frame: :modal}, class: "mt-5 p-1 text-xs font-bold text-gray-600 rounded-md border border-gray-600 hover:bg-gray-100" %>
+          <% end %>
         <% end %>
       </div>
     </div>
