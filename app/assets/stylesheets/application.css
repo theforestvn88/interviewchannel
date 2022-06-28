@@ -13,3 +13,6 @@
  *= require_tree .
  *= require_self
  */
+
+
+ .trix-button-group--file-tools { display: none !important; }
