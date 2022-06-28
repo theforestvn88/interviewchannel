@@ -3,11 +3,13 @@
       <p>
           <span class="font-bold">Job #<%= message.id %></span>
           <span> created by <%= link_to message.owner.name, profile_user_path(message.owner), data: {turbo: false}, class: "font-bold" %></span> 
-          <span>, <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | </span> 
+          <span> <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | </span> 
           <span><%= message.views %> <%= 'view'.pluralize(message.views) %></span>
       </p>
       
-      <p><span class="font-bold"><%= message.channel %></span></p>
+      <% message.channel.split(" ").map {|t| t.gsub("#", "")}.each do |tag| %>
+        <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
+      <% end %>
 
       <div class="trix-content py-2 px-4"><%= message.content.html_safe %></div>
 

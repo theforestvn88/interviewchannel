@@ -9,7 +9,13 @@
     <% cache message, expires_in: 30.seconds do %>
       <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
         <p class="text-gray-600 font-bold inline-block w-3/5">
-          <span class="text-gray-900 text-base">#<%= message.id %> <%= message.channel %></span> <span><%= message.title %> </span>
+          <span><%= message.title %> </span>
+        </p>
+        <p class="text-sm">
+          <span class="text-gray-600 font-bold">Job#<%= message.id %></span>
+          <% message.channel.split(" ").map {|t| t.gsub("#", "")}.each do |tag| %>
+            <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
+          <% end %>
         </p>
         <p class="text-xs">
           <span data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value=<%= card_user_path(message.owner) %>>

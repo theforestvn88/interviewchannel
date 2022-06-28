@@ -15,4 +15,94 @@
  */
 
 
- .trix-button-group--file-tools { display: none !important; }
+.trix-button-group--file-tools { display: none !important; }
+
+.Rails, .rails {
+   color: red;
+}
+  
+.Ruby, .ruby, .sinatra, .Sinatra, .hanami, .Hanami {
+    color: rgb(201, 1, 1);
+}
+
+.Js, .js, .Javascript, .javascript,
+.node, .nodejs,
+.nextjs, .Nextjs {
+  color: yellow;
+}
+
+.Typescript, .typescript,
+.vue, .vuejs,
+.react, .reactjs {
+  color: rgb(75, 75, 245);
+}
+
+.Java, .java,
+.spring, .hibernate {
+  color: rgb(131, 52, 52);
+}
+
+
+.php, .PHP, .Php, .laravel, .Laravel, .drupal, .Drupal,
+.symfony, .Symfony, .CakePHP, .cakephp {
+  color: orange;
+}
+
+.go, .GO, .Go,
+.gin, .Gin, .beego, .Beego, .Iris, .iris, .echo, .Echo, .fiber, .Fiber {
+  color: aqua;
+}
+
+.postgresql, .Postgresql,
+.mysql, .Mysql,
+.mongodb, .MongoDb {
+  color: blueviolet;
+}
+
+.android,
+.kotlin, .flutter, .dart, .ionic {
+  color: rgb(109, 236, 109);
+}
+
+.ios, .iOS,
+.swift, .objectc {
+  color: orange;
+}
+
+.c, .c_plus_plus, .c_sharp,
+.unity, .unity3d, .game, .gamedev {
+  color: pink;
+}
+
+.azura, .net, .dotnet {
+  color: azure;
+}
+
+.python, .django, .Djando, .flask {
+  color: rgb(117, 60, 221);
+}
+
+.rust {
+  color: bisque;
+}
+
+.scala, .perl {
+  color: rgb(247, 62, 62);
+}
+
+.devops, .Devops {
+  color: rgb(56, 209, 56);
+}
+
+.Docker, .docker,
+.cloud {
+  color: blue;
+}
+
+.kubernetes, .Kubernetes {
+  color: blue;
+}
+
+.aws, .s3, .terraform, .lambda {
+  color: orangered;
+}
