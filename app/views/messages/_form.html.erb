@@ -12,13 +12,20 @@
   <% end %>
 
   <div class="my-5">
-    <%= form.limit_text_area :content, limit: 500, rows: 15, placeholder: "content: in code we trust ...", class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full", 
-        "data-message-target": "content" %>
+    <%= form.label :title %>
+    <%= form.limit_text_area :title, limit: 255, rows: 2, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full", 
+        "data-message-target": "title" %>
   </div>
 
-  <div class="my-5 relative" 
-    data-controller="select7" 
-    data-select7-suggest-api-value="<%= suggest_tags_path %>" 
+  <div class="my-5">
+    <%= form.label :content %>
+    <input id="x" type="hidden" name="message[content]" value="<%= message.content %>">
+    <trix-editor input="x"></trix-editor>
+  </div>
+
+  <div class="my-5 relative"
+    data-controller="select7"
+    data-select7-suggest-api-value="<%= suggest_tags_path %>"
     data-select7-name-value="message[tags][]"
     data-select7-multiple-value="true">
 
@@ -44,6 +51,6 @@
   </div>
 
   <div class="inline">
-    <%= form.submit "Submit", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+    <%= form.submit "Submit", class: "rounded-lg py-1 px-3 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
   </div>
 <% end %>
