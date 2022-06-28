@@ -70,7 +70,7 @@ class MessagesController < ApplicationController
   def update
     respond_to do |format|
       if @message.update(message_params)
-        format.html { redirect_to message_url(@message), notice: "Message was successfully updated." }
+        format.html { redirect_to message_url(@message) }
         format.json { render :show, status: :ok, location: @message }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -93,6 +93,6 @@ class MessagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def message_params
-      params.require(:message).permit(:channel, :content, :expired_at, :user_id, tags: [])
+      params.require(:message).permit(:title, :channel, :content, :expired_at, :user_id, tags: [])
     end
 end

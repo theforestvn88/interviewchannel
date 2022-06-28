@@ -28,7 +28,7 @@ class Message < ApplicationRecord
   end
 
   def tags=(_tags)
-    self.channel = _tags.map {|t| "##{t}"}.uniq.join(" ")
+    self.channel = _tags.map {|t| t.gsub("#", "")}.map {|t| "##{t}"}.uniq.join(" ")
   end
 
   def expired?

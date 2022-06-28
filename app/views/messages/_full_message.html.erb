@@ -1,33 +1,32 @@
-<div id="<%= dom_id message %>" class="mb-5 text-xs">
-    <p>
-        <span class="font-bold">Job #<%= message.id %></span>
-        <span> created by <%= link_to message.owner.name, profile_user_path(message.owner), data: {turbo: false}, class: "font-bold" %></span> 
-        <span>, <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | </span> 
-        <span>updated <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | </span>
-        <span><%= message.views %> <%= 'view'.pluralize(message.views) %></span>
-    </p>
-    
-    <p><span class="font-bold"><%= message.channel %></span></p>
+<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+  <div id="<%= dom_id message %>" class="w-2/3 rounded-md border border-gray-200 m-5 p-5 text-xs">
+      <p>
+          <span class="font-bold">Job #<%= message.id %></span>
+          <span> created by <%= link_to message.owner.name, profile_user_path(message.owner), data: {turbo: false}, class: "font-bold" %></span> 
+          <span>, <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | </span> 
+          <span><%= message.views %> <%= 'view'.pluralize(message.views) %></span>
+      </p>
+      
+      <p><span class="font-bold"><%= message.channel %></span></p>
 
-    <textarea class="mt-5 w-full rounded-md border border-gray-200 outline-none" rows="15" disabled>
-        <%= message.content %> 
-    </textarea>
+      <div class="trix-content py-2 px-4"><%= message.content.html_safe %></div>
 
-    <% if message.user_id == current_user&.id %>
-        <div class="flex justify-end">
-            <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "modal"}, class: "hover:font-bold" %></span>
-            <span class="mx-1"> | </span>
-            <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
-        </div>
-    <% else %>
-        <div class="flex justify-end">
-        <% if message.expired? %>
-            <p class="font-bold mt-2">Expired</p>
-        <% elsif message.applied_by?(current_user) %>
-            <p class="font-bold mt-2">Applied</p>
-        <% else %>
-            <%= link_to "Apply Now", new_message_applying_path(message), data: {"turbo-frame": "modal"}, class: "hover:underline rounded-lg py-3 px-5 bg-blue-600 text-white mt-2" %>
-        <% end %>
-        </div>
-    <% end %>
-</div>
+      <% if message.user_id == current_user&.id %>
+          <div class="flex justify-end">
+              <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "home-content"}, class: "hover:font-bold" %></span>
+              <span class="mx-1"> | </span>
+              <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
+          </div>
+      <% else %>
+          <div class="flex justify-end">
+          <% if message.expired? %>
+              <p class="font-bold mt-2">Expired</p>
+          <% elsif message.applied_by?(current_user) %>
+              <p class="font-bold mt-2">Applied</p>
+          <% else %>
+              <%= link_to "Apply Now", new_message_applying_path(message), data: {"turbo-frame": "home-content"}, class: "hover:underline rounded-lg py-1 px-3 bg-blue-600 text-white mt-2" %>
+          <% end %>
+          </div>
+      <% end %>
+  </div>
+<% end %>

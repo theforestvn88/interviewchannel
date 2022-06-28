@@ -18,6 +18,7 @@ class ApplyingsController < ApplicationController
     def create
         if @message.expired?
             @messager.send_error_flash(error: "This message is expired !!!")
+            head :no_content
         else
             applying = Applying.new applying_params.merge({message_id: @message.id, candidate_id: current_user.id, interviewer_id: @message.user_id})
             if applying.save
@@ -28,12 +29,13 @@ class ApplyingsController < ApplicationController
                     flash: "#{current_user.name} applied the job message ##{@message.id}"
                 )
                 .broadcast_replace(@message) # broadcast due to counter-cache update
+
+                redirect_to message_url(@message)
             else
                 @messager.send_model_error_flash(applying)
+                head :no_content
             end
         end
-
-        head :no_content
     end
 
     def close
