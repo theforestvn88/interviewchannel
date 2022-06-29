@@ -8,7 +8,9 @@
       <div class="flex justify-start items-center">
         <h1 class="text-base font-bold">Recently Messages</h1>
       </div>
-      <%= link_to "Post Job Message", new_message_path(tag: @tag), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-sm" %>
+      <% if user_signed_in? %>
+        <%= link_to "Post Job Message", new_message_path(tag: @tag), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-sm" %>
+      <% end %>
     </div>
     <div class="mb-3 text-xs flex justify-start">
       <%= button_to "active", query_messages_path(tag: @tag), class: "px-1 #{params[:sort_by].nil? ? 'font-bold' : ''}" %>  | 

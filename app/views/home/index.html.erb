@@ -1,7 +1,7 @@
 <div class="w-full m-5">
   <%= render 'layouts/header' %>
 
-  <div class="w-full mt-5 flex justify-between">
+  <div class="w-full flex justify-between">
     <% if user_signed_in? %>
 
       <%= turbo_stream_from :messages %>

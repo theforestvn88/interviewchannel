@@ -12,13 +12,6 @@
       </div>
     <% end %>
 
-    <% social_support.each do |x| %>
-      <div class="my-2 mx-1">
-        <%= x %>
-        <%= form.text_field x, value: current_user.social["#{x}"], class: "w-full block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2" %>
-      </div>
-    <% end %>
-
     <div class="my-2 mx-1">
       <%= form.label :watch_tags %>
       <div class="my-5 relative" data-controller="select7"
@@ -46,6 +39,13 @@
         <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
       </div>
     </div>
+
+    <% social_support.each do |x| %>
+      <div class="my-2 mx-1">
+        <%= x %>
+        <%= form.text_field x, value: current_user.social_links["#{x}"], class: "w-full block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2" %>
+      </div>
+    <% end %>
 
     <input type="hidden" id="partial" name="partial" value="summary" />
     <div class="flex justify-end">

@@ -12,7 +12,7 @@
           <span><%= message.title %> </span>
         </p>
         <p class="text-sm">
-          <span class="text-gray-600 font-bold">Job#<%= message.id %></span>
+          <span class="text-gray-900 font-light">#<%= message.id %></span>
           <% message.channel.split(" ").map {|t| t.gsub("#", "")}.each do |tag| %>
             <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
           <% end %>
