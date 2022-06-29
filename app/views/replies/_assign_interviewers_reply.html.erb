@@ -1,11 +1,9 @@
-<div class="w-full">
-    <%= link_to "interview##{interview.id}@round#{interview.round}", interview_path(interview), data: {turbo_frame: "home-content"}, class: "bg-red-200 font-bold text-blue-600" %>
-    <div class="w-full flex justify-start">
-      <%= link_to owner.name, user_path(owner), class: "font-bold text-blue hover:underline" %> 
-      <span class="ml-1">add</span> 
-      <% interviewers.each do |interviewer| %>
-          <%= link_to "#{interviewer.name}<#{interviewer.email}> ", user_path(owner), class: "font-bold text-blue hover:underline ml-1" %>
-      <% end %>
-      <p class="ml-1"> as <%= "interviewer".pluralize(interviewers.count) %>.</p>
-    </div>
+<div class="flex justify-start">
+    <%= user_card_tag owner, class: "font-bold" %>
+    <span class="mx-1">assigned</span>
+    <% interviewers.each do |interviewer| %>
+      <%= user_card_tag interviewer, class: "font-bold mx-1 bg-gray-200" %>
+    <% end %>
+    <span class="mx-1">as <%= "interviewer".pluralize(interviewers.count) %> of </span>
+    <%= interview_link_tag interview %>
 </div>

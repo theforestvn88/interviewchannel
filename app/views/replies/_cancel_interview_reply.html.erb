@@ -1,6 +1,5 @@
 <div class="w-full flex justify-start">
-    <div><%= link_to owner.name, user_path(owner), class: "font-bold text-blue hover:underline" %> canceled the </div> 
-    <div class="px-1 font-bold text-blue-600" data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value="<%= card_interview_path(interview) %>">
-        <%= link_to "interview##{interview.id}@round#{interview.round}.", interview_path(interview), data: {turbo_frame: "home-content"}, class: "bg-red-200 font-bold text-blue-600 ml-1" %>
-    </div>
+    <%= user_card_tag owner, class: "font-bold" %>
+    <span class="mx-1">canceled the</span> 
+    <%= interview_link_tag interview %>
 </div>

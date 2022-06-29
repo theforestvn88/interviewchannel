@@ -2,13 +2,20 @@
     <%= turbo_stream_from round %>
     <div class="relative text-xs border border-gray-300 rounded-md p-2 bg-gray-50">
         <p><%= round.title %></p>
-        <p><%= "Round: #{round.round}" %></p>
-        <p>Interviewers: 
-            <% round.interviewers.each do |interviewer| %>
-                <span class="font-bold"><%= interviewer.name %></span><span class="mr-1"><%= "<#{interviewer.email}>, " %></span>
-            <% end %>
-        </p>
-        <p>Candidate: <span class="font-bold"><%= round.candidate.name %></span><span class="ml-1"><%= round.candidate.email %></span></p>
+        <p>Round: <span class="font-bold"><%= round.round %></span></p>
+
+        <div class="flex justify-start">
+          <span class="mr-1">Interviewers: </span>
+          <% round.interviewers.each do |interviewer| %>
+            <%= user_card_tag interviewer, class: "font-bold mx-1 bg-gray-200" %>
+          <% end %>
+        </div>
+
+        <div class="flex justify-start">
+          <span class="mr-1">Candidate: </span>
+          <%= user_card_tag round.candidate, class: "font-bold mx-1 bg-gray-200" %>
+        </div>
+
         <% if round.owner?(current_user) %>
             <%= link_to "edit", edit_interview_path(round), data: {"turbo-frame": "modal"}, class: "absolute top-1 right-2 text-blue-600 underline" %>
         <% end %>

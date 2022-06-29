@@ -6,20 +6,23 @@
       class: "text-left hover:underline mb-3",
       form: { id: "form_inbox" } %>
 
-    <p class="underline"
-      data-controller="card" 
-      data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" 
-      data-card-url-value=<%= card_user_path(applying.candidate)%>
-    >
-      <%= link_to applying.candidate.name, profile_user_path(applying.candidate), data: {turbo: false}, class: "font-bold hover:text-blue-600" %> applied the <span class="font-bold">job message #<%= applying.message_id %></span>
-      <span><%= apply_time %></span>
-    </p>
+    <div class="rounded-md border border-gray-200 text-xs p-5 relative">
+      <p class="absolute top-0 right-1 font-light"><%= apply_time %></p>
+
+      <div class="flex justify-start text-xs">
+        <%= user_card_tag applying.candidate, class: "font-bold" %>
+        <span class="mx-1">applied to the</span>
+        <%= job_link_tag applying.message_id, class: "font-bold" %>
+      </div>
+
+      <div class="text-xs my-2">
+        <p><%= applying.intro %></p>
+      </div>
+    </div>
 
     <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
         <li class="py-2 ml-4">
-            <div class="text-xs w-full">
-                <p><%= applying.intro %></p>
-            </div>
+
         </li>
 
         <%= turbo_frame_tag "replies-#{applying.id}" do %>
