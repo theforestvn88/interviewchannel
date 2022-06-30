@@ -41,6 +41,14 @@ class ApplyingsController < ApplicationController
     def close
         if @applying.control_by?(current_user)
             @applying.update_columns open: false
+
+            @messager.create_and_send_private_reply(
+              applying: @applying, 
+              sender_id: current_user.id, 
+              partial: "replies/close_applying_reply", 
+              locals: { timezone: current_user.curr_timezone },
+              flash: "")
+
             render layout: false
         else
             head :no_content

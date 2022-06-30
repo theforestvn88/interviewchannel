@@ -62,7 +62,7 @@ class InterviewsController < ApplicationController
             applying: applying, 
             sender_id: current_user.id, 
             partial: "replies/create_interview_reply", 
-            locals: {interview: @interview, timezone: current_user.curr_timezone},
+            locals: {interview: @interview, owner: current_user, timezone: current_user.curr_timezone},
             flash: "I scheduled the interview. Good Luck!")
         end
 
@@ -156,6 +156,15 @@ class InterviewsController < ApplicationController
                   owner: current_user
                 },
                 flash: "")
+            end
+
+            if @change_time
+              @messager.create_and_send_private_reply(
+                applying: applying, 
+                sender_id: current_user.id, 
+                partial: "replies/update_time_interview_reply", 
+                locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
+                flash: "")               
             end
           end
         end
@@ -334,5 +343,9 @@ class InterviewsController < ApplicationController
     def convert_time
       interview_params[:start_time] = interview_params[:start_time].in_time_zone(current_user.curr_timezone).utc if interview_params.has_key?(:start_time)
       interview_params[:end_time] = interview_params[:end_time].in_time_zone(current_user.curr_timezone).utc if interview_params.has_key?(:end_time)
+      @change_time = @interview.present? && (
+                        (interview_params[:start_time].present? && interview_params[:start_time] != @interview.start_time) ||
+                        (interview_params[:end_time].present? && interview_params[:end_time] != @interview.end_time)
+                      )
     end
 end
