@@ -3,6 +3,15 @@ module InterviewsHelper
     (interview.finished? or interview.canceled?) ? "[#{interview.state.upcase}]" : "";
   end
 
+  def interview_fuid(interview, format: :long)
+    case format
+    when :long
+      show_state(interview) + "job##{interview.job_id}round##{interview.round}@#{interview.candidate.name}<#{interview.candidate.email}>"
+    when :short
+      "job##{interview.job_id}round##{interview.round}@u#{interview.candidate_id}"
+    end
+  end
+
   def interview_link_tag(interview, **options)
     tag.div(
       **options,

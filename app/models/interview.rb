@@ -135,4 +135,12 @@ class Interview < ApplicationRecord
     def timeline
         [self] + self.rounds.sort_by(&:round)
     end
+
+    def job_id
+      @job_id ||= applying.message_id
+    end
+
+    def job
+      @job ||= applying.message
+    end
 end

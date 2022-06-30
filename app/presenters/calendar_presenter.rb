@@ -6,17 +6,17 @@ class CalendarPresenter
     @scheduler = scheduler
   end
 
+
   def interview_daily_display(interview, user_timezone)
     start_time_in_min = interview.start_time_minutes(user_timezone)
     end_time_in_min = interview.end_time_minutes(user_timezone)
-    state = show_state(interview)
 
     {
       id: interview.id,
       is_owner: @scheduler.owner?(interview),
       top: (start_time_in_min%60) * 100 / 60,
       height: (end_time_in_min - start_time_in_min)/6,
-      text: state + interview.title + "...",
+      text: interview_fuid(interview),
       color: "gray" # TODO: base on tags
     }
   end
@@ -34,14 +34,13 @@ class CalendarPresenter
   def interview_weekly_display(interview, user_timezone)
     start_time_in_min = interview.start_time_minutes(user_timezone)
     end_time_in_min = interview.end_time_minutes(user_timezone)
-    state = show_state(interview)
 
     {
       id: interview.id,
       is_owner: @scheduler.owner?(interview),
       top: (start_time_in_min%60) * 100 / 60,
       height: (end_time_in_min - start_time_in_min)/6,
-      text: state + interview.title.slice(0, 28) + "...",
+      text: interview_fuid(interview, format: :short),
       color: "gray" # TODO: base on tags
     }
   end
@@ -62,13 +61,11 @@ class CalendarPresenter
   end
 
   def interview_monthly_display(interview, user_timezone)
-    state = show_state(interview)
-
     {
       id: interview.id,
       is_owner: @scheduler.owner?(interview),
       top: interview.start_time.in_time_zone(user_timezone).hour * 3,
-      text: state + interview.title.slice(0, 17) + "...",
+      text: interview_fuid(interview, format: :short),
       color: "gray" # TODO: base on tags
     }
   end

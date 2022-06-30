@@ -6,11 +6,10 @@
         data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
         data-card-url-value="<%= card_interview_path(interview) %>"
         droppable="false">
-        <% if action == :create  or action == :update %>
+        <% if action == :create or action == :update %>
             <%= turbo_stream_from interview %>
         <% end %>
-        
-        <%= link_to text, interview_path(interview), data: {"turbo": "false"}, class: "text-xs hover:text-blue-600", "draggable": "false", "droppable": "false" %>
+        <%= link_to text, interview_path(interview), data: {turbo_frame: "home-content"}, class: "bg-red-200 text-xs hover:text-blue-600", "draggable": "false", "droppable": "false" %>
         <%= render template: "interviews/card", locals: {timezone: timezone, tz_offset: tz_offset, interview: interview} %>
     </div>
     <% if is_owner %>
