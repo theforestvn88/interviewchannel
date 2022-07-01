@@ -1,5 +1,5 @@
 class MessagesController < ApplicationController
-  before_action :ensure_user_signed_in, except: %i[ index query ]
+  before_action :ensure_user_signed_in, except: %i[ index query show ]
   before_action :set_message, only: %i[ show edit update destroy ]
 
   # GET /messages or /messages.json

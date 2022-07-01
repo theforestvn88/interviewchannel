@@ -36,6 +36,8 @@ class Message < ApplicationRecord
   end
 
   def applied_by?(user)
+    return false if user.nil?
+    
     Applying.where(message_id: self.id, candidate_id: user.id).first.present?
   end
 
