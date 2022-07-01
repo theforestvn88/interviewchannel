@@ -4,6 +4,10 @@ export default class extends Controller {
     static targets = ["card"]
     static values = { url: String }
 
+    connect() {
+      this.hidden = true
+    }
+
     show() {
         if (this.hasCardTarget) {
             this.showCard(this.cardTarget)
@@ -16,15 +20,23 @@ export default class extends Controller {
                     .then((html) => {
                         const fragment = document.createRange().createContextualFragment(html)
                         this.element.appendChild(fragment)
-                        if (this.hidden) this.hide()
+                        if (!this.hidden) this.hide()
                     });
             }
         }
     }
 
-    hide() {
+    hide(e) {
         const card = this.hasCardTarget ? this.cardTarget : this.existedCard()
         this.hideCard(card)
+    }
+
+    lostFocus(e) {
+      if (e && this.element.contains(e.target)) {
+        return
+      }
+
+      this.hide(e)
     }
 
     existedCard() {
@@ -46,5 +58,19 @@ export default class extends Controller {
         if (this.hasCardTarget) {
             this.cardTarget.remove()
         }
+    }
+
+    toggle(e) {
+      if (this.hasCardTarget) {
+        e.preventDefault();
+
+        if (this.hidden) {
+          this.showCard(this.cardTarget)
+        } else {
+          this.hideCard(this.cardTarget)
+        }
+
+        
+      }
     }
 }

@@ -16,7 +16,11 @@ class MessagesController < ApplicationController
     @tag = params[:tag]
     case @tag
     when "#inbox"
-      @messages = @messager.inbox_messages(current_user, offset_time: offset_time, limit: limit)
+      @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
+      @jobids, @users = PrivateMessageRepo.filter by_user: current_user
+      @filter_jobid = params.dig(:filter, :job)
+      @filter_userid = params.dig(:filter, :user, :id)
+      @filter_username = params.dig(:filter, :user, :name)
       @template = "messages/inbox"
     when "#sent"
       @messages = @messager.own_by_me(offset_time: offset_time, limit: limit)

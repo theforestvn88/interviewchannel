@@ -24,10 +24,16 @@ class Messager
             MessageRepo.query(by_user: @user, by_time: @one_month_ago_utc..offset_time, limit: limit)
         end
 
-        def inbox_messages(user, offset_time: Time.now.utc, limit: PAGE)
+        def inbox_messages(user, filter: {}, offset_time: Time.now.utc, limit: PAGE)
             return [] if user.nil?
 
-            PrivateMessageRepo.query(by_user: user, by_time: @one_month_ago_utc..offset_time, limit: limit)
+            PrivateMessageRepo.query(
+              by_user: user,
+              by_user_id: filter.dig(:user, :id).to_i, 
+              by_job: filter[:job].to_i, 
+              by_time: @one_month_ago_utc..offset_time, 
+              limit: limit
+            )
         end
     end
 end
