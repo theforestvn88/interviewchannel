@@ -1,0 +1,17 @@
+<% chatroom = "chatroom_#{private_chat_channel}" %>
+<template data-controller="chat" data-chat-room-value="<%= chatroom %>">
+  <%= turbo_frame_tag chatroom do %>
+    <div class="relative p-2">
+      <p class="inline-block bg-blue-200 px-1"><%= private_chat_room_name %></p>
+
+      <%= turbo_stream_from private_chat_channel %>
+      <div id="<%= private_chat_channel %>" class="max-h-56 overflow-auto bg-gray-50 mt-2 mb-5">
+      </div>
+
+      <%= form_with(url: send_private_chat_user_path(receiver_id), class: "sticky bottom-0 left-0 flex justify-end text-xs") do |f| %>
+          <%= f.text_field :message, class: "block shadow rounded-md border border-gray-500 outline-none w-full h-5" %>
+          <%= f.submit "send", class: "ml-1 hover:cursor-pointer hover:underline" %>
+      <% end %>
+    </div>
+  <% end %>
+</template>

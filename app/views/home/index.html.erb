@@ -1,7 +1,7 @@
 <div class="w-full m-5">
   <%= render 'layouts/header' %>
 
-  <div class="w-full flex justify-between">
+  <div class="w-full flex justify-between relative">
     <% if user_signed_in? %>
 
       <%= turbo_stream_from :messages %>
@@ -11,7 +11,12 @@
         <%= render 'messages/summary' %>
       </div>
     <% end %>
-    
+
     <%= render template: 'messages/index' %>
   </div>
+
+    <div class="sticky float-right bottom-1 w-1/5 bg-red-200 text-xs relative">
+  <%= turbo_frame_tag "chat-rooms" do %>
+  <% end %>
+    </div>
 </div>

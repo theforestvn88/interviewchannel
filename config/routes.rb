@@ -21,6 +21,8 @@ Rails.application.routes.draw do
       get 'edit_profile'
       post 'add_watch_tag'
       post 'remove_watch_tag'
+      get 'private_chat'
+      post 'send_private_chat'
     end
   end
 

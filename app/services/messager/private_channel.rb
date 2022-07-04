@@ -83,8 +83,59 @@ class Messager
             self
         end
 
+        def establish_private_chat_form(to_user_id:)
+          Turbo::StreamsChannel.broadcast_append_to(
+            private_channel,
+            target: "chat-rooms", 
+            partial: "users/private_chat_form",
+            locals: {
+              sender_id: @user.id, 
+              receiver_id: to_user_id,
+              private_chat_channel: private_chat_room_id(@user.id, to_user_id),
+              private_chat_room_name: @user.name,
+              show: true
+            }
+          )
+
+          Turbo::StreamsChannel.broadcast_append_to(
+            private_channel_from_user_id(to_user_id),
+            target: "chat-rooms", 
+            partial: "users/private_chat_form",
+            locals: {
+              sender_id: to_user_id, 
+              receiver_id: @user.id,
+              private_chat_channel: private_chat_room_id(@user.id, to_user_id),
+              private_chat_room_name: @user.name,
+              show: false
+            }
+          )
+
+          self
+        end
+
+        def send_private_chat_message(message, to_user_id:)
+          private_chat_channel = private_chat_room_id(@user.id, to_user_id)
+
+          Turbo::StreamsChannel.broadcast_append_to(
+              private_chat_channel,
+              target: private_chat_channel, 
+              partial: "users/private_chat_message",
+              locals: {
+                message: message,
+                sender: @user 
+              }
+          )
+
+          self
+        end
+
         private def private_channel_format(uid, email) # TODO: encrypt ???
             "%s-%s" % [uid, email]
+        end
+
+        private def private_chat_room_id(sender_id, receiver_id)
+          x, y = [sender_id, receiver_id].sort
+          "private_chat_#{x}_#{y}"
         end
     end
 end
