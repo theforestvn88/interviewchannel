@@ -1,4 +1,4 @@
-<%= link_to message_path(message), id: dom_id(message), class: "text-sm", data: {"turbo-frame": "home-content"} do %>
+<%= button_to message_path(message), id: dom_id(message), method: :get, class: "text-left text-sm", data: {"turbo-frame": "home-content"} do %>
   <div class="flex justify-start mb-3">
   
     <% applying_count = message.applyings.size %>
@@ -17,10 +17,13 @@
             <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
           <% end %>
         </p>
-        <p class="text-xs">
-          <span data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value=<%= card_user_path(message.owner) %>>
-          by <%= message.owner.name %> | <%= distance_of_time_in_words(message.created_at, Time.now.utc) %> ago | <%= message.views %> <%= 'view'.pluralize(message.views) %> </span>
-        </p>
+        <div class="flex justify-start text-xs">
+          <%= user_card_tag message.owner, format: "by %s" %>
+          <span class="mx-1"> | </span>
+          <span>
+            <%= distance_of_time_in_words(message.created_at, Time.now.utc) %> ago | <%= message.views %> <%= 'view'.pluralize(message.views) %> 
+          </span>
+        </div>
       </div>
       <%= turbo_stream_from message %>
     <% end %>

@@ -20,6 +20,7 @@ export default class extends Controller {
                     .then((html) => {
                         const fragment = document.createRange().createContextualFragment(html)
                         this.element.appendChild(fragment)
+                        this.setupCard()
                         if (!this.hidden) this.hide()
                     });
             }
@@ -27,8 +28,16 @@ export default class extends Controller {
     }
 
     hide(e) {
+        if (this.cardFocus) return;
+
         const card = this.hasCardTarget ? this.cardTarget : this.existedCard()
         this.hideCard(card)
+    }
+
+    delayHide(e) {
+      setTimeout(() => {
+        this.hide(e);
+      }, 500);
     }
 
     lostFocus(e) {
@@ -37,6 +46,18 @@ export default class extends Controller {
       }
 
       this.hide(e)
+    }
+
+    setupCard() {
+      if (this.hasCardTarget) {
+        this.cardTarget.addEventListener('mouseenter', e => {
+          this.cardFocus = true;
+        });
+
+        this.cardTarget.addEventListener('mouseleave', e => {
+          this.cardFocus = false;
+        });
+      }
     }
 
     existedCard() {
@@ -69,8 +90,6 @@ export default class extends Controller {
         } else {
           this.hideCard(this.cardTarget)
         }
-
-        
       }
     }
 }
