@@ -1,17 +1,29 @@
 <% chatroom = "chatroom_#{private_chat_channel}" %>
-<template data-controller="chat" data-chat-room-value="<%= chatroom %>">
+<template data-controller="chatform" data-chatform-room-value="<%= chatroom %>">
   <%= turbo_frame_tag chatroom do %>
-    <div class="relative p-2">
-      <p class="inline-block bg-blue-200 px-1"><%= private_chat_room_name %></p>
+    <div class="relative border border-blue-400"
+      data-controller="chatroom"
+      data-chatroom-open-value="<%= show %>">
 
-      <%= turbo_stream_from private_chat_channel %>
-      <div id="<%= private_chat_channel %>" class="max-h-56 overflow-auto bg-gray-50 mt-2 mb-5">
+      <div class="flex justify-between bg-blue-200">
+        <p class="p-1 hover:cursor-pointer"
+          data-action="click->chatroom#toggle">
+          Messages from <%= private_chat_room_name %>
+        </p>
+        <button data-action="chatroom#close" class="text-lg px-1 hover:cursor-pointer hover:bg-red-400">✗</button>
       </div>
 
-      <%= form_with(url: send_private_chat_user_path(receiver_id), class: "sticky bottom-0 left-0 flex justify-end text-xs") do |f| %>
-          <%= f.text_field :message, class: "block shadow rounded-md border border-gray-500 outline-none w-full h-5" %>
-          <%= f.submit "send", class: "ml-1 hover:cursor-pointer hover:underline" %>
-      <% end %>
+
+      <div data-chatroom-target="form" class="<%= show ? '' : 'hidden' %> p-1">
+        <%= turbo_stream_from private_chat_channel %>
+        <div id="<%= private_chat_channel %>" class="max-h-56 overflow-auto bg-gray-50 my-2">
+        </div>
+
+        <%= form_with(url: send_private_chat_user_path(receiver_id), class: "sticky bottom-0 left-0 flex justify-end text-xs") do |f| %>
+            <%= f.text_field :message, autocomplete: "off", class: "block shadow rounded-md border border-gray-500 outline-none w-full h-5" %>
+            <%= f.submit "send", class: "ml-1 hover:cursor-pointer hover:underline" %>
+        <% end %>
+      </div>
     </div>
   <% end %>
 </template>

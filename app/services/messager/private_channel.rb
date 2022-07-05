@@ -114,17 +114,19 @@ class Messager
         end
 
         def send_private_chat_message(message, to_user_id:)
-          private_chat_channel = private_chat_room_id(@user.id, to_user_id)
-
-          Turbo::StreamsChannel.broadcast_append_to(
-              private_chat_channel,
-              target: private_chat_channel, 
-              partial: "users/private_chat_message",
-              locals: {
-                message: message,
-                sender: @user 
-              }
-          )
+          toChannels = [private_channel, private_channel_from_user_id(to_user_id)].uniq
+          toChannels.each do |toChannel|
+            Turbo::StreamsChannel.broadcast_append_to(
+                toChannel,
+                target: "chat-rooms", 
+                partial: "users/private_chat_message",
+                locals: {
+                  message: message,
+                  sender: @user,
+                  private_chat_channel: private_chat_room_id(@user.id, to_user_id)
+                }
+            )
+          end
 
           self
         end
