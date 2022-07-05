@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_28_123204) do
+ActiveRecord::Schema.define(version: 2022_07_05_133737) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,15 @@ ActiveRecord::Schema.define(version: 2022_06_28_123204) do
     t.index ["interview_id", "user_id"], name: "index_assignments_on_interview_id_and_user_id", unique: true
     t.index ["interview_id"], name: "index_assignments_on_interview_id"
     t.index ["user_id"], name: "index_assignments_on_user_id"
+  end
+
+  create_table "contacts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "friend_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["friend_id"], name: "index_contacts_on_friend_id"
+    t.index ["user_id"], name: "index_contacts_on_user_id"
   end
 
   create_table "interviews", force: :cascade do |t|
@@ -111,6 +120,8 @@ ActiveRecord::Schema.define(version: 2022_06_28_123204) do
   add_foreign_key "applyings", "messages"
   add_foreign_key "applyings", "users", column: "candidate_id"
   add_foreign_key "applyings", "users", column: "interviewer_id"
+  add_foreign_key "contacts", "users"
+  add_foreign_key "contacts", "users", column: "friend_id"
   add_foreign_key "interviews", "applyings"
   add_foreign_key "interviews", "interviews", column: "head_id"
   add_foreign_key "interviews", "users", column: "candidate_id"

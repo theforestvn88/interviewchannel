@@ -10,6 +10,9 @@ class User < ApplicationRecord
            :inverse_of => :owner,
            :dependent => :destroy
 
+  has_many :contacts
+  has_many :friends, through: :contacts, source: :friend
+
   validate :validate_social_links
 
   scope :suggest, ->(keyword) {
