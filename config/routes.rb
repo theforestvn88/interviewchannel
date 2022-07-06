@@ -23,6 +23,8 @@ Rails.application.routes.draw do
       post 'remove_watch_tag'
       get 'private_chat'
       post 'send_private_chat'
+      post 'add_contact'
+      post 'remove_contact'
     end
   end
 

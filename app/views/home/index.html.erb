@@ -9,14 +9,16 @@
         <%= render 'interviews/summary' %>
         <hr class="my-2">
         <%= render 'messages/summary' %>
+        <hr class="my-2">
+        <%= render partial: 'users/contacts_list', locals: {user: current_user} %>
       </div>
     <% end %>
 
     <%= render template: 'messages/index' %>
   </div>
 
-    <div class="sticky float-right bottom-1 w-1/5 bg-red-200 text-xs relative">
-  <%= turbo_frame_tag "chat-rooms" do %>
-  <% end %>
-    </div>
+  <div class="sticky float-right bottom-1 w-1/5 bg-red-200 text-xs relative">
+      <%= turbo_frame_tag "chat-rooms" do %>
+      <% end %>
+  </div>
 </div>

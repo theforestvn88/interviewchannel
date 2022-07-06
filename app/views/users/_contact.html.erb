@@ -1,0 +1,6 @@
+<div id="<%= contact_view_id(user) %>" class="flex justify-between my-2 hover:bg-blue-200 text-sm">
+  <%= user_card_tag user, format: "@%s", class: "hover:cursor-pointer hover:underline" %>
+  <%= button_to "-", remove_contact_user_path(user),
+        class: "text-md px-2 z-10 hover:bg-red-300", title: "remove contact",
+        form: {data: {turbo_confirm: "are you sure ?"}} %>
+</div>

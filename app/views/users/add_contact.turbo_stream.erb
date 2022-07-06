@@ -1,0 +1,3 @@
+<%= turbo_stream.append contacts_list_frame_id(current_user) do %>
+  <%= render partial: "users/contact", locals: {user: @user} %>
+<% end %>
