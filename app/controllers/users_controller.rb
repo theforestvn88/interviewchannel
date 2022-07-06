@@ -2,7 +2,7 @@
 
 class UsersController < ApplicationController
     before_action :require_user_signed_in, except: [:card]
-    before_action :get_user, only: [:card, :private_chat, :send_private_chat, :add_contact, :remove_contact]
+    before_action :get_user, only: [:card, :private_chat, :send_private_chat]
     before_action :allow_only_current_user, only: [:edit_profile, :update_profile, :add_watch_tag, :remove_watch_tag]
 
     def suggest
@@ -81,35 +81,6 @@ class UsersController < ApplicationController
       @messager.send_private_chat_message(@message, to_user_id: @user.id)
 
       head :no_content
-    end
-
-    def add_contact
-      @contact = Contact.new(user: current_user, friend: @user)
-      respond_to do |format|
-        begin
-          if @contact.save
-            format.turbo_stream { }
-          else
-            @messager.send_error_flash(error: @contact.errors.first.full_message)
-            head :no_content
-          end
-        rescue
-          @messager.send_error_flash(error: "Could Not Add Contact!")
-          head :no_content
-        end
-      end
-    end
-
-    def remove_contact
-      @contact = Contact.find_by(user: current_user, friend: @user)
-      respond_to do |format|
-        if @contact && @contact.destroy
-          format.turbo_stream { }
-        else
-          @messager.send_error_flash(error: "Could Not Remove Contact!")
-          head :no_content
-        end
-      end
     end
 
     private

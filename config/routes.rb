@@ -21,12 +21,13 @@ Rails.application.routes.draw do
       get 'edit_profile'
       post 'add_watch_tag'
       post 'remove_watch_tag'
+
       get 'private_chat'
       post 'send_private_chat'
-      post 'add_contact'
-      post 'remove_contact'
     end
   end
+
+  resources :contacts
 
   resources :interviews do
     member do

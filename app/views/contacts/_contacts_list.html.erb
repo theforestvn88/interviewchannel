@@ -3,7 +3,7 @@
         <p class="font-bold underline underline-offset-4 mb-1">Contacts</p>
 
         <%= turbo_frame_tag contacts_list_frame_id(user) do %>
-          <%= render partial: "users/contact", collection: user.friends, as: :user %>
+          <%= render user.contacts %>
         <% end %>
     </div>
 </div>

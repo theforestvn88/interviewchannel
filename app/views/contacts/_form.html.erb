@@ -1,0 +1,25 @@
+<%= form_with(model: contact, class: "contents") do |form| %>
+  <% if contact.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+      <h2><%= pluralize(contact.errors.count, "error") %> prohibited this tag from being saved:</h2>
+
+      <ul>
+        <% contact.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :custom_name %>
+    <%= form.text_field :custom_name, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+  </div>
+
+  <%= form.hidden_field :user_id %>
+  <%= form.hidden_field :friend_id %>
+
+  <div class="inline">
+    <%= form.submit "Add Contact", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>
