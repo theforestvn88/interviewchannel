@@ -4,6 +4,15 @@ class ContactsController < ApplicationController
   before_action :require_user_signed_in
   before_action :set_contact, only: %i[ edit update destroy ]
 
+  def paging
+    @contacts = current_user.recently_contacts.offset(params[:offset]).limit(params[:limit] || PAGE)
+    @next_offset = @contacts.size >= PAGE ? params[:offset] + PAGE : nil
+
+    respond_to do |format|
+      format.turbo_stream { }
+    end
+  end
+
   def new
     unless Contact.exists?(user_id: current_user.id, friend_id: params[:friend_id])
       friend = User.find(params[:friend_id])
@@ -52,6 +61,8 @@ class ContactsController < ApplicationController
   end
 
   private
+
+    PAGE = 20
 
     def contact_params
       params.require(:contact).permit(:custom_name, :user_id, :friend_id)

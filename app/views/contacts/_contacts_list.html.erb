@@ -3,7 +3,11 @@
         <p class="font-bold underline underline-offset-4 mb-1">Contacts</p>
 
         <%= turbo_frame_tag contacts_list_frame_id(user) do %>
-          <%= render user.contacts %>
+          <%= render contacts %>
+        <% end %>
+
+        <%= turbo_frame_tag "load_more_contacts" do %>
+            <%= button_to "load more", paging_contacts_path(offset: contacts.size), class: "text-xs text-blue-600" %>
         <% end %>
     </div>
 </div>

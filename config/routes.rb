@@ -27,7 +27,11 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :contacts
+  resources :contacts, except: [:index] do
+    collection do
+      post 'paging'
+    end
+  end
 
   resources :interviews do
     member do

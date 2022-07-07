@@ -71,5 +71,9 @@ class User < ApplicationRecord
   def social_links
     social || {}
   end
+
+  def recently_contacts
+    contacts.recently
+  end
 end
 

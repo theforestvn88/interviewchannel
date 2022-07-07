@@ -17,6 +17,8 @@ class HomeController < ApplicationController
         _tag = tag.strip.downcase
         [_tag, @messager.count_by_tag(_tag)]
       }.unshift(["#all", @messager.count_all])
+
+      @recently_contacts = current_user.recently_contacts.limit(20)
     end
   end
 
