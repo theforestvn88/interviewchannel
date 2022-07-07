@@ -5,12 +5,20 @@ class ContactsController < ApplicationController
   before_action :set_contact, only: %i[ edit update destroy ]
 
   def paging
-    @contacts = current_user.recently_contacts.offset(params[:offset]).limit(params[:limit] || PAGE)
-    @next_offset = @contacts.size >= PAGE ? params[:offset] + PAGE : nil
+    @contacts = current_user.recently_contacts.offset(params[:offset].to_i).limit(params[:limit] || PAGE)
+    @next_offset = @contacts.size >= PAGE ? params[:offset].to_i + PAGE : nil
 
     respond_to do |format|
       format.turbo_stream { }
     end
+  end
+
+  def search
+    @contacts = current_user.recently_contacts
+    @contacts = @contacts.where("custom_name ILIKE ?", "%#{params[:key]}%") if params[:key].present?
+    @contacts = @contacts.offset(0).limit(PAGE)
+
+    render layout: false
   end
 
   def new

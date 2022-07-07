@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   resources :contacts, except: [:index] do
     collection do
       post 'paging'
+      get 'search'
     end
   end
 

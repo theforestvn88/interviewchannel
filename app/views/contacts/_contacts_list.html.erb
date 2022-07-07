@@ -1,6 +1,9 @@
 <div class="py-2 bg-zinc-100">
-    <div class="container mx-auto pl-4 pr-2">
-        <p class="font-bold underline underline-offset-4 mb-1">Contacts</p>
+    <div class="container mx-auto pl-4 pr-2 ">
+        <div class="w-full relative mb-4">
+          <p class="font-bold underline underline-offset-4 mb-1">Contacts</p>
+          <%= searching_tag search_contacts_path, contacts_list_frame_id(user), class: "absolute right-0 top-0" %>
+        </div>
 
         <%= turbo_frame_tag contacts_list_frame_id(user) do %>
           <%= render contacts %>
