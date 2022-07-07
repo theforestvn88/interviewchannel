@@ -18,8 +18,4 @@ module UsersHelper
   def contacts_list_frame_id(user)
     "user-#{user.id}-contacts"
   end
-
-  def contact_view_id(user_id)
-    "contact-#{user_id}"
-  end
 end

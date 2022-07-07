@@ -8,12 +8,12 @@ export default class extends Controller {
       this.hidden = true
     }
 
-    show() {
+    show(e) {
         if (this.hasCardTarget) {
-            this.showCard(this.cardTarget)
+            this.forceShow(e, this.cardTarget)
         } else if (this.urlValue) {
             if (this.existedCard()) {
-                this.showCard(this.existedCard())
+                this.forceShow(e, this.existedCard())
             } else {
                 fetch(this.urlValue)
                     .then((r) => r.text())
@@ -31,7 +31,7 @@ export default class extends Controller {
         if (this.cardFocus) return;
 
         const card = this.hasCardTarget ? this.cardTarget : this.existedCard()
-        this.hideCard(card)
+        this.forceHide(e, card)
     }
 
     delayHide(e) {
@@ -65,20 +65,14 @@ export default class extends Controller {
         return this.byUrlCard
     }
 
-    showCard(card) {
+    forceShow(e, card = this.cardTarget) {
         if (card) card.classList.remove("hidden")
         this.hidden = false
     }
 
-    hideCard(card) {
+    forceHide(e, card = this.cardTarget) {
         if (card) card.classList.add("hidden")
         this.hidden = true
-    }
-
-    disconnect() {
-        if (this.hasCardTarget) {
-            this.cardTarget.remove()
-        }
     }
 
     toggle(e) {
@@ -86,10 +80,16 @@ export default class extends Controller {
         e.preventDefault();
 
         if (this.hidden) {
-          this.showCard(this.cardTarget)
+          this.forceShow(e, this.cardTarget)
         } else {
-          this.hideCard(this.cardTarget)
+          this.forceHide(e, this.cardTarget)
         }
       }
+    }
+
+    disconnect() {
+        if (this.hasCardTarget) {
+            this.cardTarget.remove()
+        }
     }
 }

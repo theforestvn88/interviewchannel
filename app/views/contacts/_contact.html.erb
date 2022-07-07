@@ -1,6 +1,17 @@
-<div id="<%= contact_view_id(contact.friend_id) %>" class="flex justify-between my-2 hover:bg-blue-200 text-sm">
-  <%= user_card_tag user_id: contact.friend_id, user_name: contact.custom_name, class: "hover:cursor-pointer hover:underline" %>
-  <%= button_to "-", contact_path(contact, friend_id: contact.friend_id), method: :delete,
-        class: "text-md px-2 z-10 hover:bg-red-300", title: "remove contact",
-        form: {data: {turbo_confirm: "are you sure ?"}} %>
-</div>
+<%= turbo_frame_tag contact do %>
+  <div class="flex justify-between my-2 hover:bg-blue-200 text-sm">
+    <%= user_card_tag user_id: contact.friend_id, user_name: contact.custom_name, class: "hover:cursor-pointer hover:underline" %>
+
+    <div class="flex justify-end">
+      <%= link_to "/", 
+            edit_contact_path(contact, friend_id: contact.friend_id),
+            data: {turbo_frame: :modal},
+            class: "text-md px-2 z-10 hover:bg-red-300",
+            title: "edit contact" %>
+
+      <%= button_to "-", contact_path(contact, friend_id: contact.friend_id), method: :delete,
+            class: "text-md px-2 z-10 hover:bg-red-300", title: "remove contact",
+            form: {data: {turbo_confirm: "are you sure ?"}} %>
+    </div>
+  </div>
+<% end %>

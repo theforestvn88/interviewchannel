@@ -5,9 +5,14 @@ class ContactsController < ApplicationController
   before_action :set_contact, only: %i[ edit update destroy ]
 
   def new
-    friend = User.find( params[:friend_id])
-    @contact = Contact.new(user_id: current_user.id, friend_id: friend.id, custom_name: "@#{friend.name}")
-    render layout: false
+    unless Contact.exists?(user_id: current_user.id, friend_id: params[:friend_id])
+      friend = User.find(params[:friend_id])
+      @contact = Contact.new(user_id: current_user.id, friend_id: friend.id, custom_name: "@#{friend.name}")
+      render layout: false
+    else
+      @messager.send_error_flash(error: "The Contact already Exists!")
+      head :no_content
+    end
   end
 
   def edit
@@ -30,7 +35,7 @@ class ContactsController < ApplicationController
   def update
     respond_to do |format|
       begin
-        @contact.update!(contact_params)
+        @contact.update!(contact_params.extract!(:custom_name))
         format.turbo_stream { }
       rescue
         @messager.send_error_flash(error: "Could Not Update Contact!")
@@ -53,6 +58,6 @@ class ContactsController < ApplicationController
     end
 
     def set_contact
-      @contact = Contact.find_by(user_id: current_user.id, friend_id: params[:friend_id])
+      @contact = Contact.find(params[:id])
     end
 end
