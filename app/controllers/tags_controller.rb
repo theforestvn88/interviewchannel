@@ -3,7 +3,7 @@ class TagsController < AdminController
   before_action :set_tag, only: %i[ show edit update destroy ]
 
   def suggest
-    search_key = params[:key]
+    search_key = params[:key].strip
     @tags = search_key.blank? ? [] : Tag.where("name ILIKE ?", "%#{search_key}%").first(6)
   end
 

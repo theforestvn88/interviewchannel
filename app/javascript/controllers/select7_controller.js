@@ -16,7 +16,7 @@ export default class extends Controller {
         }
 
         this.timeoutId = setTimeout(() => {
-            let searchKey = this.inputTarget.value.replaceAll(/[^\w]/g, '')
+            let searchKey = this.inputTarget.value
             let suggestQuery = this.suggestApiValue + `?key=${searchKey}`
             fetch(suggestQuery)
                 .then((r) => r.text())

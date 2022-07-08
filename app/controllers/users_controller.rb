@@ -9,7 +9,7 @@ class UsersController < ApplicationController
         if params[:key].empty?
             head :no_content
         else
-            @users = User.suggest(params[:key]).first(6)
+            @users = User.suggest(params[:key].strip).first(6)
             render layout: false
         end
     end
