@@ -5,4 +5,8 @@ class Contact < ApplicationRecord
   scope :recently, ->() {
     order(updated_at: :desc)
   }
+
+  scope :suggest, ->(key) {
+    where("custom_name ILIKE ?", "%#{key.strip}%")
+  }
 end

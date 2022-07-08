@@ -9,7 +9,8 @@ class UsersController < ApplicationController
         if params[:key].empty?
             head :no_content
         else
-            @users = User.suggest(params[:key].strip).first(6)
+            @users = current_user.contacts.includes(:friend).suggest(params[:key]).first(6).map(&:friend)
+            @users = User.suggest(params[:key].strip).first(6) if @users.blank?
             render layout: false
         end
     end
