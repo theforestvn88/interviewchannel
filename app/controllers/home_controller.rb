@@ -18,7 +18,7 @@ class HomeController < ApplicationController
         [_tag, @messager.count_by_tag(_tag)]
       }.unshift(["#all", @messager.count_all])
 
-      @recently_contacts = current_user.recently_contacts.limit(20)
+      @recently_contacts = current_user.recently_contacts.limit(10)
     end
   end
 

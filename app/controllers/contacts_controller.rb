@@ -70,7 +70,7 @@ class ContactsController < ApplicationController
 
   private
 
-    PAGE = 20
+    PAGE = 10
 
     def contact_params
       params.require(:contact).permit(:custom_name, :user_id, :friend_id)

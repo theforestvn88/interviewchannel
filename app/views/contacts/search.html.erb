@@ -1,1 +1,1 @@
-<%= render @contacts %>
+<%= render partial: "contacts/contacts_list", locals: {user: current_user, contacts: @contacts, loadmore: params[:key].blank?} %>

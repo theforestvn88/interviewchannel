@@ -10,7 +10,7 @@
         <hr class="my-2">
         <%= render 'messages/summary' %>
         <hr class="my-2">
-        <%= render partial: 'contacts/contacts_list', 
+        <%= render partial: 'contacts/contacts_component', 
             locals: {user: current_user, contacts: @recently_contacts} %>
       </div>
     <% end %>

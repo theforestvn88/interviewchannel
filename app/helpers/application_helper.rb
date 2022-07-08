@@ -51,7 +51,7 @@ module ApplicationHelper
           </svg>
 
           <div data-search-target="search" class="w-full flex justify-between z-10 hidden">
-            <input data-search-target="input" data-action="input->search#query" class="w-full mr-1">
+            <input data-search-target="input" data-action="input->search#query" class="w-full mr-1 px-1">
             <button data-action="search#collapse" class="text-lg px-1 hover:cursor-pointer hover:bg-red-400">✗</button>
           </div>
         </div>

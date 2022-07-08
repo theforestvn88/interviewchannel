@@ -26,6 +26,7 @@ export default class extends Controller {
 
     expand(e) {
       this.searchTarget.classList.remove("hidden")
+      this.inputTarget.focus()
       this.iconTarget.classList.add("hidden")
     }
 
