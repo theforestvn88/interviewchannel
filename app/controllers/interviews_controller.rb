@@ -107,6 +107,11 @@ class InterviewsController < ApplicationController
             locals: presenter.interview_monthly_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create))
         end
+
+        Contact.hit(current_user.id, @interview.candidate_id)
+        interview_params.dig(:interview, :assignments_attributes)&.map {|a| a["user_id"]}&.each do |user_id|
+          Contact.hit(current_user.id, user_id)
+        end
       else
         @messager.send_error_flash(error: @interview.errors.first.full_message)
 
@@ -222,6 +227,10 @@ class InterviewsController < ApplicationController
             partial: "interviews/timespan_monthly",
             locals: presenter.interview_monthly_display(@interview, timezone)
                       .merge(timezone: timezone, tz_offset: tz_offset, interview: @interview, action: :create, is_owner: @interview.owner?(user)))
+        end
+
+        new_assignments.each do |user_id|
+          Contact.hit(current_user.id, user_id)
         end
       else
         @messager.send_error_flash(error: @interview.errors.first.full_message)

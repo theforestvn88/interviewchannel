@@ -74,6 +74,8 @@ class UsersController < ApplicationController
 
     def private_chat
       @messager.establish_private_chat_form(to_user_id: @user.id)
+      Contact.hit(current_user.id, @user.id)
+      
       head :no_content
     end
 

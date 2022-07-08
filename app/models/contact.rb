@@ -9,4 +9,8 @@ class Contact < ApplicationRecord
   scope :suggest, ->(key) {
     where("custom_name ILIKE ?", "%#{key.strip}%")
   }
+
+  def self.hit(user_id, friend_id)
+    Contact.find_by(user_id: user_id, friend_id: friend_id)&.touch
+  end
 end

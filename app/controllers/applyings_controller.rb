@@ -30,6 +30,8 @@ class ApplyingsController < ApplicationController
                 )
                 .broadcast_replace(@message) # broadcast due to counter-cache update
 
+                Contact.hit(applying.candidate_id, applying.interviewer_id)
+
                 redirect_to message_url(@message)
             else
                 @messager.send_model_error_flash(applying)
