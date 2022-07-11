@@ -46,7 +46,8 @@ class ApplyingsController < ApplicationController
 
             @messager.create_and_send_private_reply(
               applying: @applying, 
-              sender_id: current_user.id, 
+              sender_id: current_user.id,
+              type: Reply::APPLY_TYPE, 
               partial: "replies/close_applying_reply", 
               locals: { timezone: current_user.curr_timezone },
               flash: "")

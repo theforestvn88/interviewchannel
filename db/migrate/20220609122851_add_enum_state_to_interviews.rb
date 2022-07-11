@@ -10,7 +10,7 @@ class AddEnumStateToInterviews < ActiveRecord::Migration[7.0]
   def down
     remove_column :interviews, :state
     execute <<-SQL
-      DROP TYPE interview_state;
+      DROP TYPE IF EXISTS interview_state;
     SQL
   end
 end

@@ -61,6 +61,7 @@ class InterviewsController < ApplicationController
           @messager.create_and_send_private_reply(
             applying: applying, 
             sender_id: current_user.id, 
+            type: Reply::INTERVIEW_TYPE,
             partial: "replies/create_interview_reply", 
             locals: {interview: @interview, owner: current_user, timezone: current_user.curr_timezone},
             flash: "I scheduled the interview. Good Luck!")
@@ -131,6 +132,7 @@ class InterviewsController < ApplicationController
             @messager.create_and_send_private_reply(
               applying: applying, 
               sender_id: current_user.id, 
+              type: Reply::INTERVIEW_TYPE,
               partial: "replies/cancel_interview_reply", 
               locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
               flash: "")            
@@ -139,6 +141,7 @@ class InterviewsController < ApplicationController
               @messager.create_and_send_private_reply(
                 applying: applying, 
                 sender_id: current_user.id, 
+                type: Reply::INTERVIEW_TYPE,
                 partial: "replies/remove_interviewers_reply", 
                 locals: {
                   interview: @interview, 
@@ -153,6 +156,7 @@ class InterviewsController < ApplicationController
               @messager.create_and_send_private_reply(
                 applying: applying, 
                 sender_id: current_user.id, 
+                type: Reply::ASSIGNMENT_TYPE,
                 partial: "replies/assign_interviewers_reply", 
                 locals: {
                   interview: @interview, 
@@ -166,7 +170,8 @@ class InterviewsController < ApplicationController
             if @change_time
               @messager.create_and_send_private_reply(
                 applying: applying, 
-                sender_id: current_user.id, 
+                sender_id: current_user.id,
+                type: Reply::INTERVIEW_TYPE, 
                 partial: "replies/update_time_interview_reply", 
                 locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
                 flash: "")               

@@ -54,11 +54,11 @@ class Messager
             self
         end
 
-        def create_and_send_private_reply(sender_id:, applying:, partial:, locals:, flash: nil)
+        def create_and_send_private_reply(sender_id:, applying:, type:, partial:, locals:, flash: nil)
             return if sender_id.nil? or applying.nil?
             
             content = ApplicationController.render(formats: [ :html ], partial: partial, locals: locals)
-            reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content, milestone: true)
+            reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content, milestone: type)
             if reply.save
                 send_private_reply(applying, reply, flash: flash, locals: locals)
             end

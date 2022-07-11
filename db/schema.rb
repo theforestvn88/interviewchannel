@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 2022_07_06_132558) do
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "interview_state", ["wait", "in_process", "finish", "canceled"]
+  create_enum "stone_type", ["comment", "interview", "assignment", "apply"]
 
   create_table "applyings", force: :cascade do |t|
     t.bigint "message_id", null: false
@@ -93,7 +94,7 @@ ActiveRecord::Schema.define(version: 2022_07_06_132558) do
     t.text "content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.boolean "milestone", default: false
+    t.enum "milestone", default: "comment", null: false, enum_type: "stone_type"
     t.index ["applying_id"], name: "index_replies_on_applying_id"
     t.index ["user_id"], name: "index_replies_on_user_id"
   end
