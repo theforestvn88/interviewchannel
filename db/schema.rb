@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_06_132558) do
+ActiveRecord::Schema.define(version: 2022_07_12_092101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,16 @@ ActiveRecord::Schema.define(version: 2022_07_06_132558) do
     t.string "custom_name", null: false
     t.index ["user_id", "friend_id"], name: "index_contacts_on_user_id_and_friend_id", unique: true
     t.index ["user_id"], name: "index_contacts_on_user_id"
+  end
+
+  create_table "engagings", force: :cascade do |t|
+    t.bigint "applying_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["applying_id", "user_id"], name: "index_engagings_on_applying_id_and_user_id", unique: true
+    t.index ["applying_id"], name: "index_engagings_on_applying_id"
+    t.index ["user_id"], name: "index_engagings_on_user_id"
   end
 
   create_table "interviews", force: :cascade do |t|
@@ -124,6 +134,8 @@ ActiveRecord::Schema.define(version: 2022_07_06_132558) do
   add_foreign_key "applyings", "users", column: "interviewer_id"
   add_foreign_key "contacts", "users"
   add_foreign_key "contacts", "users", column: "friend_id"
+  add_foreign_key "engagings", "applyings"
+  add_foreign_key "engagings", "users"
   add_foreign_key "interviews", "applyings"
   add_foreign_key "interviews", "interviews", column: "head_id"
   add_foreign_key "interviews", "users", column: "candidate_id"
