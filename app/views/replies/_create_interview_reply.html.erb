@@ -3,3 +3,7 @@
     <span class="mx-1">scheduled the</span> 
     <%= interview_link_tag interview %>
 </div>
+
+<% if (interviewers = interview.interviewers).present? %>
+  <%= render partial: "replies/cc", locals: {users: interviewers} %>
+<% end %>

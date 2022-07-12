@@ -3,7 +3,9 @@
 class PrivateMessageRepo
     class << self
         def query(by_user:, by_time:, limit:, by_user_id: nil, by_job: nil)
-          query_applyings = Applying.by_updated_time(by_time).by_user_id(by_user_id > 0 ? by_user_id : by_user.id)
+          query_applyings = Applying
+                              .by_updated_time(by_time)
+                              .engaged(by_user_id > 0 ? by_user_id : by_user.id)
           query_applyings = query_applyings.by_job(by_job) if by_job > 0
           query_applyings.limit(limit)
         end

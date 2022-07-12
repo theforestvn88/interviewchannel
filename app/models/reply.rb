@@ -16,6 +16,10 @@ class Reply < ApplicationRecord
     apply: APPLY_TYPE
   }, _suffix: true
 
+  scope :cc, ->(user) {
+    where("content LIKE ?", "%#{user.name}%")
+  }
+
   def time_milestone?
     !comment_milestone?
   end

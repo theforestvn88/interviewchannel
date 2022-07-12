@@ -11,7 +11,7 @@
 
     <div class="ml-4 py-2">
     <%= turbo_frame_tag "replies-#{applying.id}" do %>
-      <% if last_reply = applying.replies.last %>
+      <% if last_reply = applying.last_replies(to_user: user) %>
         <p>...</p>
         <%= render partial: "replies/reply", locals: {reply: last_reply, timezone: timezone} %>
       <% else %>
