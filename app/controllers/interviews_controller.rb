@@ -62,6 +62,7 @@ class InterviewsController < ApplicationController
             applying: applying, 
             sender_id: current_user.id, 
             type: Reply::INTERVIEW_TYPE,
+            cc: all_assignment_user_ids,
             partial: "replies/create_interview_reply", 
             locals: {interview: @interview, owner: current_user, timezone: current_user.curr_timezone},
             flash: "I scheduled the interview. Good Luck!")
@@ -133,6 +134,7 @@ class InterviewsController < ApplicationController
               applying: applying, 
               sender_id: current_user.id, 
               type: Reply::INTERVIEW_TYPE,
+              cc: @interview.interviewers.pluck(:id),
               partial: "replies/cancel_interview_reply", 
               locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
               flash: "")            
@@ -142,6 +144,7 @@ class InterviewsController < ApplicationController
                 applying: applying, 
                 sender_id: current_user.id, 
                 type: Reply::INTERVIEW_TYPE,
+                cc: all_assignment_user_ids,
                 partial: "replies/remove_interviewers_reply", 
                 locals: {
                   interview: @interview, 
@@ -157,6 +160,7 @@ class InterviewsController < ApplicationController
                 applying: applying, 
                 sender_id: current_user.id, 
                 type: Reply::ASSIGNMENT_TYPE,
+                cc: all_assignment_user_ids,
                 partial: "replies/assign_interviewers_reply", 
                 locals: {
                   interview: @interview, 
@@ -172,6 +176,7 @@ class InterviewsController < ApplicationController
                 applying: applying, 
                 sender_id: current_user.id,
                 type: Reply::INTERVIEW_TYPE, 
+                cc: all_assignment_user_ids,
                 partial: "replies/update_time_interview_reply", 
                 locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
                 flash: "")               
@@ -352,6 +357,14 @@ class InterviewsController < ApplicationController
       end&.to_hash
 
       assignments.present? ? User.where(id: assignments.values.map{|a| a["user_id"]}) : []
+    end
+
+    def all_assignment_user_ids
+      return [] if @interview_params[:assignments_attributes].nil?
+
+      @interview_params[:assignments_attributes].select do |id, assignment|
+        assignment[:user_id].present?
+      end.to_hash.values.map{|a| a["user_id"]}
     end
 
     def convert_time

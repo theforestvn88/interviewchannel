@@ -43,7 +43,7 @@ class Applying < ApplicationRecord
   end
 
   private def create_engaging
-    Engaging.create(applying_id: self.id, user_id: self.candidate_id)
-    Engaging.create(applying_id: self.id, user_id: self.interviewer_id)
+    Engaging.find_or_create_by(applying_id: self.id, user_id: self.candidate_id)
+    Engaging.find_or_create_by(applying_id: self.id, user_id: self.interviewer_id)
   end
 end
