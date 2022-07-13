@@ -1,5 +1,5 @@
 class MessagesController < ApplicationController
-  before_action :ensure_user_signed_in, except: %i[ index query show ]
+  before_action :ensure_user_signed_in, except: %i[ index query by_tag show ]
   before_action :set_message, only: %i[ show edit update destroy ]
 
   # GET /messages or /messages.json
@@ -35,7 +35,7 @@ class MessagesController < ApplicationController
       offset: @next_offset, 
       owner: current_user, 
       user: current_user,
-      timezone: current_user.curr_timezone
+      timezone: current_user&.curr_timezone || "UTC"
     }
 
     respond_to do |format|
@@ -43,6 +43,19 @@ class MessagesController < ApplicationController
       format.json { }
       format.turbo_stream { }
     end
+  end
+
+  def by_tag
+    @tag = params[:tag]
+    @messages = @messager.recently(@tag, limit: Messager::Query::PAGE)
+    @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
+    @locals ||= {
+      messages: @messages, 
+      tag: @tag, 
+      filter_tag: @tag,
+      offset: @next_offset, 
+      timezone: current_user&.curr_timezone || "UTC"
+    }
   end
 
   # GET /messages/1 or /messages/1.json

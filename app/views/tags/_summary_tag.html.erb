@@ -1,13 +1,20 @@
-<% view_id = "tag_#{tag.gsub('#', '')}" %>
+<% _tag = tag.gsub("#", "").downcase %>
+<% view_id = "tag_#{_tag}" %>
 <div class="w-full relative" id="watch_<%= view_id %>">
-    <%= button_to "#{tag}#{count.to_i > 0 ? "(#{count})" : ''}", query_messages_path(tag: tag),
+    <%= button_to query_messages_path(tag: tag),
         id: view_id,
-        class: "w-full text-left hover:bg-green-200", 
+        class: "w-full text-left hover:bg-gray-200", 
         "data-action": "click->message#selectTag",
         form: { 
             id: "form_#{view_id}",
             class: "w-full"
-        } %>
+        } do %>
+          <p>
+            <span class="<%= _tag %>">#</span>
+            <span><%= _tag %></span>
+            <span><%= count.to_i > 0 ? "(#{count})" : '' %></span>
+          </p>
+        <% end %>
 
     <%= button_to "-", remove_watch_tag_user_path(current_user, tag: tag),
         class: "text-md absolute right-0 top-0 px-2 z-10 hover:bg-red-300", title: "remove #{tag} tag" %>

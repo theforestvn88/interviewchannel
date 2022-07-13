@@ -16,6 +16,11 @@
       <%= button_to "active", query_messages_path(tag: @tag), class: "px-1 #{params[:sort_by].nil? ? 'font-bold' : ''}" %>  | 
       <%= button_to "#views", query_messages_path(tag: @tag, sort_by: "views"), class: "px-1  #{params[:sort_by] == 'views' ? 'font-bold' : ''}" %>  | 
       <%= button_to "#applyings", query_messages_path(tag: @tag, sort_by: "applyings_count"), class: "px-1 #{params[:sort_by] == 'applyings_count' ? 'font-bold' : ''}" %>
+      <% if defined?(filter_tag) && filter_tag %>
+        | <%= button_to "#{filter_tag} x", query_messages_path(tag: "#all"),
+              class: "w-full text-left px-1 border border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-300", 
+              form: { class: "inline-block mx-1" } %>
+      <% end %>
     </div>
 
     <%= turbo_frame_tag "messages", class: "w-full" do %>

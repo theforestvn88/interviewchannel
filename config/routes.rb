@@ -57,7 +57,8 @@ Rails.application.routes.draw do
     resources :applyings, only: [:new, :create]
 
     collection do
-      post '/query', to: 'messages#query', as: 'query'
+      post 'query'
+      get 'by_tag'
     end
   end
 

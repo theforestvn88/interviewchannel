@@ -10,7 +10,7 @@ class HomeController < ApplicationController
   def index
     # messages
     @messages = @messager.recently("#all")
-    @next_offset = @messages.last&.updated_at
+    @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
 
     if user_signed_in?
       @tags = (current_user.watch_tags || "").split(" ").map { |tag|

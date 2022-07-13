@@ -1,4 +1,4 @@
-<%= button_to message_path(message), id: dom_id(message), method: :get, class: "text-left text-sm", data: {"turbo-frame": "home-content"} do %>
+<%= button_to message_path(message), id: dom_id(message), method: :get, class: "text-left text-sm w-full", data: {"turbo-frame": "home-content"} do %>
   <div class="flex justify-start mb-3">
   
     <% applying_count = message.applyings.size %>
@@ -11,12 +11,12 @@
         <p class="text-gray-600 font-bold inline-block w-3/5">
           <span><%= message.title %> </span>
         </p>
-        <p class="text-sm">
+        <div class="text-sm flex justify-start">
           <span class="text-gray-900 font-light">#<%= message.id %></span>
-          <% message.channel.split(" ").map {|t| t.gsub("#", "")}.each do |tag| %>
-            <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
+          <% message.channel.split(" ").each do |t| %>
+            <%= tag_link t %>
           <% end %>
-        </p>
+        </div>
         <div class="flex justify-start text-xs">
           <%= user_card_tag message.owner, format: "by %s" %>
           <span class="mx-1"> | </span>
