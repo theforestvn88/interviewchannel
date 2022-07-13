@@ -13,8 +13,8 @@ class MessagesController < ApplicationController
 
     @template = "messages/index"
 
-    @tag = params[:tag]
-    case @tag
+    @tags = params[:tag].split(",")
+    case @tags
     when "#inbox"
       @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
       @jobids, @users = PrivateMessageRepo.filter by_user: current_user
@@ -25,13 +25,13 @@ class MessagesController < ApplicationController
     when "#sent"
       @messages = @messager.own_by_me(offset_time: offset_time, limit: limit)
     else
-      @messages = @messager.recently(@tag, offset_time: offset_time, sort_by: Array(params[:sort_by]), limit: limit)
+      @messages = @messager.recently(@tags, offset_time: offset_time, sort_by: Array(params[:sort_by]), limit: limit)
     end
 
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
     @locals ||= {
       messages: @messages, 
-      tag: @tag, 
+      filter_tags: @tags.join(","), 
       offset: @next_offset, 
       owner: current_user, 
       user: current_user,
@@ -39,23 +39,41 @@ class MessagesController < ApplicationController
     }
 
     respond_to do |format|
-      format.html { }
-      format.json { }
       format.turbo_stream { }
     end
   end
 
   def by_tag
-    @tag = params[:tag]
-    @messages = @messager.recently(@tag, limit: Messager::Query::PAGE)
+    @tags = params[:tag] || "#all"
+    @messages = @messager.recently(@tags, limit: Messager::Query::PAGE)
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
-    @locals ||= {
+    @locals = {
       messages: @messages, 
-      tag: @tag, 
-      filter_tag: @tag,
+      filter_tags: @tags,
       offset: @next_offset, 
       timezone: current_user&.curr_timezone || "UTC"
     }
+  end
+
+  def new_filter
+    render layout: false
+  end
+
+  def filter
+    @tags = params[:tags] || "#all"
+    @messages = @messager.recently(@tags, limit: Messager::Query::PAGE)
+    @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
+    @locals ||= {
+      messages: @messages, 
+      tags: @tags, 
+      filter_tags: @tags.join(","),
+      offset: @next_offset, 
+      timezone: current_user&.curr_timezone || "UTC"
+    }
+
+    respond_to do |format|
+      format.turbo_stream { }
+    end
   end
 
   # GET /messages/1 or /messages/1.json

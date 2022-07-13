@@ -59,6 +59,8 @@ Rails.application.routes.draw do
     collection do
       post 'query'
       get 'by_tag'
+      get 'new_filter'
+      post 'filter'
     end
   end
 
