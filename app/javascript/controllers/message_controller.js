@@ -5,7 +5,7 @@ export default class extends Controller {
     connect() {
         this.element.addEventListener("turbo:submit-end", this.clearForm.bind(this))
         this.selectedTagView = document.getElementById("form_tag_all")
-        this.selectedTagView.classList.add("bg-green-200")
+        this.selectedTagView.classList.add("bg-gray-300")
     }
 
     clearForm() {
@@ -19,9 +19,9 @@ export default class extends Controller {
     }
 
     selectTag(event) {
-        if (this.selectedTagView) this.selectedTagView.classList.remove("bg-green-200")
+        if (this.selectedTagView) this.selectedTagView.classList.remove("bg-gray-300")
         event.target.classList.remove("font-bold")
         this.selectedTagView = event.target.closest("form")
-        this.selectedTagView.classList.add("bg-green-200")
+        this.selectedTagView.classList.add("bg-gray-300")
     }
 }

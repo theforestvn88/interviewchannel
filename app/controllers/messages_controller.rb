@@ -1,5 +1,5 @@
 class MessagesController < ApplicationController
-  before_action :ensure_user_signed_in, except: %i[ index query by_tag show ]
+  before_action :ensure_user_signed_in, except: %i[ index query by_tag new_filter filter show ]
   before_action :set_message, only: %i[ show edit update destroy ]
 
   # GET /messages or /messages.json
@@ -31,7 +31,7 @@ class MessagesController < ApplicationController
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
     @locals ||= {
       messages: @messages, 
-      filter_tags: @tags.join(","), 
+      filter_tags: join_tags, 
       offset: @next_offset, 
       owner: current_user, 
       user: current_user,
@@ -65,8 +65,8 @@ class MessagesController < ApplicationController
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
     @locals ||= {
       messages: @messages, 
-      tags: @tags, 
-      filter_tags: @tags.join(","),
+      tags: @tags,
+      filter_tags: join_tags,
       offset: @next_offset, 
       timezone: current_user&.curr_timezone || "UTC"
     }
@@ -129,5 +129,9 @@ class MessagesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def message_params
       params.require(:message).permit(:title, :channel, :content, :expired_at, :user_id, tags: [])
+    end
+
+    def join_tags
+      @tags&.join("&")
     end
 end

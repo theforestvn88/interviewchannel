@@ -1,5 +1,5 @@
 <% if params[:offset] %>
-    <%= turbo_stream.append "messages_#{tags&.gsub(/[\#\,]/,'_') || 'all'}", class: "w-full" do %>
+    <%= turbo_stream.append "#{message_list_id(tags)}", class: "w-full" do %>
         <%= render(partial: @partial, collection: @messages, locals: @locals) if @messages %>
     <% end %>
 
