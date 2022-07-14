@@ -7,4 +7,8 @@ module MessagesHelper
   def message_list_id(tags)
     "messages_#{ tags&.gsub(/[\#\&]/,'')&.downcase || 'all' }"
   end
+
+  def messages_by_me_id(user)
+    "messages_u#{user.id}"
+  end
 end

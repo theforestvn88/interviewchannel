@@ -14,7 +14,7 @@ class MessagesController < ApplicationController
     @template = "messages/index"
 
     @tags = params[:tag].split(",")
-    case @tags
+    case @tags.first
     when "#inbox"
       @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
       @jobids, @users = PrivateMessageRepo.filter by_user: current_user
@@ -74,6 +74,20 @@ class MessagesController < ApplicationController
     respond_to do |format|
       format.turbo_stream { }
     end
+  end
+
+  def by_me
+    head :no_content unless @user = User.find_by(id: params[:user])
+
+    offset = params[:offset].to_i
+    @messages = @user.sent_messages.offset(offset).limit(Messager::Query::PAGE)
+    @next_offset = @messages.size >= Messager::Query::PAGE ? (offset + @messages.size) : nil
+    @locals = {
+      messages: @messages, 
+      filter_tags: @tags,
+      offset: @next_offset, 
+      timezone: current_user&.curr_timezone || "UTC"
+    }
   end
 
   # GET /messages/1 or /messages/1.json

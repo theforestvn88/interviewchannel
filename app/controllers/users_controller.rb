@@ -17,6 +17,10 @@ class UsersController < ApplicationController
 
     def profile
         render_not_found unless @user = User.find_by(id: params[:id])
+
+        @counter = @user.sent_messages.count
+        @messages = @user.sent_messages.first(Messager::Query::PAGE)
+        @next_offset = @messages.size >= Messager::Query::PAGE ? Messager::Query::PAGE : nil
     end
 
     def edit # edit user's cv only

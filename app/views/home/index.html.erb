@@ -15,11 +15,8 @@
       </div>
     <% end %>
 
-    <%= render template: 'messages/index' %>
+    <%= render template: 'messages/index', locals: {filter_tags: "#all"} %>
   </div>
 
-  <div class="sticky float-right bottom-1 w-1/5 bg-red-200 text-xs relative">
-      <%= turbo_frame_tag "chat-rooms" do %>
-      <% end %>
-  </div>
+  <%= render 'layouts/footer' %>
 </div>

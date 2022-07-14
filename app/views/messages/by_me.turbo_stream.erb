@@ -1,0 +1,11 @@
+<%= turbo_stream.append messages_by_me_id(current_user), class: "w-full" do %>
+    <%= render(partial: @partial, collection: @messages, locals: @locals) if @messages %>
+<% end %>
+
+<%= turbo_stream.replace "load_more" do %>
+    <%= turbo_frame_tag "load_more" do %>
+        <% if @next_offset %>
+            <%= button_to "load more", by_me_messages_path(user: @user.id, offset: @next_offset), class: "text-xs text-blue-600" %>
+        <% end %>
+    <% end %>
+<% end %>
