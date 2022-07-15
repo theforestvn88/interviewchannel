@@ -13,8 +13,13 @@
     <% end %>
 
     <div class="my-2 mx-1">
+      <%= form.label "Brief Introduction about yourself" %>
+      <%= form.limit_text_area :brief_intro, limit: 150, format: :short %>
+    </div>
+
+    <div class="my-2 mx-1">
       <%= form.label :watch_tags %>
-      <div class="my-5 relative" data-controller="select7"
+      <div class="my-2 relative" data-controller="select7"
         data-select7-suggest-api-value="<%= suggest_tags_path %>" 
         data-select7-name-value="user[tags][]"
         data-select7-multiple-value="true">

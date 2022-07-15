@@ -18,7 +18,8 @@ class UsersController < ApplicationController
     def profile
         render_not_found unless @user = User.find_by(id: params[:id])
 
-        @counter = @user.sent_messages.count
+        @jobs_counter = @user.sent_messages.count
+        @interviews_counter = Interview.as_owner(@user).count
         @messages = @user.sent_messages.first(Messager::Query::PAGE)
         @next_offset = @messages.size >= Messager::Query::PAGE ? Messager::Query::PAGE : nil
     end
@@ -98,7 +99,7 @@ class UsersController < ApplicationController
 
         include UsersHelper
         def user_params
-            _user_params = params.require(:user).permit(:cv, *social_support, :watch_tags, tags: [])
+            _user_params = params.require(:user).permit(:cv, *social_support, :watch_tags, :brief_intro, tags: [])
             _social = _user_params.extract!(*social_support)
             _user_params[:social] = (current_user.social || {}).merge(_social)
             _user_params

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_12_092101) do
+ActiveRecord::Schema.define(version: 2022_07_15_091433) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -126,6 +126,7 @@ ActiveRecord::Schema.define(version: 2022_07_12_092101) do
     t.text "cv"
     t.text "watch_tags"
     t.json "social"
+    t.string "brief_intro"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

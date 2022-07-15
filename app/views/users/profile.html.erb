@@ -8,14 +8,14 @@
       </div>
 
       <div class="w-2/3">
-        <div class="bg-white rounded-sm border border-gray-500">
+        <div class="bg-white rounded-sm border border-gray-100 bg-zinc-100">
           <%= render partial: "users/cv", locals: {user: @user, editable: editable} %>
         </div>
         
-        <% if @counter > 0 %>
-        <div class="my-5">
-          <label class="font-bold">Jobs(<%= @counter %>)</label>
-          <hr class="mb-4">
+        <% if @jobs_counter > 0 %>
+        <div class="my-5 p-1">
+          <label class="font-bold"><%= @interviews_counter %> interviews / <%= @jobs_counter %> jobs</label>
+          <hr class="mb-2">
 
           <%= turbo_frame_tag messages_by_me_id(current_user), class: "w-full" do %>
             <%= render @messages %>
