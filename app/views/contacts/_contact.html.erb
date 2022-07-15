@@ -3,7 +3,7 @@
     <%= user_card_tag user_id: contact.friend_id, user_name: contact.custom_name, class: "hover:cursor-pointer hover:underline" %>
 
     <div class="flex justify-end">
-      <%= link_to "/", 
+      <%= link_to "!", 
             edit_contact_path(contact, friend_id: contact.friend_id),
             data: {turbo_frame: :modal},
             class: "text-md px-2 z-10 hover:bg-red-300",
