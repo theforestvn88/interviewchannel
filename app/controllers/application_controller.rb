@@ -7,6 +7,11 @@ class ApplicationController < ActionController::Base
     destroy
   end
 
+  rescue_from RateLimiter::LimitExceeded do |exception|
+    @messager.send_error_flash(error: exception.error_message || "Too Many Requests !!! Please wait for some time.")
+    head :no_content
+  end
+
   helper_method :current_user, :user_signed_in?
 
   before_action :setup_messager

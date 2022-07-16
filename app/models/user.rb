@@ -75,5 +75,9 @@ class User < ApplicationRecord
   def recently_contacts
     contacts.recently
   end
+
+  def admin?
+    self.id == 1
+  end
 end
 

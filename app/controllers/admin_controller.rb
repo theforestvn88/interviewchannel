@@ -4,7 +4,7 @@ class AdminController < ApplicationController
     before_action :ensure_admin!
    
     private def is_admin?
-        current_user.id == 1
+        current_user.admin?
     end
 
     private def ensure_admin!
