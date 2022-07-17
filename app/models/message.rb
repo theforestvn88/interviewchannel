@@ -49,4 +49,6 @@ class Message < ApplicationRecord
   after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
   after_update_commit  -> { broadcast_replace_later_to self }
   after_destroy_commit -> { broadcast_remove_to self }
+
+  LIMIT_PER_DAY = 10
 end

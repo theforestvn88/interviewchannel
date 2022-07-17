@@ -143,4 +143,6 @@ class Interview < ApplicationRecord
     def job
       @job ||= applying&.message
     end
+
+    LIMIT_PER_DAY = 100
 end

@@ -47,5 +47,9 @@ class ApplicationController < ActionController::Base
       @messager ||= Messager.new(current_user, current_user&.curr_timezone)
       @private_channel ||= @messager.private_channel
     end
+
+    def today_in_curr_timezone
+      Time.now.in_time_zone(current_user.curr_timezone)
+    end
 end
 

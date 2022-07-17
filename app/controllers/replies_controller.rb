@@ -10,6 +10,9 @@ class RepliesController < ApplicationController
     end
 
     def create
+      RateLimiter.new(current_user, :created_replies, Reply::LIMIT_PER_DAY, :day_exceeded, expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc)
+        .check!
+
         @reply = Reply.new reply_params.merge({applying_id: @applying.id, user_id: current_user.id})
         @cc = params[:cc] || []
         @reply.content += "- cc: " + User.where(id: @cc).pluck(:name).join(", ") if @cc.present?

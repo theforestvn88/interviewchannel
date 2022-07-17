@@ -48,6 +48,9 @@ class InterviewsController < ApplicationController
 
   # POST /interviews or /interviews.json
   def create
+    RateLimiter.new(current_user, :created_interviews, Interview::LIMIT_PER_DAY, :day_exceeded, expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc)
+      .check!
+
     @interview = Interview.new(interview_params)
     @interview.owner = current_user
 

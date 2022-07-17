@@ -23,4 +23,6 @@ class Reply < ApplicationRecord
   def time_milestone?
     !comment_milestone?
   end
+
+  LIMIT_PER_DAY = 1000
 end
