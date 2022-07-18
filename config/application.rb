@@ -21,6 +21,9 @@ module Interviewchannel
 
     config.autoload_paths << "#{root}/lib"
 
+    require "middleware/request_limiter"
+    config.middleware.use RequestLimiter
+
     config.active_job.queue_adapter = :sidekiq
   end
 end

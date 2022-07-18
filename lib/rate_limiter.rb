@@ -14,7 +14,7 @@ class RateLimiter
   end
 
   def check!
-    return true if @user.admin?
+    return true if @user&.admin?
     
     unless (count = Rails.cache.read(@key).to_i) > 0
       Rails.cache.write(@key, 0, **@options_cache)
@@ -29,7 +29,7 @@ class RateLimiter
   end
 
   private def build_key
-    "limit-#{@user.id}-#{@action}"
+    "limit-#{@user&.id || 0}-#{@action}"
   end
 
   class LimitExceeded < StandardError
@@ -42,6 +42,8 @@ class RateLimiter
     end
 
     def error_message
+      return nil if error_code.nil?
+      
       actions = action.to_s.split('_')
       time = error_code.to_s.split('_').first
       "You #{actions.first} too many #{actions.last} (#{limit} #{actions.last} / #{time})"
