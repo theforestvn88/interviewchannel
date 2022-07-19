@@ -8,6 +8,14 @@ class Message < ApplicationRecord
 
   has_many :applyings, :dependent => :destroy
 
+  after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
+  after_update_commit  -> { broadcast_replace_later_to self }
+  after_destroy_commit -> { broadcast_remove_to self }
+
+  after_save -> { owner.increment!(:messages_count) }
+
+  LIMIT_PER_DAY = 10
+
   scope :by_updated_time, ->(time_range) {
     where(updated_at: time_range)
   }
@@ -45,10 +53,4 @@ class Message < ApplicationRecord
   def targets
     tags.map {|t| "#messages_#{t.gsub('#','')}"}.join(", ")
   end
-
-  after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
-  after_update_commit  -> { broadcast_replace_later_to self }
-  after_destroy_commit -> { broadcast_remove_to self }
-
-  LIMIT_PER_DAY = 10
 end

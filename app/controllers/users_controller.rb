@@ -18,8 +18,6 @@ class UsersController < ApplicationController
     def profile
         render_not_found unless @user = User.find_by(id: params[:id])
 
-        @jobs_counter = @user.sent_messages.count
-        @interviews_counter = Interview.as_owner(@user).count
         @messages = @user.sent_messages.first(Messager::Query::PAGE)
         @next_offset = @messages.size >= Messager::Query::PAGE ? Messager::Query::PAGE : nil
     end

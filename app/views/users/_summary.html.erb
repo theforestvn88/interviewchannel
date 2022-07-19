@@ -149,7 +149,7 @@
         <% if user.afk? && editable %>
           <%= "Your watch-tags section is currently blank. Would you like to add one?" %>
         <% else %>
-          <% user.watch_tags.split(" ").each do |tag| %>
+          <% user.watch_tags&.split(" ")&.each do |tag| %>
             <% _tag = tag.gsub('#', '').downcase %>
             <span class="<%= _tag %>">#</span>
             <span class="-ml-1"><%= _tag %></span>
@@ -178,16 +178,28 @@
 
   <p class="text-xs px-5 py-2"><%= user.brief_intro %></p>
 
-  <div class="flex justify-start px-4">
-    <%= link_to "+ contact", 
-      new_contact_path(friend_id: user.id),
-      data: {turbo_frame: :modal},
-      "data-action": "click->card#forceHide", 
-      class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+  <div class="flex justify-between px-4">
+    <p class="inline-block align-middle text-xs font-light">
+        <% if user.messages_count > 0 %>
+        <span class="text-orange-600" title="#jobs">#<%= user.messages_count %></span>
+        <% end %>
 
-    <%= link_to "chat", 
-      private_chat_user_path(user), 
-      data: {turbo_frame: "chat-form", action: "click->card#forceHide"}, 
-      class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+        <% if user.interviews_count > 0 %>
+        <span class="text-purple-700" title="#interviews">#<%= user.interviews_count %></span>
+        <% end %>
+    </p>
+    
+    <div class="flex justify-end">
+      <%= link_to "+ contact", 
+        new_contact_path(friend_id: user.id),
+        data: {turbo_frame: :modal},
+        "data-action": "click->card#forceHide", 
+        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+
+      <%= link_to "chat", 
+        private_chat_user_path(user), 
+        data: {turbo_frame: "chat-form", action: "click->card#forceHide"}, 
+        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+    </div>
   </div>
 <% end %>

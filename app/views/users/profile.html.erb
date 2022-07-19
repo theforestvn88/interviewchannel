@@ -14,7 +14,7 @@
         
         <% if @jobs_counter > 0 %>
         <div class="my-5 p-1">
-          <label class="font-bold"><%= @interviews_counter %> interviews / <%= @jobs_counter %> jobs</label>
+          <label class="font-bold"><%= @user.interviews_count %> interviews / <%= @user.messages_count %> jobs</label>
           <hr class="mb-2">
 
           <%= turbo_frame_tag messages_by_me_id(current_user), class: "w-full" do %>

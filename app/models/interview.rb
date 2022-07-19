@@ -23,6 +23,10 @@ class Interview < ApplicationRecord
     validate  :could_not_change_candidate, on: :update
     validate  :timespan_ok?
 
+    LIMIT_PER_DAY = 100
+
+    after_save -> { owner.increment!(:interviews_count) }
+
     scope :as_role, ->(user, *roles) {
         by_role = Interview.left_outer_joins(:assignments).send("as_#{roles.pop}".to_sym, user)
         roles.each do |role|
@@ -143,6 +147,4 @@ class Interview < ApplicationRecord
     def job
       @job ||= applying&.message
     end
-
-    LIMIT_PER_DAY = 100
 end
