@@ -13,7 +13,7 @@ class MessagesController < ApplicationController
 
     @template = "messages/index"
 
-    @tags = params[:tag].split(",")
+    @tags = params[:tag].split("&")
     case @tags.first
     when "#inbox"
       @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
@@ -29,9 +29,10 @@ class MessagesController < ApplicationController
     end
 
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
+    @filter_tags = join_tags
     @locals ||= {
       messages: @messages, 
-      filter_tags: join_tags, 
+      filter_tags: @filter_tags, 
       offset: @next_offset, 
       owner: current_user, 
       user: current_user,
