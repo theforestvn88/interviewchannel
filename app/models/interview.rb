@@ -13,7 +13,7 @@ class Interview < ApplicationRecord
     belongs_to  :head, class_name: "Interview", foreign_key: "head_id", inverse_of: :rounds, optional: true
 
     has_many    :notes
-    
+
     STATE_WAIT = 'wait'
     STATE_IN_PROCESS = 'in_process'
     STATE_FINISH = 'finish'
@@ -64,11 +64,15 @@ class Interview < ApplicationRecord
     }
 
     def owner?(user)
-        return self.owner_id == user.id
+        self.owner_id == user.id
     end
 
     def involve?(user)
-        self.interviewers.pluck(:id).include?(user.id) || self.owner_id == user.id || self.candidate_id == user.id
+        control_by?(user) || self.candidate_id == user.id
+    end
+
+    def control_by?(user)
+        self.interviewers.pluck(:id).include?(user.id) || owner?(user)
     end
 
     def started?

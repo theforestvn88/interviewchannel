@@ -46,6 +46,19 @@
         </li>
     <% end %>
 
+    <% notes_frame_id = "round#{round.id}-notes" %>
+    <%= turbo_stream_from notes_frame_id %>
+    <%= turbo_frame_tag  notes_frame_id do %>
+      <% round.notes.each do |note| %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+          <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+          <time class="font-normal leading-none text-gray-400 dark:text-gray-500">
+            <%= render note %>
+          </time>
+        </li>
+      <% end %>
+    <% end %>
+
     <% if round.finished? %>
         <li class="mt-2 pb-2 ml-4 text-xs">
         <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
@@ -56,8 +69,10 @@
         <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is <b>canceled</b></time>
         </li>
-    <% elsif round.owner?(user) %>
-        <%= render partial: "interviews/toolbar", locals: {interview: round, timezone: timezone} %>
+    <% end %>
+
+    <% if round.control_by?(user) %>
+      <%= render partial: "interviews/toolbar", locals: {interview: round, timezone: timezone} %>
     <% end %>
     </ol>
 <% end %>

@@ -45,6 +45,8 @@ Rails.application.routes.draw do
     collection do
       get '/search', to: 'interviews#search', as: 'search'
     end
+
+    resources :notes, only: [:new, :create]
   end
 
   resources :tags do
