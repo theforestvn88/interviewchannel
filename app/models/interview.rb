@@ -12,6 +12,8 @@ class Interview < ApplicationRecord
     has_many    :rounds, class_name: "Interview", foreign_key: "head_id", inverse_of: :head, dependent: :nullify
     belongs_to  :head, class_name: "Interview", foreign_key: "head_id", inverse_of: :rounds, optional: true
 
+    has_many    :notes
+    
     STATE_WAIT = 'wait'
     STATE_IN_PROCESS = 'in_process'
     STATE_FINISH = 'finish'
