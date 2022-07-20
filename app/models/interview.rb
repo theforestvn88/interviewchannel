@@ -153,4 +153,9 @@ class Interview < ApplicationRecord
     def job
       @job ||= applying&.message
     end
+
+    def forward_notes(user)
+      return notes if owner?(user)
+      notes.forward_to(user)
+    end
 end
