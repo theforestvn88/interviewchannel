@@ -30,6 +30,8 @@ class ApplyingsController < ApplicationController
                 )
                 .broadcast_replace(@message) # broadcast due to counter-cache update
 
+                AutoReplyJob.set(wait: 1.minute).perform_later @message.user_id, applying.id, @message.id
+
                 Contact.hit(applying.candidate_id, applying.interviewer_id)
 
                 redirect_to message_url(@message)

@@ -50,7 +50,13 @@
     <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-51 bg-white"></div>
   </div>
 
+  <%= form.check_box :auto_reply_enable %>
+  <%= form.label "Enable Auto Reply ?" %>
+
+  <%= form.limit_text_area :auto_reply, limit: 500, rows: 2, placeholder: "Thank you for interesting in this job, we'll contact to you soon!", 
+        class: "block shadow rounded-md border border-gray-200 outline-none px-2 py-1 mt-1 w-full text-xs" %>
+
   <div class="inline">
-    <%= form.submit "Submit", class: "rounded-lg py-1 px-3 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+    <%= form.submit "Submit", class: "rounded-lg mt-2 py-1 px-3 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
   </div>
 <% end %>

@@ -146,7 +146,7 @@ class MessagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def message_params
-      params.require(:message).permit(:title, :channel, :content, :expired_at, :user_id, tags: [])
+      params.require(:message).permit(:title, :channel, :content, :expired_at, :user_id, :auto_reply_enable, :auto_reply, tags: [])
     end
 
     def join_tags
