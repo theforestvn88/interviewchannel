@@ -65,11 +65,8 @@ ActiveRecord::Schema.define(version: 2022_07_20_074914) do
   end
 
   create_table "interviews", force: :cascade do |t|
-    t.string "note"
     t.datetime "start_time", precision: 6
     t.datetime "end_time", precision: 6
-    t.text "code"
-    t.boolean "result"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "candidate_id", null: false

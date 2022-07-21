@@ -50,7 +50,7 @@ module CodeHelper
 
     tag.interview_stream(**attributes, class: "w-full min-h-screen") do |tag|
         tag.div(class: editor_main_style) { |tag|
-        tag.textarea("/*\n #{interviews.first.note}\n reviewer: xyz@gmail.com\n candidate: abc@gmail.com\n*/", class: interview_intro_style)
+        tag.textarea("/*\n #{interviews.first.introduce}\n reviewer: xyz@gmail.com\n candidate: abc@gmail.com\n*/", class: interview_intro_style)
         .concat(tag.div(id: "editor-header", class: editor_header_style) { |tag|
             tag.label(">> interview >> ./we_code.rb", id: "code-filename")
             .concat(tag.div(id: "editor-theme", class: "flex justify-end") { "@#{attributes[:"theme"]}" })

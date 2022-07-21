@@ -158,4 +158,8 @@ class Interview < ApplicationRecord
       return notes if owner?(user)
       notes.forward_to(user)
     end
+
+    def introduce
+      # TODO: head comment of the code interview session page
+    end
 end
