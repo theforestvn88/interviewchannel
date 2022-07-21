@@ -42,14 +42,6 @@ class User < ApplicationRecord
     end
   end
 
-  def set_session_timezone(ss_timezone)
-    Rails.cache.write("ss_timezone_#{self.id}", ss_timezone, expires_in: 12.hours)
-  end
-  
-  def curr_timezone
-    Rails.cache.fetch("ss_timezone_#{self.id}", expires_in: 12.hours) { "UTC" }
-  end
-
   def tags=(tags_input)
     self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip
   end

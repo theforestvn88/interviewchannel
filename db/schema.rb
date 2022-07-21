@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_20_074914) do
+ActiveRecord::Schema.define(version: 2022_07_21_070638) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -137,6 +137,7 @@ ActiveRecord::Schema.define(version: 2022_07_20_074914) do
     t.string "brief_intro"
     t.integer "messages_count", default: 0, null: false
     t.integer "interviews_count", default: 0, null: false
+    t.string "curr_timezone", default: "UTC", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
