@@ -39,8 +39,16 @@ class Message < ApplicationRecord
     self.channel = _tags.map {|t| t.gsub("#", "")}.map {|t| "##{t}"}.uniq.join(" ")
   end
 
+  def own_by?(user)
+    self.user_id == user&.id
+  end
+
   def expired?
     self.expired_at <= Time.now.utc
+  end
+
+  def close!
+    self.update!(expired_at: Time.now.utc)
   end
 
   def applied_by?(user)

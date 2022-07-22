@@ -14,16 +14,24 @@
 
       <div class="trix-content py-2 px-4"><%= message.content.html_safe %></div>
 
-      <% if message.user_id == current_user&.id %>
+      <% if message.own_by?(current_user) %>
           <div class="flex justify-end">
+            <% if message.expired? %>
+              <span class="font-bold">Closed</span>
+            <% else %>
               <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "home-content"}, class: "hover:font-bold" %></span>
+              <span class="mx-1"> | </span>
+              <span><%= button_to "Close", message_path(message, close: true), method: :put, 
+                        data: {"turbo-frame": "home-content"}, form: { data: {turbo_confirm: "are you sure ?"} }, 
+                        class: "hover:font-bold" %></span>
+            <% end %>
               <span class="mx-1"> | </span>
               <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
           </div>
       <% else %>
           <div class="flex justify-end">
           <% if message.expired? %>
-              <p class="font-bold mt-2">Expired</p>
+              <p class="font-bold mt-2">Closed</p>
           <% elsif message.applied_by?(current_user) %>
               <p class="font-bold mt-2">Applied</p>
           <% else %>

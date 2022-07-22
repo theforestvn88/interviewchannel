@@ -122,7 +122,13 @@ class MessagesController < ApplicationController
   # PATCH/PUT /messages/1 or /messages/1.json
   def update
     respond_to do |format|
-      if @message.update(message_params)
+      result = if params.has_key?(:close) then
+        @message.close!
+      else
+        @message.update(message_params)
+      end
+
+      if result
         format.html { redirect_to message_url(@message) }
         format.json { render :show, status: :ok, location: @message }
       else
