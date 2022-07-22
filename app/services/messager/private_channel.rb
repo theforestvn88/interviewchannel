@@ -20,9 +20,9 @@ class Messager
             toChannels.each do |toChannel|
                 Turbo::StreamsChannel.broadcast_replace_to(
                     toChannel,
-                    target: "tag_inbox", 
+                    target: "tag_inbox_content", 
                     partial: "messages/tag",
-                    locals: {tag: "#inbox", count: ""}
+                    locals: {tag: "#inbox", count: 1, unread: true}
                 )
 
                 Turbo::StreamsChannel.broadcast_prepend_to(
@@ -52,6 +52,13 @@ class Messager
                     locals: {reply: reply}.merge(locals)
                 )
 
+                Turbo::StreamsChannel.broadcast_replace_to(
+                  toChannel,
+                  target: "tag_inbox_content", 
+                  partial: "messages/tag",
+                  locals: {tag: "#inbox", count: 1, unread: true}
+                )
+                
                 send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + (flash || reply.content[0..50] + "...")) if toChannel != owner_channel
             end
 

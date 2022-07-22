@@ -8,11 +8,7 @@
             id: view_id,
             class: "w-full"
         } do %>
-          <p>
-            <span class="<%= _tag %>">#</span>
-            <span><%= _tag %></span>
-            <span><%= count.to_i > 0 ? "(#{count})" : '' %></span>
-          </p>
+          <% render partial: "messages/tag", locals: {tag: tag, count: count, unread: false} %>
         <% end %>
 
     <%= button_to "-", remove_watch_tag_user_path(current_user, tag: tag),

@@ -1,15 +1,6 @@
 <% _tag = tag.gsub("#", "").downcase %>
-<% tag_id = "tag_#{_tag}" %>
-<%= button_to query_messages_path(tag: tag),
-    class: "w-full text-left hover:bg-gray-200 font-bold", 
-    "data-action": "click->message#selectTag",
-    form: { 
-        id: tag_id,
-        class: "w-full"
-    } do %>
-      <p>
-        <span class="<%= _tag %>">#</span>
-        <span><%= _tag %></span>
-        <span><%= count.to_i > 0 ? "(#{count})" : '' %></span>
-      </p>
-    <% end %>
+<p id='<%= "tag_#{_tag}_content" %>' class=<%= unread ? "font-bold" : "" %>>
+  <span class="<%= _tag %>">#</span>
+  <span><%= _tag %></span>
+  <span><%= count.to_i > 0 ? "(#{count})" : '' %></span>
+</p>

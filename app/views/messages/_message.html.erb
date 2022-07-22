@@ -13,7 +13,7 @@
         </p>
         <div class="text-sm flex justify-start">
           <span class="text-gray-900 font-light">#<%= message.id %></span>
-          <% message.channel.split(" ").each do |t| %>
+          <% message.channel&.split(" ")&.each do |t| %>
             <%= tag_link t %>
           <% end %>
         </div>
