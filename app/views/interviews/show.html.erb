@@ -1,10 +1,12 @@
 <% if @showable %>  
   <%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
     <div class="w-2/3 border border-gray-200 rounded-md p-5">
-      <%= button_to "<-applying", applying_path(@interview.applying_id),
-        method: :get,
-        id: "tag_inbox",
-        class: "text-left hover:underline mb-3" %>
+      <% if @interview.applying_id %>
+        <%= button_to "<-applying", applying_path(@interview.applying_id),
+          method: :get,
+          id: "tag_inbox",
+          class: "text-left hover:underline mb-3" %>
+      <% end %>
 
         <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
           <% @interview.timeline.each do |round| %>
