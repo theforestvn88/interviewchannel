@@ -5,6 +5,6 @@ class Note < ApplicationRecord
   belongs_to :interview
 
   scope :forward_to, ->(user) {
-    where("cc LIKE ?", "%#{user.name}%")
+    where("cc LIKE ?", "%#{user.name}%").or(where("cc LIKE '%@all%'"))
   }
 end

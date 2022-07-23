@@ -19,6 +19,13 @@ class InterviewsController < ApplicationController
     unless @interview && @interview.involve?(current_user) && @interview.started?
       redirect_to root_path
     end
+
+    msg = "#{current_user.name} joined interview room"
+    Note.create!(content: msg, cc: "cc: @all", user_id: @interview.owner_id, interview_id: @interview.id)
+
+    (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
+      @messager.send_flash_to_user(user, content: msg)
+    end
   end
 
   # GET /interviews/new
