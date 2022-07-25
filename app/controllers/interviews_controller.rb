@@ -81,8 +81,12 @@ class InterviewsController < ApplicationController
             cc: all_assignment_user_ids,
             partial: "replies/create_interview_reply", 
             locals: {interview: @interview, owner: current_user, timezone: current_user.curr_timezone},
-            flash: "I scheduled the interview. Good Luck!",
-            path: query_messages_path(tag: "#inbox"))
+            flash: "I scheduled a new interview for you. Good Luck!",
+            link_to: {
+              path: applying_path(applying),
+              data: {turbo_frame: "home-content"}
+            }
+          )
         end
 
         (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
@@ -153,7 +157,12 @@ class InterviewsController < ApplicationController
               type: Reply::INTERVIEW_TYPE,
               cc: @interview.interviewers.pluck(:id),
               partial: "replies/cancel_interview_reply", 
-              locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone }
+              locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
+              flash: "The interview##{@interview.id} is canceled!",
+              link_to: {
+                path: applying_path(applying),
+                data: {turbo_frame: "home-content"}
+              }
             )            
           else
             if dropped_assignments.present?
@@ -168,6 +177,11 @@ class InterviewsController < ApplicationController
                   timezone: current_user.curr_timezone, 
                   interviewers: dropped_assignments,
                   owner: current_user
+                },
+                flash: "The interview##{@interview.id} is updated!",
+                link_to: {
+                  path: applying_path(applying),
+                  data: {turbo_frame: "home-content"}
                 }
               )
             end
@@ -184,6 +198,11 @@ class InterviewsController < ApplicationController
                   timezone: current_user.curr_timezone, 
                   interviewers: new_assignments,
                   owner: current_user
+                },
+                flash: "The interview##{@interview.id} is updated!",
+                link_to: {
+                  path: applying_path(applying),
+                  data: {turbo_frame: "home-content"}
                 }
               )
             end
@@ -195,7 +214,12 @@ class InterviewsController < ApplicationController
                 type: Reply::INTERVIEW_TYPE, 
                 cc: all_assignment_user_ids,
                 partial: "replies/update_time_interview_reply", 
-                locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone }
+                locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
+                flash: "The interview##{@interview.id} is updated!",
+                link_to: {
+                  path: applying_path(applying),
+                  data: {turbo_frame: "home-content"}
+                }
               )               
             end
           end
@@ -323,10 +347,7 @@ class InterviewsController < ApplicationController
   end
 
   def card
-    timezone = current_user.curr_timezone
-    tz_offset = ActiveSupport::TimeZone[timezone].formatted_offset
-
-    render layout: false, locals: {timezone: timezone, tz_offset: tz_offset}
+    render layout: false, locals: {timezone: "UTC"}
   end
 
   def confirm

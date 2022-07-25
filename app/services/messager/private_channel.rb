@@ -38,7 +38,7 @@ class Messager
             self
         end
 
-        def send_private_reply(applying, reply, cc = [], partial: "replies/reply", locals: {}, flash: nil, path: nil)
+        def send_private_reply(applying, reply, cc = [], partial: "replies/reply", locals: {}, flash: nil, **options)
             owner_channel = private_channel_from_user_id(reply.user_id)
             cc.map { |user_id| 
               private_channel_from_user_id(user_id) 
@@ -60,20 +60,20 @@ class Messager
                 )
                 
                 if toChannel != owner_channel
-                  send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + (flash || reply.content[0..50] + "..."), path: path)
+                  send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + (flash || reply.content[0..50] + "..."), **options)
                 end
             end
 
             self
         end
 
-        def create_and_send_private_reply(sender_id:, applying:, type:, cc: [], partial:, locals:, flash: nil, path: nil)
+        def create_and_send_private_reply(sender_id:, applying:, type:, cc: [], partial:, locals:, flash: nil, **options)
             return if sender_id.nil? or applying.nil?
             
             content = ApplicationController.render(formats: [ :html ], partial: partial, locals: locals)
             reply = Reply.new(applying_id: applying.id, user_id: sender_id, content: content, milestone: type)
             if reply.save
-                send_private_reply(applying, reply, cc, flash: flash, path: path, locals: locals)
+                send_private_reply(applying, reply, cc, locals: locals, flash: flash, **options)
             end
 
             self

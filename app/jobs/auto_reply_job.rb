@@ -10,7 +10,13 @@ class AutoReplyJob < ApplicationJob
       if applying.replies.count == 0
         reply = Reply.create!(applying_id: applying_id, user_id: user.id, content: message.auto_reply)
         messager = Messager.new(user, user.curr_timezone)
-        messager.send_private_reply(applying, reply, locals: {timezone: user.curr_timezone})
+        messager.send_private_reply(applying, reply, locals: {timezone: user.curr_timezone},
+          flash: "#{user.name} relied to the applying#{applying_id}",
+          link_to: {
+            path: "applyings/#{applying_id}",
+            data: {turbo_frame: "home-content"}
+          }
+        )
       end
     end
   end

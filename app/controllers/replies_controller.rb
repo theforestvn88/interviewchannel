@@ -18,7 +18,14 @@ class RepliesController < ApplicationController
         @reply.content += "- cc: " + User.where(id: @cc).pluck(:name).join(", ") if @cc.present?
 
         if @reply.save
-            @messager.send_private_reply(@applying, @reply, @cc, locals: {timezone: current_user.curr_timezone})
+            @messager.send_private_reply(@applying, @reply, @cc,
+              locals: {timezone: current_user.curr_timezone},
+              flash: "#{current_user.name} relied to the applying#{@applying.id}", 
+              link_to: {
+                path: applying_path(@applying),
+                data: {turbo_frame: "home-content"}
+              }
+            )
         end
 
         respond_to do |format|
