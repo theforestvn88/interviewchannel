@@ -1,8 +1,8 @@
-<div class="flex justify-start ml-4 mt-2">
+<div class="flex justify-start ml-4 my-2">
     <%= link_to "note", new_interview_note_path(interview), data: {turbo_frame: :modal}, class: "mx-1 px-1 text-blue-400 hover:underline border border-gray-300 hover:border-gray-400" %>
     <% unless interview.finished? or interview.canceled? %>
     <%= link_to "assign interviewer", assign_interview_path(interview), data: {turbo_frame: :modal}, class: "mx-1 px-1 text-blue-400 hover:underline border border-gray-300 hover:border-gray-400" %>
-      <div class="flex justify-start bg-white text-red-600 px-1 border border-gray-200 hover:border-gray-400">
+      <div class="flex justify-start bg-white text-red-600 mx-1 px-1 border border-gray-200 hover:border-gray-400">
           <span>delay</span>
           <%= button_to "10m", interview_path(interview), method: :put, 
               params: {interview: {start_time: Time.now.in_time_zone(timezone) + 10.minutes, state: "wait"}}, class: "hover:underline px-1" %>

@@ -12,9 +12,9 @@
           <%= render partial: "users/cv", locals: {user: @user, editable: editable} %>
         </div>
         
-        <% if @jobs_counter > 0 %>
+        <% if @user.messages_count > 0 %>
         <div class="my-5 p-1">
-          <label class="font-bold"><%= @user.interviews_count %> interviews / <%= @user.messages_count %> jobs</label>
+          <label class="font-bold"><%= number_to_human(@user.interviews_count, units: {thousand: 'K', million: 'M'}) %> interviews / <%= number_to_human(@user.messages_count, units: {thousand: 'K', million: 'M'}) %> jobs</label>
           <hr class="mb-2">
 
           <%= turbo_frame_tag messages_by_me_id(current_user), class: "w-full" do %>

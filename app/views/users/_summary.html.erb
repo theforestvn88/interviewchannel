@@ -159,8 +159,8 @@
 
       <% if editable %>
           <%= link_to edit_profile_user_path(user), 
-            class: "absolute top-0 right-0 bg-green-300 hover:bg-green-600 p-1 flex items-center", 
-            title: "edit profile" do %>
+            class: "absolute -top-2 -right-2 bg-green-300 hover:bg-green-600 p-1 flex items-center", 
+            title: "edit" do %>
               <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 494.936 494.936" style="enable-background:new 0 0 494.936 494.936;" xml:space="preserve">
               <g>
                   <g>
@@ -170,7 +170,7 @@
               </g>
               </svg>
 
-              <span class="text-xs">edit profile</span>
+              <span class="text-xs">edit</span>
           <% end %>
       <% end %>
     </div>
@@ -181,11 +181,11 @@
   <div class="flex justify-between px-4">
     <p class="inline-block align-middle text-xs font-light">
         <% if user.messages_count > 0 %>
-        <span class="text-orange-600" title="#jobs">#<%= user.messages_count %></span>
+        <span class="text-orange-600" title="#jobs">#<%= number_to_human(user.messages_count, units: {thousand: 'K', million: 'M'}) %></span>
         <% end %>
 
         <% if user.interviews_count > 0 %>
-        <span class="text-purple-700" title="#interviews">#<%= user.interviews_count %></span>
+        <span class="text-purple-700" title="#interviews">#<%= number_to_human(user.interviews_count, units: {thousand: 'K', million: 'M'}) %></span>
         <% end %>
     </p>
     

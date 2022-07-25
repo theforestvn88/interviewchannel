@@ -21,7 +21,7 @@
           <%= user_card_tag message.owner, format: "by %s" %>
           <span class="mx-1"> | </span>
           <span>
-            <%= distance_of_time_in_words(message.created_at, Time.now.utc) %> ago | <%= message.views %> <%= 'view'.pluralize(message.views) %> 
+            <%= distance_of_time_in_words(message.created_at, Time.now.utc) %> ago | <%= number_to_human(message.views, units: {thousand: 'K', million: 'M'}) %> <%= 'view'.pluralize(message.views) %> 
           </span>
         </div>
       </div>
