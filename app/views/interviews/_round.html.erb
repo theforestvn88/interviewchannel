@@ -32,7 +32,7 @@
         <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
         <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time.in_time_zone(timezone) %>
             <% unless round.finished? %>
-            <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600" %>
+            <%= link_to "-> Join Room##{round.id}", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600" %>
             <% end %>
         </time>
         </li>

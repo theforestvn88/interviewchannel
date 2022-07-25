@@ -51,8 +51,8 @@ class ApplyingsController < ApplicationController
               sender_id: current_user.id,
               type: Reply::APPLY_TYPE, 
               partial: "replies/close_applying_reply", 
-              locals: { timezone: current_user.curr_timezone },
-              flash: "")
+              locals: { timezone: current_user.curr_timezone }
+            )
 
             render layout: false
         else

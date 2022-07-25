@@ -20,11 +20,17 @@ class InterviewsController < ApplicationController
       redirect_to root_path
     end
 
-    msg = "#{current_user.name} joined interview room"
+    msg = "#{current_user.name} joined interview room##{@interview.id}"
     Note.create!(content: msg, cc: "cc: @all", user_id: @interview.owner_id, interview_id: @interview.id)
 
     (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
-      @messager.send_flash_to_user(user, content: msg)
+      @messager.send_flash_to_user(user, 
+        content: msg,
+        link_to: {
+          path: interview_path(@interview), 
+          data: {turbo_frame: "home-content"}
+        }
+      )
     end
   end
 
@@ -75,7 +81,8 @@ class InterviewsController < ApplicationController
             cc: all_assignment_user_ids,
             partial: "replies/create_interview_reply", 
             locals: {interview: @interview, owner: current_user, timezone: current_user.curr_timezone},
-            flash: "I scheduled the interview. Good Luck!")
+            flash: "I scheduled the interview. Good Luck!",
+            path: query_messages_path(tag: "#inbox"))
         end
 
         (@interview.interviewers + [@interview.candidate]).uniq.each do |user|
@@ -146,8 +153,8 @@ class InterviewsController < ApplicationController
               type: Reply::INTERVIEW_TYPE,
               cc: @interview.interviewers.pluck(:id),
               partial: "replies/cancel_interview_reply", 
-              locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
-              flash: "")            
+              locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone }
+            )            
           else
             if dropped_assignments.present?
               @messager.create_and_send_private_reply(
@@ -161,8 +168,8 @@ class InterviewsController < ApplicationController
                   timezone: current_user.curr_timezone, 
                   interviewers: dropped_assignments,
                   owner: current_user
-                },
-                flash: "")
+                }
+              )
             end
 
             if new_assignments.present?
@@ -177,8 +184,8 @@ class InterviewsController < ApplicationController
                   timezone: current_user.curr_timezone, 
                   interviewers: new_assignments,
                   owner: current_user
-                },
-                flash: "")
+                }
+              )
             end
 
             if @change_time
@@ -188,8 +195,8 @@ class InterviewsController < ApplicationController
                 type: Reply::INTERVIEW_TYPE, 
                 cc: all_assignment_user_ids,
                 partial: "replies/update_time_interview_reply", 
-                locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
-                flash: "")               
+                locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone }
+              )               
             end
           end
         end

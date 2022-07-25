@@ -25,8 +25,8 @@ class Messager
             send_error_flash(error: model.errors.first.full_message)
         end
 
-        def send_private_flash(channel:, content:)
-            send_flash(channel: channel, content: content, tag: "#inbox")
+        def send_private_flash(channel:, content:, path:)
+            send_flash(channel: channel, content: content, path: path)
         end
     end
 end
