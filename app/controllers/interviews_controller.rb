@@ -214,7 +214,7 @@ class InterviewsController < ApplicationController
                 type: Reply::INTERVIEW_TYPE, 
                 cc: all_assignment_user_ids,
                 partial: "replies/update_time_interview_reply", 
-                locals: { interview: @interview, owner: current_user, timezone: current_user.curr_timezone },
+                locals: { interview: @interview, owner: current_user, timezone: "UTC" },
                 flash: "The interview##{@interview.id} is updated!",
                 link_to: {
                   path: applying_path(applying),

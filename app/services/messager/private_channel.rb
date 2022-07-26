@@ -60,7 +60,7 @@ class Messager
                 )
                 
                 if toChannel != owner_channel
-                  send_private_flash(channel: toChannel, content: "@#{reply.user.name}: " + (flash || reply.content[0..50] + "..."), **options)
+                  send_private_flash(channel: toChannel, content: (flash || reply.content[0..50] + "..."), **options)
                 end
             end
 

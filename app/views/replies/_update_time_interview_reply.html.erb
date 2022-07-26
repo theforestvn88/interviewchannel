@@ -3,8 +3,8 @@
     <span class="mx-1">updated time of the</span> 
     <%= interview_link_tag interview %>
 </div>
-<p>Start Time: <span><%= interview.start_time.in_time_zone(timezone).strftime('%F %R') %></span></p>
-<p>End Time: <span><%= interview.end_time.in_time_zone(timezone).strftime('%F %R') %></span></p>
+<p>Start Time: <span class="bg-gray-200"><%= interview.start_time.in_time_zone(timezone).strftime('%F %R %:z') %></span></p>
+<p>End Time: <span class="bg-gray-200"><%= interview.end_time.in_time_zone(timezone).strftime('%F %R %:z') %></span></p>
 
 <% if (interviewers = interview.interviewers).present? %>
   <%= render partial: "replies/cc", locals: {users: interviewers} %>
