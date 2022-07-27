@@ -79,4 +79,8 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  namespace :admin do
+    get "" => "dashboard#index"
+  end
 end
