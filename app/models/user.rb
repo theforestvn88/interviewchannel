@@ -1,40 +1,75 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  include OmniAuthParser
+  include SocialLinks
+
   has_many :sent_messages,
            :class_name => "Message",
            :foreign_key => "user_id",
            :inverse_of => :owner,
            :dependent => :destroy
 
-  def self.find_or_create_from_omniauth(auth)
-    user = find_by(uid: auth['uid'])
-    return user if user.present?
+  has_many :contacts
+  has_many :friends, through: :contacts, source: :friend
 
+  validate :validate_social_links
+
+  scope :suggest, ->(keyword) {
+    keywords = ["%#{keyword.strip}%"] * 2
+    where("name ILIKE ? OR email ILIKE ?", *keywords)
+  }
+
+  def self.find_or_create_by_omniauth(auth)
+    # exist user ?
+    user = where(email: parse_user_emails(auth)).first
+    if user.present?
+      # update merge infomation
+      if user.github.nil? && (gihub = parse_github(auth)).present?
+        user.github = gihub
+        user.save
+      end
+      return user
+    end
+
+    # create new user !
     create! do |user|
-      user.uid = auth['uid']
-      user.name = auth.info['nickname']
-      user.email = auth.info['email']
-      user.image = auth.info['image']
-      user.github = auth.info["urls"]['GitHub']
+      user.uid = parse_user_uid(auth)
+      user.name = parse_user_name(auth)
+      user.email = parse_user_primary_email(auth)
+      user.image = parse_user_image(auth)
+      user.github = parse_github(auth)
     end
   end
 
-  def set_session_timezone(ss_timezone)
-    Rails.cache.write("ss_timezone_#{self.id}", ss_timezone, expires_in: 12.hours)
-  end
-  
-  def curr_timezone
-    Rails.cache.fetch("ss_timezone_#{self.id}", expires_in: 12.hours) { "UTC" }
-  end
-
   def tags=(tags_input)
-    self.watch_tags = tags_input.map {|t| "##{t}"}.join(" ")
+    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip
   end
 
-  scope :suggest, ->(keyword) {
-    keywords = ["%#{keyword}%"] * 2
-    where("name ILIKE ? OR email ILIKE ?", *keywords)
-  }
+  def afk?
+    self.watch_tags.blank?
+  end
+
+  def validate_social_links
+    return if social.nil?
+
+    social_support.each do |social_domain|
+      if social.has_key?(social_domain)
+        errors.add(:social, "Error: Invalid #{social_domain} link") unless social_link_valid?(social_domain, social[social_domain])
+      end
+    end
+  end
+
+  def social_links
+    social || {}
+  end
+
+  def recently_contacts
+    contacts.recently
+  end
+
+  def admin?
+    self.id == 1
+  end
 end
 

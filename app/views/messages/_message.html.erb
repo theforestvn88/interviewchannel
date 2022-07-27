@@ -1,20 +1,29 @@
-<%= link_to message_path(message), id: dom_id(message), class: "text-sm", data: {"turbo-frame": "modal"} do %>
+<%= button_to message_path(message), id: dom_id(message), method: :get, class: "text-left text-sm w-full", data: {"turbo-frame": "home-content"} do %>
   <div class="flex justify-start mb-3">
   
-    <% applying_count = message.applyings.size%>
+    <% applying_count = message.applyings.size %>
     <div class="h-1/2 py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
       <%= applying_count %>
     </div>
 
-    <% cache message, expires_in: 2.minutes do %>
+    <% cache message, expires_in: 30.seconds do %>
       <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
         <p class="text-gray-600 font-bold inline-block w-3/5">
-          <span class="text-gray-900 text-base">#<%= message.id %> <%= message.channel %></span> <span><%= message.content[0..250] + "..." %> </span>
+          <span><%= message.title %> </span>
         </p>
-        <p class="text-xs">
-          <span data-controller="card" data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide" data-card-url-value=<%= card_user_path(message.owner) %>>
-          by <%= message.owner.name %> | <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | <%= message.views %> <%= 'view'.pluralize(message.views) %> </span>
-        </p>
+        <div class="text-sm flex justify-start">
+          <span class="text-gray-900 font-light">#<%= message.id %></span>
+          <% message.channel&.split(" ")&.each do |t| %>
+            <%= tag_link t %>
+          <% end %>
+        </div>
+        <div class="flex justify-start text-xs">
+          <%= user_card_tag message.owner, format: "by %s" %>
+          <span class="mx-1"> | </span>
+          <span>
+            <%= distance_of_time_in_words(message.created_at, Time.now.utc) %> ago | <%= number_to_human(message.views, units: {thousand: 'K', million: 'M'}) %> <%= 'view'.pluralize(message.views) %> 
+          </span>
+        </div>
       </div>
       <%= turbo_stream_from message %>
     <% end %>

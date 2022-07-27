@@ -2,7 +2,7 @@
 
 class MessageRepo
     class << self
-        def query(by_time:, by_tags: nil, by_user: nil, sort_by: [:updated_at, :desc], limit: nil)
+        def query(by_time:, by_tags: nil, by_user: nil, sort_by: [[:updated_at, :desc]], limit: nil)
             q = Message.by_updated_time(by_time)
             q = q.by_tags(by_tags) unless by_tags.blank? or by_tags == ["#all"]
             q = q.by_owner(by_user.id) if by_user
@@ -11,14 +11,14 @@ class MessageRepo
             q
         end
 
-        def count(by_time:, by_tag: nil, by_user: nil, expires_in: 1.minute)
-            Rails.cache.fetch("count:#{by_tag&.downcase}#{by_user&.id}", expires_in: expires_in) {
+        def count(by_time:, by_tag: nil, by_user: nil, expires_in: 30.seconds)
+            Rails.cache.fetch("count:#{by_tag&.downcase}#{by_user&.id}", expires_in: expires_in, raw: true) {
                 MessageRepo.fetch(by_time: by_time, by_tags: Array(by_tag), by_user: by_user).count
             }
         end
 
-        def fetch(by_time:, by_tags: nil, by_user: nil, sort_by: [], expires_in: 1.minute)
-            cache_key = "ids:#{by_tags&.map(&:downcase)&.join("#")}#{by_user&.id}-#{sort_by}"
+        def fetch(by_time:, by_tags: nil, by_user: nil, sort_by: [], expires_in: 30.seconds)
+            cache_key = "ids:#{by_tags&.map(&:downcase)&.join("#")}#{by_user&.id}-#{sort_by}-#{by_time}"
             Rails.cache.fetch(cache_key, expires_in: expires_in) {
                 MessageRepo.query(by_time: by_time, by_tags: by_tags, by_user: by_user, sort_by: sort_by).pluck(:id)
             }

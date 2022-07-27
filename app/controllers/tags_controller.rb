@@ -3,13 +3,8 @@ class TagsController < AdminController
   before_action :set_tag, only: %i[ show edit update destroy ]
 
   def suggest
-    search_key = params[:key]
-    suggest_tags = search_key.blank? ? [] : Tag.where("name ILIKE ?", "%#{search_key}%").first(6)
-    if suggest_tags.empty?
-      head :no_content
-    else
-      render partial: "shared/select7_suggestion", locals: {items: suggest_tags, attr: params[:attr]}
-    end
+    search_key = params[:key].strip
+    @tags = search_key.blank? ? [] : Tag.where("name ILIKE ?", "%#{search_key}%").first(6)
   end
 
   # GET /tags or /tags.json
@@ -36,7 +31,7 @@ class TagsController < AdminController
 
     respond_to do |format|
       if @tag.save
-        format.html { redirect_to tag_url(@tag), notice: "Tag was successfully created." }
+        format.html { redirect_to tag_url(@tag) }
         format.json { render :show, status: :created, location: @tag }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -49,7 +44,7 @@ class TagsController < AdminController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html { redirect_to tag_url(@tag), notice: "Tag was successfully updated." }
+        format.html { redirect_to tag_url(@tag) }
         format.json { render :show, status: :ok, location: @tag }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -63,7 +58,7 @@ class TagsController < AdminController
     @tag.destroy
 
     respond_to do |format|
-      format.html { redirect_to tags_url, notice: "Tag was successfully destroyed." }
+      format.html { redirect_to tags_url }
       format.json { head :no_content }
     end
   end

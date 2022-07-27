@@ -2,6 +2,7 @@
 
 class Messager
     include Model
+    include Flash
     include Query
     include Count
     include PrivateChannel

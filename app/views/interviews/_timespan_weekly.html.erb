@@ -9,7 +9,11 @@
         <% if action == :create  or action == :update %>
             <%= turbo_stream_from interview %>
         <% end %>
-        <%= link_to text, edit_interview_path(interview), data: {"turbo-frame": "modal"}, class: "text-xs", "draggable": "false", "droppable": "false" %>
-        <%= render template: "interviews/card", locals: {timezone: timezone, tz_offset: tz_offset, interview: interview} %>
+
+        <%= link_to text, interview_path(interview), data: {turbo_frame: "home-content"}, class: "bg-red-200 text-xs hover:text-blue-600", "draggable": "false", "droppable": "false" %>
+        <%= render template: "interviews/card", locals: {timezone: "UTC", interview: interview} %>
     </div>
+    <% if is_owner %>
+        <%= link_to "edit", edit_interview_path(interview), data: {"turbo-frame": "modal"}, class: "text-xs text-blue-600 underline", "draggable": "false", "droppable": "false" %>
+    <% end %>
 </div>

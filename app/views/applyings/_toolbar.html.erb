@@ -1,0 +1,17 @@
+<%= turbo_frame_tag "reply-#{applying.id}" do %>
+    <div class="ml-2 mt-5 text-blue-600 text-xs flex justify-start">
+    <% if applying.open? %>
+            <%= link_to "reply", new_applying_reply_path(applying), class: "p-1 border border-gray-300 hover:border-gray-400" %>
+        <% if applying.control_by?(user) %>
+                <%= link_to "create interview", 
+                    new_interview_path(candidate_id: applying.candidate_id, applying_id: applying.id), 
+                    data: {turbo_frame: :modal}, class: "mx-1 p-1 border border-gray-300 hover:border-gray-400" %>
+                <%= button_to "close", close_applying_path(applying), form: {class: "mx-1 p-1 border border-gray-300 hover:border-gray-400 text-red-600"} %>
+        <% end %>
+    <% else %>
+        <% if applying.control_by?(user) %>
+            <%= button_to "reopen", open_applying_path(applying), form: {class: "mx-1 text-xs text-blue-600 hover:text-blue-900"} %>
+        <% end %>
+    <% end %>
+    </div>
+<% end %>

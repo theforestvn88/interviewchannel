@@ -1,0 +1,12 @@
+<%= turbo_stream.append contacts_list_frame_id(current_user) do %>
+    <%= turbo_stream.replace "load_more_contacts" do %>
+
+      <%= render @contacts %>
+
+      <% if @next_offset %>
+        <%= turbo_frame_tag "load_more_contacts" do %>
+            <%= button_to "load more", paging_contacts_path(offset: @next_offset), class: "text-xs text-blue-600" %>
+        <% end %>
+      <% end %>
+    <% end %>
+<% end %>

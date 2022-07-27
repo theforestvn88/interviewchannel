@@ -31,7 +31,7 @@
                                 data-action="mouseenter->card#show mouseleave->card#hide mousedown->card#hide"
                                 data-card-url-value="<%= card_interview_path(display[:id]) %>"
                                 draggable="true" droppable="false" data-id="<%= display[:id] %>">
-                                <%= link_to display[:text], edit_interview_path(display[:id]), data: {"turbo-frame": "modal"}, class: "block", "draggable": "false", "droppable": "false" %>
+                                <%= link_to display[:text], interview_path(display[:id]), data: {turbo_frame: "home-content"}, class: "bg-red-200 text-xs block hover:text-blue-600", "draggable": "false", "droppable": "false" %>
                             </div>
                         <% end %>
                     </td>

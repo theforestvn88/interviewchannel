@@ -1,0 +1,6 @@
+<% @tags.each do |tag| %>
+    <p id="<%= tag.id %>" class="w-full hover:bg-gray-200 hover:cursor-pointer px-2 py-1" 
+        data-action="click->select7#selectTag" value="<%= tag.name %>" selected-display="<%= tag.name%>">
+        <span class="text-xs font-bold pointer-events-none"><%= tag.name %></span>
+    <p>
+<% end %>

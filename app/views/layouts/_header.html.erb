@@ -1,11 +1,16 @@
-<h1><b><\ interview ></b> Channel</h1>
-<% if user_signed_in? %>
-    <div class="flex justify-end">
-        <%= link_to current_user.name, profile_user_path(current_user), class: "hover:font-bold" %>
-        <%= link_to 'sign out', '/sign_out', class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
-    </div>
-<% else %>
-    <%= button_to 'Sign in with Github', '/auth/github', method: :post, data: {turbo: "false"}, params: {timezone: "UTC"},
-        class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 text-xs",
-        "data-controller": "auth" %>
-<% end %>
+<div class="w-full h-9 flex justify-between border-b border-gray-300 relative">
+    <% if user_signed_in? %>
+      <%= turbo_stream_from @private_channel %>
+      <div id="flash" class="hidden absolute top-0 -right-5 z-50 drop-shadow-xl border-b-2 border-x-2 border-gray-200 bg-white"></div>
+    <% end %>
+
+    <a href="/" class="absolute top-0 left-0"><span class="font-bold"><\ interview ></span> Channel</a>
+    <% if user_signed_in? %>
+        <div class="absolute top-0 right-0 flex justify-end">
+            <%= link_to current_user.name, profile_user_path(current_user), class: "hover:font-bold" %>
+            <%= link_to 'sign out', '/sign_out', class: "bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
+        </div>
+    <% else %>
+        <%= link_to "sign in", sign_in_path, data: {"turbo-frame": "modal"}, class: "absolute top-0 right-0 bg-emerald-500 hover:bg-emerald-600 rounded-md p-1 ml-2 text-xs" %>
+    <% end %>
+</div>

@@ -1,23 +1,46 @@
-<div id="<%= dom_id message %>" class="mb-5 text-xs">
-    <p>
-        <span>by <%= message.owner.name %> | </span> <span><%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | <%= message.views %> <%= 'view'.pluralize(message.views) %></span>
-    </p>
-    
-    <p><span class="font-bold"><%= message.channel %></span></p>
+<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+  <div id="<%= dom_id message %>" class="w-2/3 rounded-md border border-gray-200 m-5 p-5 text-xs">
+      <div class="flex justify-start">
+          <span class="font-bold">Job #<%= message.id %></span>
+          <span class="mx-1">created by</span>
+          <%= user_card_tag message.owner, class: "font-bold" %>
+          <span class="mx-1"> <%= distance_of_time_in_words(message.updated_at, Time.now.utc) %> ago | </span> 
+          <span><%= message.views %> <%= 'view'.pluralize(message.views) %></span>
+      </div>
+      
+      <% message.channel.split(" ").map {|t| t.gsub("#", "")}.each do |tag| %>
+        <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
+      <% end %>
 
-    <textarea class="mt-5 w-full" rows="10" disabled>
-        <%= message.content %> 
-    </textarea>
+      <div class="trix-content py-2 px-4"><%= message.content.html_safe %></div>
 
-    <% if message.user_id == current_user&.id %>
-        <div class="flex justify-end">
-            <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "modal"}, class: "hover:font-bold" %></span>
-            <span class="mx-1"> | </span>
-            <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
-        </div>
-    <% else %>
-        <div class="flex justify-end hover:underline">
-            <%= link_to "Apply Now", new_message_applying_path(message), data: {"turbo-frame": "modal"} %>
-        </div>
-    <% end %>
-</div>
+      <% if message.own_by?(current_user) %>
+          <div class="flex justify-end">
+            <% if message.expired? %>
+              <span class="font-bold">Closed</span>
+            <% else %>
+              <span><%= button_to "Edit", edit_message_path(message), method: :get, data: {"turbo-frame": "home-content"}, class: "hover:font-bold" %></span>
+              <span class="mx-1"> | </span>
+              <span><%= button_to "Close", message_path(message, close: true), method: :put, 
+                        data: {"turbo-frame": "home-content"}, form: { data: {turbo_confirm: "are you sure ?"} }, 
+                        class: "hover:font-bold" %></span>
+            <% end %>
+              <span class="mx-1"> | </span>
+              <span><%= button_to "Delete", message_path(message), method: :delete, form: { data: {turbo_confirm: "are you sure ?"} }, class: "hover:font-bold" %></span>
+          </div>
+      <% else %>
+          <div class="flex justify-end">
+          <% if message.expired? %>
+              <p class="font-bold mt-2">Closed</p>
+          <% elsif message.applied_by?(current_user) %>
+              <p class="font-bold mt-2">Applied</p>
+          <% else %>
+              <%= link_to "Apply Now", 
+                user_signed_in? ? new_message_applying_path(message) : sign_in_path, 
+                data: {"turbo-frame": user_signed_in? ? "home-content" : "modal"}, 
+                class: "hover:underline rounded-lg py-1 px-3 bg-blue-600 text-white mt-2" %>
+          <% end %>
+          </div>
+      <% end %>
+  </div>
+<% end %>

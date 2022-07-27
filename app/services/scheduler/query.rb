@@ -3,13 +3,9 @@
 class Scheduler
     module Query
         def as_role(*roles)
-            by_role = Interview.send("as_#{roles.pop}".to_sym, @user)
-            roles.each do |role|
-                by_role = by_role.or(Interview.send("as_#{role}".to_sym, @user))
-            end
-            by_role
+            Interview.as_role(@user, *roles)
         end
-    
+
         def day(target_date, *roles, keyword: nil)
             as_role(*roles)
                 .by_time(target_date.beginning_of_day.utc, target_date.end_of_day.utc)

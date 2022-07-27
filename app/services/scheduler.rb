@@ -29,4 +29,8 @@ class Scheduler
         
         interview.destroy
     end
+
+    def owner?(interview)
+        interview.owner?(@user)
+    end
 end

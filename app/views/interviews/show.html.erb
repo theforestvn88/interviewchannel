@@ -1,15 +1,28 @@
-<div class="mx-auto md:w-2/3 w-full flex">
-  <div class="mx-auto">
-    <% if notice.present? %>
-      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-    <% end %>
+<% if @showable %>  
+  <%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+    <div class="w-2/3 border border-gray-200 rounded-md p-5">
+      <% if @interview.applying_id %>
+        <%= button_to "<-applying", applying_path(@interview.applying_id),
+          method: :get,
+          id: "tag_inbox",
+          class: "text-left hover:underline mb-3" %>
+      <% end %>
 
-    <%= render @interview %>
+        <%= turbo_frame_tag "rounds-of-#{@interview.id}" do %>
+          <% @interview.timeline.each do |round| %>
+            <%= render partial: "interviews/round", locals: {round: round, user: current_user, timezone: current_user.curr_timezone} %>
+          <% end %>
+        <% end %>
 
-    <%= link_to 'Edit this interview', edit_interview_path(@interview), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <div class="inline-block ml-2">
-      <%= button_to 'Destroy this interview', interview_path(@interview), method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+        <div class="h-10 ml-4 border-l border-gray-200 dark:border-gray-400"></div>
+        <% if @interview.owner?(current_user) %>
+          <%= turbo_frame_tag "rounds-toolbar-#{@interview.id}" do %>
+            <%= link_to "create new round", 
+                new_interview_path(candidate_id: @interview.candidate_id, applying_id: @interview.applying_id), 
+                data: {turbo_frame: :modal}, class: "mt-5 p-1 text-xs font-bold text-gray-600 rounded-md border border-gray-600 hover:bg-gray-100" %>
+          <% end %>
+        <% end %>
+      </div>
     </div>
-    <%= link_to 'Back to interviews', interviews_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-  </div>
-</div>
+  <% end %>
+<% end %>

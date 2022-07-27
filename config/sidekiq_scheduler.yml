@@ -1,5 +1,5 @@
 clear_messages:
-  cron: '0 0 0 * * 3' # 0:0:0 saturday
+  cron: '0 0 0 * * *' # 0:0:0 everyday
   # every: 1 week
   class: ClearMessagesJob
   queue: low

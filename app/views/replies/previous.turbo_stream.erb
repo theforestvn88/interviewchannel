@@ -1,6 +1,9 @@
 <%= turbo_stream.replace "previous-replies-#{@applying.id}" do %>
     <% if @replies.size > 0 %>
-        <%= button_to "[...]", previous_applying_replies_path(@applying, date: @replies.first.created_at), form: { id: "previous-replies-#{@applying.id}" } %>
-        <%= render partial: "replies/reply", collection: @replies %>
+      <%= turbo_frame_tag "previous-replies-#{@applying.id}" do %>
+        <%= button_to "[...]", previous_applying_replies_path(@applying, date: @replies.first.created_at), class: "hover:font-bold hover:text-blue-600", form: { class: "absolute -left-2.5 bg-white" } %>
+        <br>
+      <% end %>
+        <%= render partial: "replies/reply", collection: @replies, locals: {timezone: current_user.curr_timezone, separator: true} %>
     <% end %>
 <% end %>

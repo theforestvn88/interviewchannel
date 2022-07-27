@@ -1,6 +1,6 @@
-<%= render "layouts/modal" do %>
-  <div class="mx-auto w-full">
-    <p>Edit Message</p>
+<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+  <div class="w-2/3 rounded-md border border-gray-200 m-5 p-5 text-xs">
+    <p class="text-base">Edit <b>Job<%= @message.id %></b></p>
     <%= render "form", message: @message %>
   </div>
 <% end %>

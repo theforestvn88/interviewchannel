@@ -1,0 +1,23 @@
+<% apply_time = "#{distance_of_time_in_words(applying.created_at, Time.now.utc)} ago" %>
+<%= button_to applying_path(applying), method: :get, class: "w-full text-left" do %>
+  <div class="w-full relative text-xs hover:bg-gray-200">
+    <hr class="border border-gray-300">
+    <p class="absolute top-4 right-1 font-light"><%= apply_time %></p>
+    <div class="flex justify-start mt-4 text-xs">
+      <%= user_card_tag applying.candidate, class: "ml-2 font-bold" %>
+      <span class="mx-1">applied to the</span>
+      <%= link_to "Job##{applying.message_id}", message_path(applying.message_id), data: {turbo_frame: "home-content"}, class: "font-bold" %>
+    </div>
+
+    <div class="ml-4 py-2">
+    <%= turbo_frame_tag "replies-#{applying.id}" do %>
+      <% if last_reply = applying.last_replies(to_user: user) %>
+        <p>...</p>
+        <%= render partial: "replies/reply", locals: {reply: last_reply, timezone: timezone} %>
+      <% else %>
+        <p class="ml-4 py-1"><%= applying.intro[0..250] + "..." %></p>
+      <% end %>
+    <% end %>
+    </div>
+  </div>
+<% end %>

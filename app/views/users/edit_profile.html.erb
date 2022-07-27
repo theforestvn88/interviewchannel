@@ -1,0 +1,60 @@
+<%= turbo_frame_tag "profile" do %>
+  <%= form_with(model: current_user, class: "mx-auto") do |form| %>
+    <% if current_user.errors.any? %>
+      <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+        <h2><%= pluralize(current_user.errors.count, "error") %> prohibited this current_user from being saved:</h2>
+
+        <ul>
+          <% current_user.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="my-2 mx-1">
+      <%= form.label "Brief Introduction about yourself" %>
+      <%= form.limit_text_area :brief_intro, limit: 150, format: :short %>
+    </div>
+
+    <div class="my-2 mx-1">
+      <%= form.label :watch_tags %>
+      <div class="my-2 relative" data-controller="select7"
+        data-select7-suggest-api-value="<%= suggest_tags_path %>" 
+        data-select7-name-value="user[tags][]"
+        data-select7-multiple-value="true">
+
+        <div data-select7-target="template" class="hidden border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center">
+          <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+        </div>
+
+        <div class="flex justify-start block shadow rounded-md border border-gray-200 bg-white outline-none w-full px-3 py-2 overflow-auto">
+          <div data-select7-target="selected" class="flex justify-start">
+            <input type="hidden" name=<%= "user[tags][]" %> value="">
+            <% @tags.each do |tag| %>
+              <div class="border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center">
+                <input type="hidden" name=<%= "user[tags][]" %> value="<%= tag %>">
+                <span class="text-xs font-bold pointer-events-none"><%= tag %></span>
+                <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+              </div>
+            <% end %>
+          </div>
+          <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none bg-white">
+        </div>
+        <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
+      </div>
+    </div>
+
+    <% social_support.each do |x| %>
+      <div class="my-2 mx-1">
+        <%= x %>
+        <%= form.text_field x, value: current_user.social_links["#{x}"], class: "w-full block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2" %>
+      </div>
+    <% end %>
+
+    <input type="hidden" id="partial" name="partial" value="summary" />
+    <div class="flex justify-end">
+      <%= form.submit "Update", class: "rounded-sm border p-2 inline-block font-medium cursor-pointer hover:border-gray-900" %>
+    </div>
+  <% end %>
+<% end %>

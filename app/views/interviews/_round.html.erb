@@ -1,0 +1,78 @@
+<%= turbo_frame_tag "round#{round.id}" do %>
+    <%= turbo_stream_from round %>
+    <div class="relative text-xs border border-gray-300 rounded-md p-2 bg-gray-50">
+        <p><%= round.title %></p>
+        <p>Round: <span class="font-bold"><%= round.round %></span></p>
+
+        <div class="flex justify-start">
+          <span class="mr-1">Interviewers: </span>
+          <% round.interviewers.each do |interviewer| %>
+            <%= user_card_tag interviewer, class: "font-bold mx-1 bg-gray-200" %>
+          <% end %>
+        </div>
+
+        <div class="flex justify-start">
+          <span class="mr-1">Candidate: </span>
+          <%= user_card_tag round.candidate, class: "font-bold mx-1 bg-gray-200" %>
+        </div>
+
+        <% if round.owner?(current_user) %>
+            <%= link_to "edit", edit_interview_path(round), data: {"turbo-frame": "modal"}, class: "absolute top-1 right-2 text-blue-600 underline" %>
+        <% end %>
+    </div>
+
+    <ol class="ml-4 relative border-l border-gray-200 dark:border-gray-400 text-xs">
+    <li class="py-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is created at <%= round.created_at.in_time_zone(timezone) %>, by <span class="font-bold"><%= round.owner.name %></span>.</time>
+    </li>
+
+    <% if round.started? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview started at <%= round.start_time.in_time_zone(timezone) %>
+            <% unless round.finished? %>
+            <%= link_to "-> Join Room##{round.id}", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600" %>
+            <% end %>
+        </time>
+        </li>
+    <% elsif round.wait? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500" data-controller="countdown" data-countdown-time-value="<%= round.countdown %>">this interview will be starting in 
+            <span class="ml-1 font-bold" data-countdown-target="clockView"></span>
+            <%= link_to "-> Join Room", room_interview_path(round), data: {turbo: false}, class: "font-bold text-blue-600 hidden", "data-countdown-target": "waitView" %>
+        </time>
+        </li>
+    <% end %>
+
+    <% notes_frame_id = "round#{round.id}-notes" %>
+    <%= turbo_stream_from notes_frame_id %>
+    <%= turbo_frame_tag notes_frame_id do %>
+      <% round.forward_notes(user).each do |note| %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+          <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+          <time class="font-normal leading-none text-gray-400 dark:text-gray-500">
+            <%= render note %>
+          </time>
+        </li>
+      <% end %>
+    <% end %>
+
+    <% if round.finished? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is finished at <%= round.end_time.in_time_zone(timezone) %></time>
+        </li>
+    <% elsif round.canceled? %>
+        <li class="mt-2 pb-2 ml-4 text-xs">
+        <div class="absolute w-2 h-2 bg-gray-400 rounded-full mt-1.5 -left-1 border border-white dark:border-gray-500 dark:bg-gray-500"></div>
+        <time class="font-normal leading-none text-gray-400 dark:text-gray-500">this interview is <b>canceled</b></time>
+        </li>
+    <% end %>
+
+    <% if round.control_by?(user) %>
+      <%= render partial: "interviews/toolbar", locals: {interview: round, timezone: timezone} %>
+    <% end %>
+    </ol>
+<% end %>

@@ -1,0 +1,9 @@
+<div class="w-full flex justify-start">
+    <%= user_card_tag owner, class: "font-bold" %>
+    <span class="mx-1">removed</span>
+    <% interviewers.each do |interviewer| %>
+      <%= user_card_tag interviewer, class: "font-bold mx-1 bg-gray-200" %>
+    <% end %>
+    <span class="mx-1">from</span>
+    <%= interview_link_tag interview %>
+</div>

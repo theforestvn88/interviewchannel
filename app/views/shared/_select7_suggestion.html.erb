@@ -1,4 +1,3 @@
 <% items.each do |item| %>
     <p id="<%= item.id %>" class="hover:bg-gray-200 hover:cursor-pointer px-2 py-1" data-action="click->select7#selectTag"><%= item.name %></p>
-    <%= render partial: "shared/select7_item", locals: {attr: attr, name: item.name, hidden: true} %>
 <% end %>

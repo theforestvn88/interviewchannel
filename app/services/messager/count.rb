@@ -15,6 +15,7 @@ class Messager
         end
 
         def increase_then_broadcast_counter(message)
+            message.tags.each { |tag| count_by_tag(tag) } # fetch tag-counter before increase, for sure
             broadcast_tags message.tags.zip(MessageRepo.increase_counter_by_tags(message.tags))
         end
 
@@ -26,9 +27,9 @@ class Messager
             tags_with_count.each do |(tag, count)|
                 Turbo::StreamsChannel.broadcast_replace_to(
                     :tags,
-                    target: "tag_#{tag.gsub("#", "")}", 
+                    target: "tag_#{tag.gsub("#", "").downcase}_content", 
                     partial: "messages/tag",
-                    locals: {tag: tag, count: count}
+                    locals: {tag: tag, count: count, unread: true}
                 )
             end
 

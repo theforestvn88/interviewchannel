@@ -1,0 +1,29 @@
+<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
+    <div id="messages_inbox" class="w-2/3 border border-gray-300 rounded-md">
+      <div class="p-2 flex justify-between">
+        <p>Inbox</p>
+        <div class="flex justify-end">
+          <%= filter_dropdown_tag "Job", 
+              query_messages_path(tag: @tag), 
+              @jobids.map {|j| ["Job##{j}", j]}.unshift(["Job#all", "all"]), 
+              @filter_jobid ? "##{@filter_jobid}" : "#all",
+              @filter_userid ? { user: {id: @filter_userid} } : {} %>
+          <span class="mx-1"></span>
+          <%= filter_dropdown_tag "User",
+              query_messages_path(tag: @tag), 
+              @users.map {|id, name, email| ["User@#{name}", {id: id, name: name}]}.unshift(["User@all", {id: "all"}]), 
+              @filter_username ? "@#{@filter_username}" : "@all",
+              @filter_jobid ? { job: @filter_jobid } : {} %>
+        </div>
+      </div>
+
+      <%= render partial: "messages/applying", collection: @messages, as: :applying, locals: @locals %>
+
+      <%= turbo_frame_tag "load_more" do %>
+          <% if offset %>
+              <%= button_to "load more", query_messages_path(tag: tag, offset: offset), class: "text-xs text-blue-600" %>
+          <% end %>
+      <% end %>
+
+    </div>
+<% end %>

@@ -1,0 +1,9 @@
+<div class="flex justify-start">
+    <%= user_card_tag owner, class: "font-bold" %>
+    <span class="mx-1">assigned</span>
+    <% interviewers.each do |interviewer| %>
+      <%= user_card_tag interviewer, class: "font-bold mx-1 bg-gray-200" %>
+    <% end %>
+    <span class="mx-1">as <%= "interviewer".pluralize(interviewers.count) %> of </span>
+    <%= interview_link_tag interview %>
+</div>

@@ -6,7 +6,8 @@ Rails.application.routes.draw do
   get '/cal/weekly', to: 'home#weekly', as: "calendar_weekly"
   get '/cal/monthly', to: 'home#monthly', as: "calendar_monthly"
 
-  get 'auth/github/callback', to: 'sessions#callback'
+  get '/sign_in', to: 'sessions#new'
+  match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post]
   get '/sign_out', to: 'sessions#destroy'
 
   resources :users, only: [:edit, :update] do
@@ -17,22 +18,35 @@ Rails.application.routes.draw do
     member do
       get 'profile'
       get 'card'
-      get 'edit_tags'
+      get 'edit_profile'
       post 'add_watch_tag'
       post 'remove_watch_tag'
+
+      get 'private_chat'
+      post 'send_private_chat'
+    end
+  end
+
+  resources :contacts, except: [:index] do
+    collection do
+      post 'paging'
+      get 'search'
     end
   end
 
   resources :interviews do
     member do
-      get 'room'
       get 'card'
       get 'confirm'
+      get 'room'
+      get 'assign'
     end
 
     collection do
       get '/search', to: 'interviews#search', as: 'search'
     end
+
+    resources :notes, only: [:new, :create]
   end
 
   resources :tags do
@@ -45,11 +59,20 @@ Rails.application.routes.draw do
     resources :applyings, only: [:new, :create]
 
     collection do
-      post '/query', to: 'messages#query', as: 'query'
+      post 'query'
+      get 'by_tag'
+      post 'by_me'
+      get 'new_filter'
+      post 'filter'
     end
   end
 
-  resources :applyings, only: [] do
+  resources :applyings, only: [:show] do
+    member do
+      post 'close'
+      post 'open'
+    end
+
     resources :replies, only: [:new, :create] do
       collection do
         post 'previous'

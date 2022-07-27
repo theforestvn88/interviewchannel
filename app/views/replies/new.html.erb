@@ -1,12 +1,29 @@
 <%= turbo_frame_tag "reply-#{@applying.id}" do %>
-  <div class="mx-auto w-full">
+  <div class="w-full px-5 mb-2">
     <%= form_with(model: [@applying, @reply], class: "w-full text-xs") do |form| %>
         <div class="my-5">
             <%= form.limit_text_area :content, limit: 150, rows: 2, placeholder: "...", class: "block shadow rounded-md border border-gray-200 outline-none px-2 py-1 mt-1 w-full text-xs" %>
         </div>
 
+        <div class="my-1 relative"
+          data-controller="select7"
+          data-select7-suggest-api-value="<%= suggest_users_path %>"
+          data-select7-name-value="cc[]"
+          data-select7-multiple-value="true">
+            <label>cc:</label>
+            <div data-select7-target="template" class="hidden border-2 border-gray-300 rounded-md pl-1 mr-1 flex justify-between items-center">
+              <span class="text-center text-xs px-1 hover:rounded-full hover:bg-red-200 hover:cursor-pointer" data-action="click->select7#removeTag">x</span>
+            </div>
+
+            <div class="flex justify-start block shadow border border-gray-200 outline-none bg-white w-full p-1 overflow-x-auto">
+              <div class="flex justify-start" data-select7-target="selected"></div>
+              <input data-select7-target="input" data-action="input->select7#suggest" class="border-none outline-none">
+            </div>
+            <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
+        </div>
+
         <div class="inline float-right">
-            <%= form.submit "reply", class: "rounded-lg py-1 px-1 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+            <%= form.submit "reply", class: "rounded-lg mb-1 py-1 px-1 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
         </div>
     <% end %>
   </div>

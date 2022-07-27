@@ -7,7 +7,14 @@ class ApplicationController < ActionController::Base
     destroy
   end
 
+  rescue_from RateLimiter::LimitExceeded do |exception|
+    @messager.send_error_flash(error: exception.error_message || "Too Many Requests !!! Please wait for some time.")
+    head :no_content
+  end
+
   helper_method :current_user, :user_signed_in?
+
+  before_action :setup_messager
   
   private
 
@@ -20,8 +27,12 @@ class ApplicationController < ActionController::Base
       !!current_user
     end
 
-    def ensure_user_signed_in
+    def require_user_signed_in
       redirect_to root_path unless user_signed_in?
+    end
+
+    def ensure_user_signed_in
+      redirect_to sign_in_path unless user_signed_in?
     end
 
     def ensure_turbo_frame_request
@@ -30,6 +41,15 @@ class ApplicationController < ActionController::Base
 
     def render_not_found
       render :file => "#{Rails.root}/public/404.html", :status => 404
+    end
+
+    def setup_messager
+      @messager ||= Messager.new(current_user, current_user&.curr_timezone)
+      @private_channel ||= @messager.private_channel
+    end
+
+    def today_in_curr_timezone
+      Time.now.in_time_zone(current_user.curr_timezone)
     end
 end
 

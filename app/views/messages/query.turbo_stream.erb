@@ -1,12 +1,12 @@
 <% if params[:offset] %>
-    <%= turbo_stream.append "messages_#{@tag&.gsub('#','') || 'all'}", class: "w-full" do %>
+    <%= turbo_stream.append "#{message_list_id(@filter_tags)}", class: "w-full" do %>
         <%= render(partial: @partial, collection: @messages, locals: @locals) if @messages %>
     <% end %>
 
     <%= turbo_stream.replace "load_more" do %>
         <%= turbo_frame_tag "load_more" do %>
             <% if @next_offset %>
-                <%= button_to "load more", query_messages_path(tag: @tag, offset: @next_offset), class: "text-xs text-blue-600" %>
+                <%= button_to "load more", query_messages_path(tag: @filter_tags, offset: @next_offset), class: "text-xs text-blue-600" %>
             <% end %>
         <% end %>
     <% end %>

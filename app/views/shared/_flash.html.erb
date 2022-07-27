@@ -1,4 +1,10 @@
-<div id="flash" class="absolute top-3 right-0 z-100 pl-5 pr-10 py-2 shadow-xl drop-shadow-2xl border-y-2 border-l-2 border-gray-300 bg-white"
+<div id="flash" class="<%= local_assigns[:css] || 'absolute top-0 -right-5 z-50 pl-5 pr-10 py-2 shadow-xl drop-shadow-2xl border-y-2 border-l-2 border-gray-300 bg-white' %>"
     data-controller="flash" data-flash-target="flashView" data-action="click->flash#hide">
-    <%= button_to content, query_messages_path(tag: "#private"), class: "text-xs" %>
+    <% if path = local_assigns[:path] %>
+        <%= button_to content, path, class: "text-xs" %>
+    <% elsif _link_to = local_assigns[:link_to] %>
+        <%= link_to(content, _link_to[:path], data: _link_to[:data]) %>
+    <% else %>
+        <%= content %>
+    <% end %>
 </div>
