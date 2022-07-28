@@ -6,7 +6,7 @@ class Admin::AdminController < ApplicationController
     private
 
         def is_admin?
-            current_user.admin?
+            current_user&.admin?
         end
 
         def ensure_admin!

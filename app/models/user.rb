@@ -71,5 +71,17 @@ class User < ApplicationRecord
   def admin?
     self.id == 1
   end
+
+  def banned?
+    self.updated_at > Time.now.utc
+  end
+
+  def ban(time = 1.year.from_now)
+    self.update(updated_at: time)
+  end
+  
+  def unban
+    self.update(updated_at: Time.now.utc)
+  end
 end
 

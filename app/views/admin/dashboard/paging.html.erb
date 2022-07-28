@@ -1,0 +1,26 @@
+<%= turbo_frame_tag "dashboard" do %>
+    <div class="w-2/3 flex justify-between">
+        <nav class="navigation w-52 p-5 bg-gray-100 rounded-lg" role="navigation">
+            <% @resources.each do |resource| %>
+                <%= link_to resource, admin_paging_path(r: resource), data: {turbo_frame: "dashboard"}, class: "block text-blue-400 hover:underline #{@curr_resource == resource ? 'underline' : ''} " %>
+            <% end %>
+        </nav>
+
+        <table class="w-full mx-5 border-2 border-gray-200 rounded-lg p-5 text-left">
+            <thead>
+                <tr class="border-b-2 border-gray-200">
+                    <% @curr_fields.each do |field| %>
+                        <th class="border-r border-gray-100 pl-1"><%= field %></th>
+                    <% end %>
+                    <th class="border-r border-gray-100 pl-1">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% @records.each do |record| %>
+                    <%= render partial: "admin/dashboard/record", locals: {record: record, curr_resource: @curr_resource, curr_fields: @curr_fields, curr_actions: @curr_actions} %>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+<% end %>

@@ -1,0 +1,7 @@
+<% if @action == "destroy" %>
+    <%= turbo_stream.remove "dashboard-record-#{@curr_resource}-#{@record.id}" %>
+<% else %>
+    <%= turbo_stream.replace "dashboard-record-#{@curr_resource}-#{@record.id}" do %>
+        <%= render partial: "admin/dashboard/record", locals: {record: @record, curr_resource: @curr_resource, curr_fields: @curr_fields, curr_actions: @curr_actions} %>
+    <% end %>
+<% end %>
