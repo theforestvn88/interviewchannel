@@ -1,12 +1,12 @@
 <%= turbo_frame_tag "dashboard" do %>
-    <div class="w-2/3 flex justify-between">
+    <div class="w-full flex justify-between">
         <nav class="navigation w-52 p-5 bg-gray-100 rounded-lg" role="navigation">
             <% @resources.each do |resource| %>
                 <%= link_to resource, admin_paging_path(r: resource), data: {turbo_frame: "dashboard"}, class: "block text-blue-400 hover:underline #{@curr_resource == resource ? 'underline' : ''} " %>
             <% end %>
         </nav>
 
-        <table class="w-full mx-5 border-2 border-gray-200 rounded-lg p-5 text-left">
+        <table class="w-full mx-5 border-2 border-gray-200 rounded-lg p-5 text-left text-sm">
             <thead>
                 <tr class="border-b-2 border-gray-200">
                     <% @curr_fields.each do |field| %>

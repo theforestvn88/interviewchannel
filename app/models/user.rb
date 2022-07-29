@@ -69,7 +69,8 @@ class User < ApplicationRecord
   end
 
   def admin?
-    self.id == 1
+    self.uid == Rails.application.credentials.admin[:uid].to_s &&
+      self.email == Rails.application.credentials.admin[:email].to_s
   end
 
   def banned?

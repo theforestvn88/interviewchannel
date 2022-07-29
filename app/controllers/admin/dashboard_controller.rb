@@ -3,7 +3,7 @@
 class Admin::DashboardController < Admin::AdminController
     RESOURCES = {
         "User" => {
-            :fields => [:id, :name, :email, :created_at, :updated_at, :banned?],
+            :fields => [:id, :name, :email, :created_at, :updated_at, :messages_count, :interviews_count, :banned?],
             :actions => [
                 {
                     :name => "ban",
@@ -18,10 +18,9 @@ class Admin::DashboardController < Admin::AdminController
             ]
         },        
         "Tag" => {
-            :fields => [:id, :name],
+            :fields => [:id, :name, :jobs_count],
             :actions => [
                 {
-
                     :name => "delete",
                     :method => :destroy
                 }
