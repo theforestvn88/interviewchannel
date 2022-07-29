@@ -25,6 +25,33 @@ class Admin::DashboardController < Admin::AdminController
                     :method => :destroy
                 }
             ]
+        },
+        "Message" => {
+            :includes => [:owner],
+            :fields => [:id, :title, :channel, "owner.email", :created_at, :expired_at, "applyings.count", :views],
+            :actions => [
+                {
+                    :name => "destroy"
+                }
+            ]
+        },
+        "Applying" => {
+            :includes => [:candidate],
+            :fields => [:id, :message_id, "candidate.email", :created_at],
+            :actions => [
+                {
+                    :name => "destroy"
+                }
+            ]
+        },
+        "Interview" => {
+            :includes => [:owner, :candidate],
+            :fields => [:id, "applying.id", "applying.message_id", :round, "owner.email", "candidate.email", :start_time, :end_time],
+            :actions => [
+                {
+                    :name => "destroy"
+                }
+            ]
         }
     }.freeze
 
@@ -54,6 +81,7 @@ class Admin::DashboardController < Admin::AdminController
     private def get_params
         @resources = RESOURCES.keys
         @curr_resource = params[:r] || @resources.first
+        @curr_includes = RESOURCES.dig(@curr_resource, :includes)
         @curr_fields = RESOURCES.dig(@curr_resource, :fields)
         @curr_actions = RESOURCES.dig(@curr_resource, :actions)
         @page = params[:p].to_i
@@ -61,6 +89,8 @@ class Admin::DashboardController < Admin::AdminController
     end
 
     private def load
-        @records = ActiveSupport::Inflector.constantize(@curr_resource).offset(PAGE_SIZE * @page).limit(PAGE_SIZE)
+        @records = ActiveSupport::Inflector.constantize(@curr_resource)
+        @records = @records.includes(*@curr_includes) unless @curr_includes.blank?
+        @records = @records.offset(PAGE_SIZE * @page).limit(PAGE_SIZE)
     end
 end
