@@ -23,4 +23,8 @@
             </tbody>
         </table>
     </div>
+
+    <div class="ml-52 mt-3">
+        <%= render partial: "admin/dashboard/pagination", locals: {resource: @curr_resource, curr_page: @curr_page, total_pages: @total_pages} %>
+    </div>
 <% end %>

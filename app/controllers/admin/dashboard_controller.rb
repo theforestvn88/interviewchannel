@@ -84,13 +84,15 @@ class Admin::DashboardController < Admin::AdminController
         @curr_includes = RESOURCES.dig(@curr_resource, :includes)
         @curr_fields = RESOURCES.dig(@curr_resource, :fields)
         @curr_actions = RESOURCES.dig(@curr_resource, :actions)
-        @page = params[:p].to_i
+        @curr_page = params[:p].to_i
         @search = params[:s]
     end
 
     private def load
         @records = ActiveSupport::Inflector.constantize(@curr_resource)
         @records = @records.includes(*@curr_includes) unless @curr_includes.blank?
-        @records = @records.offset(PAGE_SIZE * @page).limit(PAGE_SIZE)
+        @total_records = @records.count
+        @records = @records.offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
+        @total_pages = (@total_records / PAGE_SIZE).ceil
     end
 end
