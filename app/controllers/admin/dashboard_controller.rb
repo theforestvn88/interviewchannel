@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Admin::DashboardController < Admin::AdminController
+    include SearchParser
+
     RESOURCES = {
         "User" => {
             :fields => [:id, :name, :email, :created_at, :updated_at, :messages_count, :interviews_count, :banned?],
@@ -68,13 +70,48 @@ class Admin::DashboardController < Admin::AdminController
     end
 
     def action
-        @record = ActiveSupport::Inflector.constantize(@curr_resource).find_by(id: params[:id])
         if @action = params[:a]
             begin
+                @record = ActiveSupport::Inflector.constantize(@curr_resource).find_by(id: params[:id])
                 @record&.send(@action)
             rescue => e
                 puts e
             end
+        elsif @search = params[:s]
+            @clazz = ActiveSupport::Inflector.constantize(@curr_resource)
+            @attributes = @clazz.attribute_names
+
+            @search = @search.to_unsafe_h
+            search_clause = @search.map do |field, search_term|
+                parts = field.split(".")
+                parse(parts.last, search_term) if search_term.present? && (parts.size > 1 || @attributes.include?(parts.last))
+            end.reject { |t| t.blank? }.join(" AND ")
+            
+            joins = @search.map do |field, search_term|
+                if search_term.present? && (_parts = field.split(".")).size > 1
+                    _parts.first.to_sym
+                end
+            end.compact
+
+            methods = @search.filter do |field, search_term|
+                search_term.present? && field.split(".").size == 1
+            end
+
+            @result = joins.empty? ? @clazz : @clazz.joins(*joins)
+            @result = @result.where(search_clause)
+            @total_records= @result.count
+            @records = @result.offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
+            methods.each do |m, v|
+                @records = @records.select do |r|
+                    if r.respond_to?(m)
+                        r.send(m).to_s == v
+                    else
+                        true
+                    end
+                end
+            end
+
+            set_pager
         end
     end
 
@@ -85,7 +122,6 @@ class Admin::DashboardController < Admin::AdminController
         @curr_fields = RESOURCES.dig(@curr_resource, :fields)
         @curr_actions = RESOURCES.dig(@curr_resource, :actions)
         @curr_page = params[:p].to_i
-        @search = params[:s]
     end
 
     private def load
@@ -93,6 +129,10 @@ class Admin::DashboardController < Admin::AdminController
         @records = @records.includes(*@curr_includes) unless @curr_includes.blank?
         @total_records = @records.count
         @records = @records.offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
+        set_pager
+    end
+
+    private def set_pager
         @total_pages = (@total_records / PAGE_SIZE).ceil
     end
 end

@@ -1,4 +1,8 @@
-<% if @action == "destroy" %>
+<% if @search.present? %>
+    <%= turbo_stream.replace "dashboard" do %>
+        <% render template: "admin/dashboard/paging" %>
+    <% end %>
+<% elsif @action == "destroy" %>
     <%= turbo_stream.remove "dashboard-record-#{@curr_resource}-#{@record.id}" %>
 <% else %>
     <%= turbo_stream.replace "dashboard-record-#{@curr_resource}-#{@record.id}" do %>
