@@ -2,6 +2,7 @@
 
 class Admin::DashboardController < Admin::AdminController
     include SearchParser
+    helper_method :parse_search_action
 
     RESOURCES = {
         "User" => {
@@ -10,12 +11,14 @@ class Admin::DashboardController < Admin::AdminController
                 {
                     :name => "ban",
                     :method => :ban,
-                    :if => lambda {|user| !user.banned? }
+                    :if => lambda {|user| !user.banned? },
+                    :form_data => { turbo_confirm: "are you sure?" } 
                 },
                 {
                     :name => "unban",
                     :method => :unban,
-                    :if => lambda {|user| user.banned? }
+                    :if => lambda {|user| user.banned? },
+                    :form_data => { turbo_confirm: "are you sure?" } 
                 }
             ]
         },        
@@ -24,7 +27,8 @@ class Admin::DashboardController < Admin::AdminController
             :actions => [
                 {
                     :name => "delete",
-                    :method => :destroy
+                    :method => :destroy,
+                    :form_data => { turbo_confirm: "are you sure?" } 
                 }
             ]
         },
@@ -33,7 +37,8 @@ class Admin::DashboardController < Admin::AdminController
             :fields => [:id, :title, :channel, "owner.email", :created_at, :expired_at, "applyings.count", :views],
             :actions => [
                 {
-                    :name => "destroy"
+                    :name => "destroy",
+                    :form_data => { turbo_confirm: "are you sure?" } 
                 }
             ]
         },
@@ -42,8 +47,28 @@ class Admin::DashboardController < Admin::AdminController
             :fields => [:id, :message_id, "candidate.email", :created_at],
             :actions => [
                 {
-                    :name => "destroy"
+                    :name => "destroy",
+                    :form_data => { turbo_confirm: "are you sure?" } 
+                },
+                {
+                    :name => "replies",
+                    :r => "Reply",
+                    :s => {"applying_id" => "applying.id"}
                 }
+            ]
+        },
+        "Reply" => {
+            :fields => [:id, :user_id, :applying_id, :created_at, :content],
+            :actions => [
+                {
+                    :name => "destroy",
+                    :form_data => { turbo_confirm: "are you sure?" } 
+                },
+                {
+                    :name => "applying",
+                    :r => "Applying",
+                    :s => {"id" => "reply.applying_id"}
+                } 
             ]
         },
         "Interview" => {
@@ -51,8 +76,28 @@ class Admin::DashboardController < Admin::AdminController
             :fields => [:id, "applying.id", "applying.message_id", :round, "owner.email", "candidate.email", :start_time, :end_time],
             :actions => [
                 {
-                    :name => "destroy"
+                    :name => "destroy",
+                    :form_data => { turbo_confirm: "are you sure?" } 
+                },
+                {
+                    :name => "notes",
+                    :r => "Note",
+                    :s => {"interview_id" => "interview.id"}
                 }
+            ]
+        },
+        "Note" => {
+            :fields => [:id, :user_id, :interview_id, :created_at, :content, :cc],
+            :actions => [
+                {
+                    :name => "destroy",
+                    :form_data => { turbo_confirm: "are you sure?" } 
+                },
+                {
+                    :name => "interview",
+                    :r => "Interview",
+                    :s => {"id" => "note.interview_id"}
+                }      
             ]
         }
     }.freeze
@@ -70,48 +115,15 @@ class Admin::DashboardController < Admin::AdminController
     end
 
     def action
-        if @action = params[:a]
+        if @search = params[:s]
+            search
+        elsif @action = params[:a]
             begin
                 @record = ActiveSupport::Inflector.constantize(@curr_resource).find_by(id: params[:id])
                 @record&.send(@action)
             rescue => e
                 puts e
             end
-        elsif @search = params[:s]
-            @clazz = ActiveSupport::Inflector.constantize(@curr_resource)
-            @attributes = @clazz.attribute_names
-
-            @search = @search.to_unsafe_h
-            search_clause = @search.map do |field, search_term|
-                parts = field.split(".")
-                parse(parts.last, search_term) if search_term.present? && (parts.size > 1 || @attributes.include?(parts.last))
-            end.reject { |t| t.blank? }.join(" AND ")
-            
-            joins = @search.map do |field, search_term|
-                if search_term.present? && (_parts = field.split(".")).size > 1
-                    _parts.first.to_sym
-                end
-            end.compact
-
-            methods = @search.filter do |field, search_term|
-                search_term.present? && field.split(".").size == 1
-            end
-
-            @result = joins.empty? ? @clazz : @clazz.joins(*joins)
-            @result = @result.where(search_clause)
-            @total_records= @result.count
-            @records = @result.offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
-            methods.each do |m, v|
-                @records = @records.select do |r|
-                    if r.respond_to?(m)
-                        r.send(m).to_s == v
-                    else
-                        true
-                    end
-                end
-            end
-
-            set_pager
         end
     end
 
@@ -134,5 +146,42 @@ class Admin::DashboardController < Admin::AdminController
 
     private def set_pager
         @total_pages = (@total_records / PAGE_SIZE).ceil
+    end
+
+    private def search
+        @clazz = ActiveSupport::Inflector.constantize(@curr_resource)
+        @attributes = @clazz.attribute_names
+
+        @search = @search.to_unsafe_h
+        search_clause = @search.map do |field, search_term|
+            parts = field.split(".")
+            parse(parts.last, search_term) if search_term.present? && (parts.size > 1 || @attributes.include?(parts.last))
+        end.reject { |t| t.blank? }.join(" AND ")
+        
+        joins = @search.map do |field, search_term|
+            if search_term.present? && (_parts = field.split(".")).size > 1
+                _parts.first.to_sym
+            end
+        end.compact
+
+        methods = @search.filter do |field, search_term|
+            search_term.present? && field.split(".").size == 1
+        end
+
+        @result = joins.empty? ? @clazz : @clazz.joins(*joins)
+        @result = @result.where(search_clause)
+        @total_records= @result.count
+        @records = @result.offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
+        methods.each do |m, v|
+            @records = @records.select do |r|
+                if r.respond_to?(m)
+                    r.send(m).to_s == v
+                else
+                    true
+                end
+            end
+        end
+
+        set_pager
     end
 end

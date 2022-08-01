@@ -42,4 +42,17 @@ module SearchParser
     def parse_time(field, date)
         "#{field} BETWEEN '#{date.beginning_of_day}' AND '#{date.end_of_day}'"
     end
+
+    def parse_search_action(action_search, record)
+        return if action_search.nil?
+
+        clazz_name = record.class.name.downcase
+        action_search.transform_values do |value|
+            if (parts = value.to_s.split(".")).size > 1 && parts.first == clazz_name
+                record.send(parts.last)
+            else
+                value
+            end
+        end
+    end
 end

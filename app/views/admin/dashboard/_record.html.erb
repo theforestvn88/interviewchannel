@@ -6,9 +6,9 @@
     <td class="border-r border-gray-100 pl-1 flex justify-start">
         <% curr_actions.each do |action| %>
             <% if !action[:if] || action[:if].call(record) %>
-                <%= button_to action[:name], admin_action_path(r: curr_resource, id: record.id, a: action[:method] || action[:name]), 
-                    form: { data: { turbo_confirm: "are you sure?"} },
-                    class: "text-orange-300 hover:underline" %>
+                <%= button_to action[:name], admin_action_path(r: action[:r] || curr_resource, id: record.id, a: action[:method] || action[:name], s: parse_search_action(action[:s], record)), 
+                    form: { data: {}.merge(action[:form_data] || {}) },
+                    class: "text-orange-300 hover:underline mx-1" %>
             <% end %>
         <% end %>
     </td>
