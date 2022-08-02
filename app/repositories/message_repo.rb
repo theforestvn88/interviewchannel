@@ -6,7 +6,7 @@ class MessageRepo
             q = Message.by_updated_time(by_time)
             q = q.by_tags(by_tags) unless by_tags.blank? or by_tags == ["#all"]
             q = q.by_owner(by_user.id) if by_user
-            q = q.order(sort_by.map { |s| "messages.#{s.first} #{s.last}" }.join(", ")) if sort_by
+            q = q.order(sort_by.map { |s| "messages.#{s.first} #{s.last}" }.join(" NULLS LAST, ")) if sort_by
             q = q.limit(limit) if limit
             q
         end

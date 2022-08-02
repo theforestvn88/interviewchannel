@@ -1,10 +1,7 @@
 <%= button_to message_path(message), id: dom_id(message), method: :get, class: "text-left text-sm w-full", data: {"turbo-frame": "home-content"} do %>
   <div class="flex justify-start mb-3">
   
-    <% applying_count = message.applyings.size %>
-    <div class="h-1/2 py-2 px-3 bg-gray-200 text-gray-600 font-bold items-center text-center" title="<%= applying_count %> applied">
-      <%= applying_count %>
-    </div>
+    <%= image_tag message.owner.image, class: "object-cover h-16 w-16" %>
 
     <% cache message, expires_in: 30.seconds do %>
       <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
@@ -18,10 +15,19 @@
           <% end %>
         </div>
         <div class="flex justify-start text-xs">
-          <%= user_card_tag message.owner, format: "by %s" %>
-          <span class="mx-1"> | </span>
-          <span>
-            <%= distance_of_time_in_words(message.created_at, Time.now.utc) %> ago | <%= number_to_human(message.views, units: {thousand: 'K', million: 'M'}) %> <%= 'view'.pluralize(message.views) %> 
+          <span class="text-blue-300">
+            by <%= user_card_tag message.owner, format: "%s" %>
+          </span>
+          <span class="mx-1">
+            <%= "#{distance_of_time_in_words(message.created_at, Time.now.utc)} ago |" %> 
+          </span>
+          <% if message.applyings_count && message.applyings_count > 0 %>
+            <span class="mx-1">
+              <%= "#{message.applyings_count} applied | " %>
+            </span>
+          <% end %>
+          <span class="mx-1">
+            <%= number_to_human(message.views, units: {thousand: 'K', million: 'M'}) %> <%= 'view'.pluralize(message.views) %>
           </span>
         </div>
       </div>

@@ -2,8 +2,8 @@
   <div class="flex justify-start px-5 pt-5 relative">
     <img src="<%= user.image %>" class="object-cover h-24 w-24" />
     <div class="ml-2">
-      <p class="text-lg font-bold"><%= user.name %></p>
-      <p class="font-light"><%= user.email %></p>
+      <p class="text-lg text-blue-300 font-bold"><%= user.name %></p>
+      <p class="text-blue-300 font-light"><%= user.email %></p>
       <div class="my-1 flex justify-start">
 
         <% unless user.github.blank? %>
@@ -194,12 +194,12 @@
         new_contact_path(friend_id: user.id),
         data: {turbo_frame: :modal},
         "data-action": "click->card#forceHide", 
-        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1 text-blue-300" %>
 
       <%= link_to "chat", 
         private_chat_user_path(user), 
         data: {turbo_frame: "chat-form", action: "click->card#forceHide"}, 
-        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1 text-blue-300" %>
     </div>
   </div>
 <% end %>
