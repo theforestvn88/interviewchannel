@@ -79,4 +79,10 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  namespace :admin do
+    get "" => "dashboard#index"
+    get "paging" => "dashboard#paging"
+    post "action" => "dashboard#action"
+  end
 end

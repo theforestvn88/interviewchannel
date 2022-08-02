@@ -1,0 +1,46 @@
+<%= turbo_frame_tag "dashboard" do %>
+    <div class="w-full flex justify-between">
+        <nav class="navigation w-52 p-5 bg-gray-100 rounded-lg" role="navigation">
+            <% @resources.each do |resource| %>
+                <%= link_to resource, admin_paging_path(r: resource), data: {turbo_frame: "dashboard"}, class: "block text-blue-400 hover:underline #{@curr_resource == resource ? 'underline' : ''} " %>
+            <% end %>
+        </nav>
+
+        <div class="w-full pr-5">
+            <%= form_with(url: admin_action_path(r: @curr_resource), class: "mb-5 text-xs w-full") do |f| %>
+                <div class="flex justify-start h-5 mx-5 w-full">
+                    <% @curr_fields.each do |field| %>
+                        <% if [:created_at, :updated_at, :expired_at].include?(field) %>
+                            <%= f.datetime_field "#{field}", name: "s[#{field}]", placeholder: "#{field}", class: "w-36" %>
+                        <% else %>
+                            <%= f.text_field "#{field}", name: "s[#{field}]", placeholder: "#{field}", class: "w-36" %>
+                        <% end %>
+                    <% end %>
+
+                    <%= f.submit "search", class: "mx-5 border border-gray-300 hover:bg-gray-400" %>
+                </div>
+            <% end %>
+
+            <table class="w-full mx-5 border-2 border-gray-200 rounded-lg p-5 text-left text-sm">
+                <thead>
+                    <tr class="border-b-2 border-gray-200">
+                        <% @curr_fields.each do |field| %>
+                            <th class="border-r border-gray-100 pl-1"><%= field %></th>
+                        <% end %>
+                        <th class="border-r border-gray-100 pl-1">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% @records.each do |record| %>
+                        <%= render partial: "admin/dashboard/record", locals: {record: record, curr_resource: @curr_resource, curr_fields: @curr_fields, curr_actions: @curr_actions} %>
+                    <% end %>
+                </tbody>
+            </table>
+            
+            <div class="ml-4 mt-3">
+                <%= render partial: "admin/dashboard/pagination", locals: {resource: @curr_resource, curr_page: @curr_page, total_pages: @total_pages} %>
+            </div>
+        </div>
+    </div>
+<% end %>

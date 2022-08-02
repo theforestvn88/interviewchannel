@@ -69,7 +69,20 @@ class User < ApplicationRecord
   end
 
   def admin?
-    self.id == 1
+    self.uid == Rails.application.credentials.admin[:uid].to_s &&
+      self.email == Rails.application.credentials.admin[:email].to_s
+  end
+
+  def banned?
+    self.updated_at > Time.now.utc
+  end
+
+  def ban(time = 1.year.from_now)
+    self.update(updated_at: time)
+  end
+  
+  def unban
+    self.update(updated_at: Time.now.utc)
   end
 end
 

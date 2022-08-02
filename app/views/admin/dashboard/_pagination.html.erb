@@ -1,0 +1,21 @@
+<div class="flex justify-start">
+    <% if curr_page > 0 %>
+        <%= link_to "1", admin_paging_path(r: resource, p: 1), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
+        <span>...</span>
+    <% end %>
+        
+    <% if (_prev = curr_page - 1) > 0 %>
+        <%= link_to "#{_prev + 1}", admin_paging_path(r: resource, p: _prev), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
+    <% end %>
+
+    <%= link_to "#{curr_page + 1}", admin_paging_path(r: resource, p: curr_page), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
+
+    <% if (_next = curr_page + 1) < total_pages - 1 %>
+        <%= link_to "#{_next + 1}", admin_paging_path(r: resource, p: _next), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
+        <span>...</span>
+    <% end %>
+
+    <% if curr_page + 1 < total_pages %>
+        <%= link_to "#{total_pages}", admin_paging_path(r: resource, p: total_pages - 1), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>    
+    <% end %>
+</div>

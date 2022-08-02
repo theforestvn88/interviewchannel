@@ -1,4 +1,4 @@
-class TagsController < AdminController
+class TagsController < Admin::AdminController
   before_action :ensure_admin!, except: [:suggest]
   before_action :set_tag, only: %i[ show edit update destroy ]
 
