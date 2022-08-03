@@ -1,7 +1,8 @@
 # frozen_string_literal:true
 
 class UsersController < ApplicationController
-    before_action :require_user_signed_in, except: [:card]
+    before_action :require_user_signed_in, except: [:card, :private_chat]
+    before_action :ensure_user_signed_in, only: [:private_chat, :send_private_chat]
     before_action :get_user, only: [:card, :private_chat, :send_private_chat]
     before_action :allow_only_current_user, only: [:edit_profile, :update_profile, :add_watch_tag, :remove_watch_tag]
 

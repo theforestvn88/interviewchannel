@@ -1,7 +1,9 @@
 <%= button_to message_path(message), id: dom_id(message), method: :get, class: "text-left text-sm w-full", data: {"turbo-frame": "home-content"} do %>
   <div class="flex justify-start mb-3">
-  
-    <%= image_tag message.owner.image, class: "object-cover h-16 w-16" %>
+    
+    <%= user_card_tag message.owner do %>
+      <%= image_tag message.owner.image, class: "object-cover h-16 w-16" %>
+    <% end %>
 
     <% cache message, expires_in: 30.seconds do %>
       <div class="bg-gray-50 hover:bg-green-50 w-full pl-2">
@@ -15,8 +17,8 @@
           <% end %>
         </div>
         <div class="flex justify-start text-xs">
-          <span class="text-blue-300">
-            by <%= user_card_tag message.owner, format: "%s" %>
+          <span class="text-blue-700">
+            <%= "by #{message.owner.name}" %> 
           </span>
           <span class="mx-1">
             <%= "#{distance_of_time_in_words(message.created_at, Time.now.utc)} ago |" %> 

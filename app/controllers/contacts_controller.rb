@@ -1,7 +1,7 @@
 # frozen_string_literal:true
 
 class ContactsController < ApplicationController
-  before_action :require_user_signed_in
+  before_action :ensure_user_signed_in
   before_action :set_contact, only: %i[ edit update destroy ]
 
   def paging

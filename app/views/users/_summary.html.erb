@@ -181,11 +181,11 @@
   <div class="flex justify-between px-4">
     <p class="inline-block align-middle text-xs font-light">
         <% if user.messages_count > 0 %>
-        <span class="text-orange-600" title="#jobs">#<%= number_to_human(user.messages_count, units: {thousand: 'K', million: 'M'}) %></span>
+        <span class="text-orange-600" title="#jobs">#<%= number_to_human(user.messages_count, units: {thousand: 'K', million: 'M'}) %><%= "job".pluralize(user.messages_count) %></span>
         <% end %>
 
         <% if user.interviews_count > 0 %>
-        <span class="text-purple-700" title="#interviews">#<%= number_to_human(user.interviews_count, units: {thousand: 'K', million: 'M'}) %></span>
+        <span class="text-purple-700" title="#interviews">#<%= number_to_human(user.interviews_count, units: {thousand: 'K', million: 'M'}) %><%= "interview".pluralize(user.interviews_count) %></span>
         <% end %>
     </p>
     
