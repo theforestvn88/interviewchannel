@@ -80,6 +80,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :settings, only: [:edit, :update]
+
   namespace :admin do
     get "" => "dashboard#index"
     get "paging" => "dashboard#paging"

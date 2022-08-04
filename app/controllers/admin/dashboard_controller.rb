@@ -99,6 +99,20 @@ class Admin::DashboardController < Admin::AdminController
                     :s => {"id" => "note.interview_id"}
                 }      
             ]
+        },
+        "Setting" => {
+            :fields => [:key, :value],
+            :actions => [
+                {
+                    :name => "edit",
+                    :link_to => "edit_setting_path",
+                    :turbo_frame => "modal"
+                },
+                {
+                    :name => "destroy",
+                    :form_data => { turbo_confirm: "are you sure?" } 
+                },
+            ]
         }
     }.freeze
 

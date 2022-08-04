@@ -1,0 +1,15 @@
+<%= form_with(model: setting, class: "w-full text-xs") do |form| %>
+    <div class="my-1">
+        <%= form.label :key %>
+        <%= form.text_field :key %>
+    </div>
+
+    <div class="my-1">
+        <%= form.label :value %>
+        <%= form.text_area :value %>
+    </div>
+
+    <div class="my-5">
+        <%= form.submit "Submit", class: "px-2 bg-blue-300 hover:bg-blue-600" %>
+    </div>
+<% end %>
