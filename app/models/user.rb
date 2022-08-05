@@ -22,13 +22,21 @@ class User < ApplicationRecord
 
   def self.find_or_create_by_omniauth(auth)
     # exist user ?
-    user = where(email: parse_user_emails(auth)).first
+    _github = parse_github(auth)
+    _image = parse_user_image(auth) || ""
+    _email = parse_user_emails(auth)
+
+    user = where(email: _email).first
     if user.present?
       # update merge infomation
-      if user.github.nil? && (gihub = parse_github(auth)).present?
-        user.github = gihub
-        user.save
+      if user.github.nil? && _github.present?
+        user.github = _gihub
       end
+      if user.image.blank?
+        user.image = _image
+      end
+
+      user.save if user.changed?
       return user
     end
 
@@ -37,8 +45,8 @@ class User < ApplicationRecord
       user.uid = parse_user_uid(auth)
       user.name = parse_user_name(auth)
       user.email = parse_user_primary_email(auth)
-      user.image = parse_user_image(auth)
-      user.github = parse_github(auth)
+      user.image = _image
+      user.github = _github
     end
   end
 

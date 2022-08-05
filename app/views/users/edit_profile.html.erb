@@ -13,12 +13,17 @@
     <% end %>
 
     <div class="my-2 mx-1">
-      <%= form.label "Brief Introduction about yourself" %>
-      <%= form.limit_text_area :brief_intro, limit: 150, format: :short %>
+      <%= form.label "Your profile image", class: "underline" %>
+      <%= form.text_field :image, class: "block w-full" %>
     </div>
 
     <div class="my-2 mx-1">
-      <%= form.label :watch_tags %>
+      <%= form.label "Brief Introduction about yourself", class: "underline" %>
+      <%= form.limit_text_area :brief_intro, limit: 150, format: :short, class: "w-full block" %>
+    </div>
+
+    <div class="my-2 mx-1">
+      <%= form.label :watch_tags, class: "underline" %>
       <div class="my-2 relative" data-controller="select7"
         data-select7-suggest-api-value="<%= suggest_tags_path %>" 
         data-select7-name-value="user[tags][]"
@@ -39,22 +44,26 @@
               </div>
             <% end %>
           </div>
-          <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none bg-white">
+          <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none bg-white", placeholder="tag">
         </div>
         <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
       </div>
     </div>
 
-    <% social_support.each do |x| %>
-      <div class="my-2 mx-1">
-        <%= x %>
-        <%= form.text_field x, value: current_user.social_links["#{x}"], class: "w-full block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2" %>
-      </div>
-    <% end %>
+    <%= form.label "Social Links", class: "my-2 mx-1 underline" %>
+    <div class="my-2 mx-1 h-96 overflow-y-auto">
+      <% social_support.each do |x| %>
+        <div class="my-2 mx-5">
+          <%= x %>
+          <%= form.text_field x, value: current_user.social_links["#{x}"], class: "w-full block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2" %>
+        </div>
+      <% end %>
+    </div>
 
     <input type="hidden" id="partial" name="partial" value="summary" />
     <div class="flex justify-end">
-      <%= form.submit "Update", class: "rounded-sm border p-2 inline-block font-medium cursor-pointer hover:border-gray-900" %>
+      <%= link_to "Cancel", profile_user_path(current_user), class: "rounded-sm border p-2 inline-block font-medium cursor-pointer hover:border-gray-900 mx-1" %>
+      <%= form.submit "Update", class: "rounded-sm border p-2 inline-block font-medium cursor-pointer bg-green-600 hover:border-gray-900" %>
     </div>
   <% end %>
 <% end %>
