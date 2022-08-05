@@ -56,6 +56,7 @@ gem "sidekiq-scheduler"
 
 gem 'omniauth-github', github: 'omniauth/omniauth-github', branch: 'master'
 gem 'omniauth-google-oauth2'
+gem 'omniauth-twitter'
 gem 'omniauth-rails_csrf_protection', '~> 1.0'
 
 group :development, :test do

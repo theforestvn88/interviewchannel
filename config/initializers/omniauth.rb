@@ -7,8 +7,12 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :google_oauth2, 
             Rails.application.credentials.google_omniauth[:client_id],
             Rails.application.credentials.google_omniauth[:client_secret]
+
+  provider :twitter, 
+            Rails.application.credentials.twitter_omniauth[:client_id],
+            Rails.application.credentials.twitter_omniauth[:client_secret]
             
-  on_failure do
+  on_failure do |env|
     # back to home
     Rack::Response.new(['302 Moved'], 302, 'Location' => "/").finish
   end
