@@ -12,6 +12,10 @@ Rails.application.config.middleware.use OmniAuth::Builder do
             Rails.application.credentials.twitter_omniauth[:client_id],
             Rails.application.credentials.twitter_omniauth[:client_secret]
             
+  provider :linkedin, 
+            Rails.application.credentials.linkedin_omniauth[:client_id],
+            Rails.application.credentials.linkedin_omniauth[:client_secret]
+
   on_failure do |env|
     # back to home
     Rack::Response.new(['302 Moved'], 302, 'Location' => "/").finish
