@@ -25,7 +25,7 @@ class Interview < ApplicationRecord
     validate  :could_not_change_candidate, on: :update
     validate  :timespan_ok?
 
-    LIMIT_PER_DAY = 100
+    # LIMIT_PER_DAY = 100
 
     after_save -> { owner.increment!(:interviews_count) }
 

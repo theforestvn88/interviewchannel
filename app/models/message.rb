@@ -14,7 +14,7 @@ class Message < ApplicationRecord
 
   after_save -> { owner.increment!(:messages_count) }
 
-  LIMIT_PER_DAY = 10
+  # LIMIT_PER_DAY = 10
 
   scope :by_updated_time, ->(time_range) {
     where(updated_at: time_range)

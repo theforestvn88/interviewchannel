@@ -6,7 +6,7 @@
 
     <div class="my-1">
         <%= form.label :value %>
-        <%= form.text_area :value %>
+        <%= form.text_area :value, value: setting.value.to_json %>
     </div>
 
     <div class="my-5">

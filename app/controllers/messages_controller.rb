@@ -110,8 +110,13 @@ class MessagesController < ApplicationController
 
   # POST /messages or /messages.json
   def create
-    RateLimiter.new(current_user, :created_messages, Message::LIMIT_PER_DAY, :day_exceeded, expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc)
-      .check!
+    RateLimiter.new(
+      current_user, 
+      :created_messages, 
+      SettingRepo.fetch("rate_limiter.message_limit_per_day"), 
+      :day_exceeded, 
+      expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc
+    ).check!
 
     respond_to do |format|
       @message = @messager.create_message(message_params)
