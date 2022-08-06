@@ -2,6 +2,7 @@
 
 class SessionsController < ApplicationController
   def new
+    @social_support = SettingRepo.fetch("social_auth.providers")
     render layout: false
   end
 
