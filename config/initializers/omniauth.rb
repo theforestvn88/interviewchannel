@@ -14,7 +14,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
             
   provider :linkedin, 
             Rails.application.credentials.linkedin_omniauth[:client_id],
-            Rails.application.credentials.linkedin_omniauth[:client_secret]
+            Rails.application.credentials.linkedin_omniauth[:client_secret],
+            :scope => 'r_emailaddress r_liteprofile'
 
   on_failure do |env|
     # back to home
