@@ -21,10 +21,8 @@ class Message < ApplicationRecord
   }
 
   scope :by_tags, ->(tags) {
-    where(
-      (["channel ILIKE ?"] * tags.size).join(" OR "), 
-      *tags.map { |t| "%#{t}%" }
-    )
+    _tags = tags.map { |t| "'%#{t}%'" }.join(',')
+    where("channel ILIKE ANY (array[#{_tags}])")
   }
 
   scope :by_owner, ->(owner_id) {

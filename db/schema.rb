@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_09_083755) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_09_122824) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -96,6 +96,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_09_083755) do
     t.string "title"
     t.boolean "auto_reply_enable", default: false
     t.text "auto_reply"
+    t.index ["channel"], name: "index_messages_on_channel", opclass: :gist_trgm_ops, using: :gist
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
