@@ -15,9 +15,10 @@ class User < ApplicationRecord
 
   validate :validate_social_links
 
+  before_save :upd_suggest_trgm
+
   scope :suggest, ->(keyword) {
-    keywords = ["%#{keyword.strip}%"] * 2
-    where("name ILIKE ? OR email ILIKE ?", *keywords)
+    where("suggest_trgm ILIKE ?", "%#{keyword.strip}%")
   }
 
   def self.find_or_create_by_omniauth(auth)
@@ -98,6 +99,10 @@ class User < ApplicationRecord
   
   def unban
     self.update(updated_at: Time.now.utc)
+  end
+
+  private def upd_suggest_trgm
+    self.suggest_trgm = "#{self.name} #{self.email}"
   end
 end
 

@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_04_083932) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_09_083755) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   # Custom types defined in this database.
@@ -149,7 +150,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_04_083932) do
     t.integer "messages_count", default: 0, null: false
     t.integer "interviews_count", default: 0, null: false
     t.string "curr_timezone", default: "UTC", null: false
+    t.string "suggest_trgm", default: "", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["suggest_trgm"], name: "index_users_on_suggest_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   add_foreign_key "applyings", "messages"
