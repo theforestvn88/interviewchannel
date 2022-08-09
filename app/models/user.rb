@@ -17,6 +17,8 @@ class User < ApplicationRecord
 
   before_save :upd_suggest_trgm
 
+  attr_accessor :custom_name
+
   scope :suggest, ->(keyword) {
     where("suggest_trgm ILIKE ?", "%#{keyword.strip}%")
   }

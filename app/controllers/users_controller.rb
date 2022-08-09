@@ -10,8 +10,17 @@ class UsersController < ApplicationController
         if params[:key].empty?
             head :no_content
         else
-            @users = current_user.contacts.includes(:friend).suggest(params[:key]).first(6).map(&:friend)
-            @users = User.suggest(params[:key].strip).first(6) if @users.blank?
+            contacts = current_user.contacts.includes(:friend).suggest(params[:key]).first(6)
+            if contacts.present?
+                @users = contacts.map do |contact|
+                    _user = contact.friend
+                    _user.custom_name = contact.custom_name if _user.name != contact.custom_name[1..]
+                    _user
+                end
+            else
+                @users = User.suggest(params[:key].strip).first(6)
+            end
+
             render layout: false
         end
     end
