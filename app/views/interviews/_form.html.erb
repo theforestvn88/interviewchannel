@@ -41,7 +41,7 @@
             </div>
           <% end %>
         </div>
-        <input data-select7-target="input" data-action="input->select7#suggest", class="border-none outline-none">
+        <input data-select7-target="input" data-action="input->select7#suggest" class="border-none outline-none" autocomplete="off">
       </div>
       <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
     </div>
@@ -55,7 +55,7 @@
         <%= form.label :candidate %>
         <div data-select7-target="selected"></div>
         <input data-select7-target="input" data-action="input->select7#suggest" 
-          class="shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full">
+          class="shadow rounded-md border border-red-600 outline-none px-3 py-2 mt-2 w-full" autocomplete="off">
         <div data-select7-target="suggestion" class="hidden absolute bot-0 left-0 w-full h-20 overflow-y-auto drop-shadow-xl border-b-2 border-x-2 border-gray-200 z-50 bg-white"></div>
       </div>
     <% end %>
