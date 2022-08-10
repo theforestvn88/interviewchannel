@@ -64,6 +64,7 @@ Rails.application.routes.draw do
       post 'by_me'
       get 'new_filter'
       post 'filter'
+      get 'similar'
     end
   end
 

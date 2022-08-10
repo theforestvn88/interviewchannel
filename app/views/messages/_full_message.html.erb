@@ -43,4 +43,6 @@
           </div>
       <% end %>
   </div>
+
+  <div data-controller="similar-jobs" data-similar-jobs-url-value="<%= similar_messages_path(id: message.id, channel: message.channel) %>"></div>
 <% end %>

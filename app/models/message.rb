@@ -25,6 +25,11 @@ class Message < ApplicationRecord
     where("channel ILIKE ANY (array[#{_tags}])")
   }
 
+  scope :similarity_tags, ->(tags) {
+    by_tags(tags)
+      .order(Arel.sql("similarity(channel, '#{ActiveRecord::Base.connection.quote_string(tags.join(' '))}') DESC"))
+  }
+
   scope :by_owner, ->(owner_id) {
     where(user_id: owner_id)
   }

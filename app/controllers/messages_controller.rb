@@ -77,6 +77,13 @@ class MessagesController < ApplicationController
     end
   end
 
+  def similar
+    @channel = params[:channel]
+    @messages = Message.similarity_tags(@channel.split(' ')).order(views: :desc).first(7).reject {|m| m.id == params[:id].to_i}
+
+    render layout: false
+  end
+
   def by_me
     head :no_content unless @user = User.find_by(id: params[:user])
 
