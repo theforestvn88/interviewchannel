@@ -54,10 +54,8 @@ class UsersController < ApplicationController
     end
 
     def add_watch_tag
-        if params[:watch_tag].present?
+        if (param_tags = get_watch_tags).present?
             user_curr_tags = (current_user.watch_tags || "").split(" ")
-            param_tags = params[:watch_tag].map { |t| "##{t}"}
-
             @tags = (param_tags - user_curr_tags).map {|t| [t, @messager.count_by_tag(t)]}
 
             if @tags.present?
@@ -115,5 +113,15 @@ class UsersController < ApplicationController
 
         def get_user
             @user = User.find_by(id: params[:id])
+        end
+
+        def get_watch_tags
+            param_tags = []
+            param_tags = param_tags + params[:watch_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_tags].present?
+            param_tags = param_tags + params[:watch_lang_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_lang_tags].present?
+            param_tags = param_tags + params[:watch_framework_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_framework_tags].present?
+            param_tags = param_tags + params[:watch_other_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_other_tags].present?
+
+            param_tags.reject {|t| t.blank? }
         end
 end

@@ -19,4 +19,8 @@
   </div>
 
   <%= render 'layouts/footer' %>
+
+  <% if current_user&.need_setup? %>
+    <%= render partial: "users/setup" %>
+  <% end %>
 </div>

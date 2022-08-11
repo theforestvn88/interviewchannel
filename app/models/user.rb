@@ -61,7 +61,7 @@ class User < ApplicationRecord
   end
 
   def tags=(tags_input)
-    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip
+    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip # FIXME: split by '#'
   end
 
   def afk?
@@ -101,6 +101,10 @@ class User < ApplicationRecord
   
   def unban
     self.update(updated_at: Time.now.utc)
+  end
+
+  def need_setup?
+    self.afk? # or something ...
   end
 
   private def upd_suggest_trgm

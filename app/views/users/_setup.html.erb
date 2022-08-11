@@ -1,0 +1,29 @@
+<%= render "layouts/modal" do %>
+    <%= form_with(url: add_watch_tag_user_path(current_user), class: "w-full pb-3 overflow-auto") do |form| %>
+        <h1 class="font-bold">Hi <%= current_user.name %>!</h1>
+        <h1 class="font-bold my-2">What're the languages you want to work with ?</h1>
+        <div class="h-56 overflow-auto bg-gray-50">
+            <%= form.collection_check_boxes(:watch_lang_tags, Tag.by_group("languages"), :name, :name) do |cb| %>
+                <%= cb.label(class: "block mx-3") { cb.check_box + "  " + cb.text } %>
+            <% end %>
+        </div>
+        <hr>
+
+        <h1 class="mt-5 mb-2 font-bold">What're the frameworks you want to work with ?</h1>
+        <div class="h-56 overflow-auto bg-gray-50">
+            <%= form.collection_check_boxes(:watch_framework_tags, Tag.by_group("frameworks"), :name, :name) do |cb| %>
+                <%= cb.label(class: "block mx-3") { cb.check_box + "  " + cb.text } %>
+            <% end %>
+        </div>
+        <hr>
+
+        <h1 class="mt-5 mb-2 font-bold">What else ?</h1>
+        <div class="h-56 overflow-auto bg-gray-50">
+            <%= form.collection_check_boxes(:watch_other_tags, Tag.by_group("others"), :name, :name) do |cb| %>
+                <%= cb.label(class: "block mx-3") { cb.check_box + "  " + cb.text } %>
+            <% end %>
+        </div>
+
+        <%= form.submit "Set Up", class: "block border border-gray-600 hover:bg-gray-300 px-1 mt-5" %>
+    <% end %>
+<% end %>
