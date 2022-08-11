@@ -23,12 +23,24 @@ class Admin::DashboardController < Admin::AdminController
             ]
         },        
         "Tag" => {
-            :fields => [:id, :name, :jobs_count],
+            :fields => [:id, :name, :category, :pos, :jobs_count],
             :actions => [
+                {
+                    :name => "edit",
+                    :link_to => "edit_tag_path",
+                    :turbo_frame => "modal"
+                },
                 {
                     :name => "delete",
                     :method => :destroy,
                     :form_data => { turbo_confirm: "are you sure?" } 
+                }
+            ],
+            :global_actions => [
+                {
+                    :name => "new",
+                    :link_to => "new_tag_path",
+                    :turbo_frame => "modal"
                 }
             ]
         },
@@ -147,6 +159,7 @@ class Admin::DashboardController < Admin::AdminController
         @curr_includes = RESOURCES.dig(@curr_resource, :includes)
         @curr_fields = RESOURCES.dig(@curr_resource, :fields)
         @curr_actions = RESOURCES.dig(@curr_resource, :actions)
+        @curr_global_actions = RESOURCES.dig(@curr_resource, :global_actions)
         @curr_page = params[:p].to_i
     end
 
@@ -154,7 +167,7 @@ class Admin::DashboardController < Admin::AdminController
         @records = ActiveSupport::Inflector.constantize(@curr_resource)
         @records = @records.includes(*@curr_includes) unless @curr_includes.blank?
         @total_records = @records.count
-        @records = @records.offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
+        @records = @records.order(updated_at: :desc).offset(PAGE_SIZE * @curr_page).limit(PAGE_SIZE)
         set_pager
     end
 

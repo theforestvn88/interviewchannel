@@ -8,7 +8,7 @@
         <%= link_to "#{_prev + 1}", admin_paging_path(r: resource, p: _prev), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
     <% end %>
 
-    <%= link_to "#{curr_page + 1}", admin_paging_path(r: resource, p: curr_page), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
+    <%= link_to "#{curr_page + 1}", admin_paging_path(r: resource, p: curr_page), class: "px-1 mx-1 border border-gray-300 bg-gray-200 hover:bg-gray-500" %>
 
     <% if (_next = curr_page + 1) < total_pages - 1 %>
         <%= link_to "#{_next + 1}", admin_paging_path(r: resource, p: _next), class: "px-1 mx-1 border border-gray-300 hover:bg-gray-200" %>
