@@ -134,7 +134,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_11_093705) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "group", default: "others", null: false
+    t.string "category", default: "others", null: false
     t.integer "pos", default: 1, null: false
   end
 

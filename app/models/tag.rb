@@ -1,6 +1,6 @@
 class Tag < ApplicationRecord
     scope :by_group, ->(_group) {
-        Tag.where(group: _group).order(pos: :asc)
+        Tag.where(category: _group).order(pos: :asc)
     }
     
     def jobs_count
