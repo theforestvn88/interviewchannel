@@ -61,7 +61,11 @@ class User < ApplicationRecord
   end
 
   def tags=(tags_input)
-    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip # FIXME: split by '#'
+    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip.downcase}" : ""}.join(" ").strip
+  end
+
+  def split_tags
+    self.watch_tags.blank? ? [] : self.watch_tags.split("#").map(&:strip).reject(&:blank?)
   end
 
   def afk?

@@ -8,8 +8,8 @@
           <span><%= message.views %> <%= 'view'.pluralize(message.views) %></span>
       </div>
       
-      <% message.channel.split(" ").map {|t| t.gsub("#", "")}.each do |tag| %>
-        <span class="font-light <%= tag.downcase %>">#</span><span class="font-light"><%= tag %></span>
+      <% message.split_tags.each do |t| %>
+        <%= tag_link t %>
       <% end %>
 
       <div class="trix-content py-2 px-4"><%= message.content.html_safe %></div>

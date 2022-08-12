@@ -1,4 +1,4 @@
-<% _tag = tag.gsub("#", "").downcase %>
+<% _tag = format_tag(tag) %>
 <% view_id = "tag_#{_tag}" %>
 <div class="w-full relative" id="watch_<%= view_id %>">
     <%= button_to query_messages_path(tag: tag),
@@ -12,5 +12,5 @@
         <% end %>
 
     <%= button_to "-", remove_watch_tag_user_path(current_user, tag: tag),
-        class: "text-md absolute right-0 top-0 px-2 z-10 hover:bg-red-300", title: "remove #{tag} tag" %>
+        class: "text-md absolute right-0 top-0 px-2 z-10 hover:bg-red-300", title: "remove ##{tag} tag" %>
 </div>

@@ -37,7 +37,7 @@ class UsersController < ApplicationController
     end
 
     def edit_profile
-        @tags = (current_user.watch_tags || "").split(" ").map {|t| t.gsub("#", "")}
+        @tags = current_user.split_tags
         render layout: false
     end
 
@@ -55,11 +55,11 @@ class UsersController < ApplicationController
 
     def add_watch_tag
         if (param_tags = get_watch_tags).present?
-            user_curr_tags = (current_user.watch_tags || "").split(" ")
+            user_curr_tags = current_user.split_tags
             @tags = (param_tags - user_curr_tags).map {|t| [t, @messager.count_by_tag(t)]}
 
             if @tags.present?
-                current_user.watch_tags = (user_curr_tags + @tags.map(&:first)).join(" ")
+                current_user.tags = user_curr_tags + @tags.map(&:first)
                 current_user.save
             end
 
@@ -75,7 +75,7 @@ class UsersController < ApplicationController
 
     def remove_watch_tag
         @remove_tag = params[:tag]
-        current_user.watch_tags = current_user.watch_tags.split(" ").reject { |t| t.downcase == @remove_tag.downcase }.join(" ")
+        current_user.tags = current_user.split_tags.reject { |t| t.downcase == @remove_tag.downcase }
         current_user.save
 
         respond_to do |format|
@@ -117,10 +117,10 @@ class UsersController < ApplicationController
 
         def get_watch_tags
             param_tags = []
-            param_tags = param_tags + params[:watch_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_tags].present?
-            param_tags = param_tags + params[:watch_lang_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_lang_tags].present?
-            param_tags = param_tags + params[:watch_framework_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_framework_tags].present?
-            param_tags = param_tags + params[:watch_other_tags].select(&:present?).map { |t| "##{t.strip}"} if params[:watch_other_tags].present?
+            param_tags = param_tags + params[:watch_tags].select(&:present?).map(&:downcase) if params[:watch_tags].present?
+            param_tags = param_tags + params[:watch_lang_tags].select(&:present?).map(&:downcase) if params[:watch_lang_tags].present?
+            param_tags = param_tags + params[:watch_framework_tags].select(&:present?).map(&:downcase) if params[:watch_framework_tags].present?
+            param_tags = param_tags + params[:watch_other_tags].select(&:present?).map(&:downcase) if params[:watch_other_tags].present?
 
             param_tags.reject {|t| t.blank? }
         end

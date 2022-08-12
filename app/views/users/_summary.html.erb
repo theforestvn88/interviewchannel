@@ -149,10 +149,9 @@
         <% if user.afk? && editable %>
           <%= "Your watch-tags section is currently blank. Would you like to add one?" %>
         <% else %>
-          <% user.watch_tags&.split(" ")&.each do |tag| %>
-            <% _tag = tag.gsub('#', '').downcase %>
-            <span class="<%= _tag %>">#</span>
-            <span class="-ml-1"><%= _tag %></span>
+          <% user.split_tags.each do |tag| %>
+            <span class="<%= format(tag) %>">#</span>
+            <span class="-ml-1"><%= tag %></span>
           <% end %>
         <% end %>
       </p>

@@ -13,10 +13,9 @@ class HomeController < ApplicationController
     @next_offset = @messages.size >= Messager::Query::PAGE ? @messages.last.updated_at : nil
 
     if user_signed_in?
-      @tags = (current_user.watch_tags || "").split(" ").map { |tag|
-        _tag = tag.strip.downcase
-        [_tag, @messager.count_by_tag(_tag)]
-      }.unshift(["#all", @messager.count_all])
+      @tags = current_user.split_tags.map { |tag|
+        [tag, @messager.count_by_tag(tag)] unless tag.blank?
+      }.compact.unshift(["all", @messager.count_all])
 
       @recently_contacts = current_user.recently_contacts.limit(10)
     end
