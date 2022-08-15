@@ -1,1 +1,1 @@
-<%= render partial: "contacts/contacts_list", locals: {user: current_user, contacts: @contacts, loadmore: params[:key].blank?} %>
+<%= render partial: "contacts/contacts_list", locals: {user: current_user, contacts: @contacts, next_offset: params[:key].blank?} %>

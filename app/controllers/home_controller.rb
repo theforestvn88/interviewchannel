@@ -17,7 +17,7 @@ class HomeController < ApplicationController
         [tag, @messager.count_by_tag(tag)] unless tag.blank?
       }.compact.unshift(["all", @messager.count_all])
 
-      @recently_contacts = current_user.recently_contacts.limit(10)
+      @recently_contacts, @next_contacts_offset = BookMark.recently_contacts(current_user)
     end
   end
 
