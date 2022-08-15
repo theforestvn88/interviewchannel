@@ -13,7 +13,7 @@
         <div class="text-sm flex justify-start">
           <span class="text-gray-900 font-light">#<%= message.id %></span>
           <% message.split_tags.each do |t| %>
-            <%= tag_link t %>
+            <span class="mx-1"><%= tag_link t %></span>
           <% end %>
         </div>
         <div class="flex justify-start text-xs">
@@ -29,7 +29,7 @@
             </span>
           <% end %>
           <span class="mx-1">
-            <%= number_to_human(message.views, units: {thousand: 'K', million: 'M'}) %> <%= 'view'.pluralize(message.views) %>
+            <%= number_to_human(message.views, units: {million: 'M'}) %> <%= 'view'.pluralize(message.views) %>
           </span>
         </div>
       </div>

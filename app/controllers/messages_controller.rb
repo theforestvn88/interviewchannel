@@ -13,7 +13,7 @@ class MessagesController < ApplicationController
 
     @template = "messages/index"
 
-    @tags = params[:tag].split("&")
+    @tags = params[:tag].split(",")
     case @tags.first
     when "#inbox"
       @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
@@ -81,7 +81,11 @@ class MessagesController < ApplicationController
     @channel = params[:channel]
     @messages = Message.similarity_tags(@channel.split(' ')).order(views: :desc).first(7).reject {|m| m.id == params[:id].to_i}
 
-    render layout: false
+    if @messages.blank?
+      head :no_content
+    else
+      render layout: false
+    end
   end
 
   def by_me
@@ -168,6 +172,6 @@ class MessagesController < ApplicationController
     end
 
     def join_tags
-      @tags&.join("&")
+      @tags&.join(",")
     end
 end

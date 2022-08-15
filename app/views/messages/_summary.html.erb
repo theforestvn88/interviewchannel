@@ -23,11 +23,13 @@
 
         <%= turbo_stream_from :tags %>
 
-        <%= turbo_frame_tag "summary_tags" do %>
-            <% @tags.each do |(tag, count)| %>
-                <%= render partial: "tags/summary_tag", locals: {tag: tag, count: count} %>
+        <div class="max-h-96 overflow-auto">
+            <%= turbo_frame_tag "summary_tags" do %>
+                <% @tags.each do |(tag, count)| %>
+                    <%= render partial: "tags/summary_tag", locals: {tag: tag, count: count} %>
+                <% end %>
             <% end %>
-        <% end %>
+        </div>
 
         <%= turbo_frame_tag "add_watch_tag" do %>
             <%= render partial: "users/form_add_watch_tag" %>
