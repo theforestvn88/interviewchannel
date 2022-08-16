@@ -105,7 +105,7 @@ class UsersController < ApplicationController
 
         include UsersHelper
         def user_params
-            _user_params = params.require(:user).permit(:image, :cv, *social_support, :watch_tags, :brief_intro, tags: [])
+            _user_params = params.require(:user).permit(:image, :name, :brief_intro, *social_support, :watch_tags, :cv, tags: [])
             _social = _user_params.extract!(*social_support)
             _user_params[:social] = (current_user.social || {}).merge(_social)
             _user_params

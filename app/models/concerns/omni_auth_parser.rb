@@ -21,14 +21,6 @@ module OmniAuthParser
             auth.info.dig("urls", social)
         end
 
-        def parse_github(auth)
-            if github_provider?(auth)
-                parse_social_link(auth)
-            else
-                ''
-            end
-        end
-
         def parse_user_info(auth, *attrs)
             attrs.map { |attr| auth.dig(:info, attr) }
         end

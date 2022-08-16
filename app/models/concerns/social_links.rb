@@ -3,7 +3,7 @@
 module SocialLinks
 
   def social_support
-    Setting[:social] #   "blog", "hackerrank", "leetcode", "dev.to", "stackoverflow", "codeforces", "medium", "linkedin", "twitter"
+    Setting[:social]
   end
 
   def social_link_valid?(social, link)

@@ -18,6 +18,11 @@
     </div>
 
     <div class="my-2 mx-1">
+      <%= form.label "Your Name", class: "underline" %>
+      <%= form.text_field :name, class: "w-full block" %>
+    </div>
+
+    <div class="my-2 mx-1">
       <%= form.label "Brief Introduction about yourself", class: "underline" %>
       <%= form.limit_text_area :brief_intro, limit: 150, format: :short, class: "w-full block" %>
     </div>

@@ -26,7 +26,6 @@ class User < ApplicationRecord
   def self.find_or_create_by_omniauth(auth)
     # exist user ?
     _provider = parse_provider(auth)
-    _github = parse_github(auth)
     _social_link = parse_social_link(auth)
     _image = parse_user_image(auth) || ""
     _email = parse_user_emails(auth)
@@ -34,10 +33,6 @@ class User < ApplicationRecord
     user = where(email: _email).first
     if user.present?
       # update merge infomation
-      if user.github.nil? && _github.present?
-        user.github = _gihub
-      end
-      
       if user.image.blank?
         user.image = _image
       end
@@ -55,7 +50,6 @@ class User < ApplicationRecord
       user.name = parse_user_name(auth)
       user.email = parse_user_primary_email(auth)
       user.image = _image
-      user.github = _github
       user.social = {}.tap {|s| s[_provider] = _social_link}
     end
   end

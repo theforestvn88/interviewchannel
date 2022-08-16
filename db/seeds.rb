@@ -5,7 +5,6 @@ User.find_or_create_by(
     name: Rails.application.credentials.admin[:name],
     email: Rails.application.credentials.admin[:email],
     image: Rails.application.credentials.admin[:image],
-    github: Rails.application.credentials.admin[:github],
 )
 
 
@@ -14,13 +13,13 @@ Setting.destroy_all
 
 Setting.create(
     key: "social",
-    value: ["blog", "hackerrank", "leetcode", "dev.to", "stackoverflow", "codeforces", "medium", "linkedin", "twitter"]
+    value: ["github", "linkedin", "twitter", "blog", "hackerrank", "leetcode", "dev.to", "stackoverflow", "codeforces", "medium"]
 )
 
 Setting.create(
     key: "social_auth",
     value: {
-        providers: ["github", "google", "twitter"]
+        providers: ["github", "google", "twitter", "linkedin"]
     }
 )
 

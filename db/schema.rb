@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_11_093705) do
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "interview_state", ["wait", "in_process", "finish", "canceled"]
+  create_enum "stone_type", ["comment", "interview", "assignment", "apply"]
 
   create_table "applyings", force: :cascade do |t|
     t.bigint "message_id", null: false
@@ -64,11 +65,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_11_093705) do
   end
 
   create_table "interviews", force: :cascade do |t|
-    t.string "note"
     t.datetime "start_time"
     t.datetime "end_time"
-    t.text "code"
-    t.boolean "result"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "candidate_id", null: false
@@ -117,7 +115,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_11_093705) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "milestone", default: false
+    t.enum "milestone", default: "comment", null: false, enum_type: "stone_type"
     t.index ["applying_id"], name: "index_replies_on_applying_id"
     t.index ["user_id"], name: "index_replies_on_user_id"
   end
@@ -145,7 +143,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_11_093705) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "image"
-    t.string "github"
     t.text "cv"
     t.text "watch_tags"
     t.json "social"

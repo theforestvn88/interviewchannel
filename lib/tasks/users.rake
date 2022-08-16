@@ -22,7 +22,6 @@ def fake_users
             name: Faker::Name.name,
             email: Faker::Internet.unique.email,
             image: "",
-            github: "",
         )
     end
 end
