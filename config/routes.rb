@@ -87,5 +87,7 @@ Rails.application.routes.draw do
     get "" => "dashboard#index"
     get "paging" => "dashboard#paging"
     post "action" => "dashboard#action"
+    get "enter_pass" => "admin#enter_pass"
+    post "confirm_pass" => "admin#confirm_pass"
   end
 end

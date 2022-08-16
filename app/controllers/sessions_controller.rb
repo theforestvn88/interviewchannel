@@ -9,13 +9,15 @@ class SessionsController < ApplicationController
   def create
     if request && auth = request.env['omniauth.auth']
       user = User.find_or_create_by_omniauth(auth)
-      user.update(curr_timezone: session["timezone"] || "UTC")
-      session[:user_id] = user.id
-      
-      redirect_to root_path
-    else
-      reset
+      unless user.banned?
+        user.update(curr_timezone: session["timezone"] || "UTC")
+        session[:user_id] = user.id
+        
+        redirect_to(root_path) and return
+      end
     end
+      
+    reset
   end
 
   def destroy
