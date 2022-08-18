@@ -3,7 +3,7 @@
 <div class="w-full relative" id="watch_<%= view_id %>">
     <%= button_to query_messages_path(tag: tag),
         class: "w-full text-left hover:bg-gray-200", 
-        "data-action": "click->message#selectTag",
+        "data-action": "click->message#selectTag click->nav#hide",
         form: { 
             id: view_id,
             class: "w-full"

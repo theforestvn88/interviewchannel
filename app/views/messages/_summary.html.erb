@@ -4,7 +4,7 @@
 
         <%= button_to query_messages_path(tag: "#inbox"),
             class: "w-full text-left hover:bg-green-200",
-            "data-action": "click->message#selectTag",
+            "data-action": "click->message#selectTag click->nav#hide",
             form: { 
                 id: "tag_inbox",
             } do %>
@@ -14,7 +14,7 @@
         <%= button_to "# sent", query_messages_path(tag: "#sent"),
             id: "tag_sent",
             class: "w-full text-left hover:bg-green-200",
-            "data-action": "click->message#selectTag",
+            "data-action": "click->message#selectTag click->nav#hide",
             form: { 
                 id: "form_sent",
             } %>

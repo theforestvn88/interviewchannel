@@ -1,10 +1,13 @@
-<div class="w-full h-9 flex justify-between border-b border-gray-300 relative">
+<div data-nav-target="navbar" class="w-full h-9 flex justify-between border-b border-gray-300 relative">
     <% if user_signed_in? %>
       <%= turbo_stream_from @private_channel %>
       <div id="flash" class="hidden absolute top-0 -right-5 z-50 drop-shadow-xl border-b-2 border-x-2 border-gray-200 bg-white"></div>
     <% end %>
 
-    <a href="/" class="absolute top-0 left-0"><span class="font-bold"><\ interview ></span> Channel</a>
+    <div class="absolute top-0 left-0 flex justify-start">
+        <div data-nav-target="navicon" data-action="click->nav#toggle" class="font-bold mr-1 px-1 border border-green-400 bg-green-50 sm:hidden hover:cursor-pointer">#</div>
+        <a href="/" class=""><span class="font-bold"><\ interview ></span> Channel</a>
+    </div>
     <% if user_signed_in? %>
         <div class="absolute top-0 right-0 flex justify-end">
             <%= link_to current_user.name, profile_user_path(current_user), class: "hover:font-bold" %>
