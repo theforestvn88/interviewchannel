@@ -92,7 +92,7 @@ class MessagesController < ApplicationController
     head :no_content unless @user = User.find_by(id: params[:user])
 
     offset = params[:offset].to_i
-    @messages = @user.sent_messages.offset(offset).limit(Messager::Query::PAGE)
+    @messages = @user.sent_messages.order(updated_at: :desc).offset(offset).limit(Messager::Query::PAGE)
     @next_offset = @messages.size >= Messager::Query::PAGE ? (offset + @messages.size) : nil
     @locals = {
       messages: @messages, 

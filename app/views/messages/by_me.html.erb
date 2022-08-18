@@ -1,0 +1,18 @@
+<%= turbo_frame_tag "by_me" do %>
+    <% if @user.messages_count > 0 %>
+        <div class="my-5 p-1">
+            <label class="font-bold"><%= number_to_human(@user.interviews_count, units: {thousand: 'K', million: 'M'}) %> interviews / <%= number_to_human(@user.messages_count, units: {thousand: 'K', million: 'M'}) %> jobs</label>
+            <hr class="mb-2">
+
+            <%= turbo_frame_tag messages_by_me_id(@user), class: "w-full" do %>
+                <%= render @messages %>
+            <% end %>
+
+            <%= turbo_frame_tag "load_more" do %>
+                <% if @next_offset %>
+                    <%= button_to "load more", by_me_messages_path(user: @user.id, offset: @next_offset), class: "text-sm text-blue-600" %>
+                <% end %>
+            <% end %>
+        </div>
+    <% end %>
+<% end %>

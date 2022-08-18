@@ -8,7 +8,7 @@
             form: { 
                 id: "tag_inbox",
             } do %>
-            <% render partial: "messages/tag", locals: {tag: "#inbox", count: 0, unread: false} %>
+            <% render partial: "messages/tag", locals: {tag: "inbox", count: 0, unread: false} %>
         <% end %>
 
         <%= button_to "# sent", query_messages_path(tag: "#sent"),
