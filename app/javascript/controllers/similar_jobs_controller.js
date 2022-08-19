@@ -20,7 +20,6 @@ export default class extends Controller {
 
     apply(html) {
         if (!this.connected) return;
-        console.log(this.element)
         this.element.innerHTML = html
     }
 }
