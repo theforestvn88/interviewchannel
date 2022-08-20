@@ -1,6 +1,6 @@
 <% apply_time = "#{distance_of_time_in_words(applying.created_at, Time.now.utc)} ago." %>
 <%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
-  <div class="w-2/3 border border-gray-200 rounded-md p-5">
+  <div class="w-full sm:w-2/3 border border-gray-200 rounded-md p-1 sm:p-5">
     <%= button_to "<-inbox", query_messages_path(tag: "#inbox"),
       id: "tag_inbox",
       class: "text-left hover:underline mb-3",
