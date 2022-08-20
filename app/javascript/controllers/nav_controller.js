@@ -10,14 +10,14 @@ export default class extends Controller {
     show() {
         this.navcontentTarget.classList.remove("-left-2/3", "max-w-0")
         this.naviconTarget.textContent = "<"
-        this.navbarTarget.classList.add("w-full", "ml-64", "bg-white", "z-50")
+        this.navbarTarget.classList.add("w-full", "ml-72", "bg-white", "z-50")
         this.visible = true
     }
     
     hide() {
         this.navcontentTarget.classList.add("-left-2/3", "max-w-0")
         this.naviconTarget.textContent = "#"
-        this.navbarTarget.classList.remove("w-full", "ml-64", "bg-white", "z-50")
+        this.navbarTarget.classList.remove("w-full", "ml-72", "bg-white", "z-50")
         this.visible = false
     }
 

@@ -26,7 +26,7 @@
                         <% if counter = @month_days[index = week*7 + weekday] %>
                             <% mday, date, count = counter %>
                             <td id="<%= date.strftime('%d-%b') %>-<%= @tz_offset %>" class="w-7 h-7 text-center border-r-2 border-b-2 border-gray-200 <%= count > 0 ? 'hover:cursor-pointer text-gray-600 bg-red-200' : 'text-gray-400' %> <%= index%2==0 ? 'bg-gray-50' : '' %>" title='<%= count > 0 ? "#{count} interviews" : "" %>'>
-                                <%= button_to "#{mday}", calendar_path(display: :daily, date: date), class: "w-full h-6 #{@today.to_date == date.to_date ? 'h-full border-2 border-red-600 text-red-600 rounded-full' : ''}" %>
+                                <%= button_to "#{mday}", calendar_path(display: :daily, date: date), class: "w-full h-6 #{@today.to_date == date.to_date ? 'h-full border-2 border-red-600 text-red-600 rounded-full' : ''}", data: {action: "click->nav#hide"} %>
                             </td>
                         <% else %>
                             <td class="w-7 h-7 border-r-2 border-b-2 border-gray-200 <%= index%2==0 ? 'bg-gray-50' : '' %>"></td>
