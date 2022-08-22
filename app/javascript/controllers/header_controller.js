@@ -7,13 +7,29 @@ export default class extends Controller {
         this.openUserToolbar = false
     }
 
-    toggleUserToolbar() {
+    showUserToolbar() {
+        this.userToolbarTarget.classList.remove("hidden")
+        this.openUserToolbar = true
+    }
+    
+    hideUserToolbar() {
+        this.userToolbarTarget.classList.add("hidden")
+        this.openUserToolbar = false
+    }
+
+    hideUserToolbarIfShow() {
         if (this.openUserToolbar) {
-            this.userToolbarTarget.classList.add("hidden")
-            this.openUserToolbar = false
-        } else {
-            this.userToolbarTarget.classList.remove("hidden")
-            this.openUserToolbar = true
+            this.hideUserToolbar()
         }
+    }
+
+    toggleUserToolbar(e) {
+        if (this.openUserToolbar) {
+            this.hideUserToolbar()
+        } else {
+            this.showUserToolbar()
+        }
+
+        e.stopPropagation()
     }
 }

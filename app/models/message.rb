@@ -8,6 +8,8 @@ class Message < ApplicationRecord
 
   has_many :applyings, :dependent => :destroy
 
+  validates_presence_of :channel
+
   after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
   after_update_commit  -> { broadcast_replace_later_to self }
   after_destroy_commit -> { broadcast_remove_to self }

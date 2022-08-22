@@ -11,9 +11,10 @@
     <% if user_signed_in? %>
     <div data-controller="header">
         <div class="absolute top-0 right-0 flex justify-end">
-            <%= image_tag current_user.image, class: "object-cover h-8 w-8", title: current_user.name, data: {action: "click->header#toggleUserToolbar"} %>
+            <%= image_tag current_user.image, class: "object-cover h-8 w-8 rounded-sm hover:cursor-pointer", title: current_user.name, data: {action: "click->header#toggleUserToolbar"} %>
         </div>
-        <div data-header-target="userToolbar" class="z-50 hidden absolute top-10 right-0 py-3 px-1 text-start flex flex-col bg-white rounded-sm border border-gray-300 shadow-xl drop-shadow-xl">
+        <div data-header-target="userToolbar" class="z-50 hidden absolute top-10 right-0 py-3 px-1 text-start flex flex-col bg-white rounded-sm border border-gray-300 shadow-xl drop-shadow-xl"
+            data-action="click@window->header#hideUserToolbarIfShow">
             <p class="text-lg font-bold mr-10"><%= current_user.name %></p>
             <hr class="my-1">
             <%= link_to "Your Profile", profile_user_path(current_user), class: "hover:font-bold my-1" %>

@@ -26,7 +26,7 @@ class ApplyingsController < ApplicationController
                     to_user_id: @message.user_id, 
                     partial: "applyings/applying", 
                     locals: {applying: applying, user: current_user, timezone: current_user.curr_timezone},
-                    flash: "#{current_user.name} applied the job message ##{@message.id}"
+                    flash: "#{current_user.name} applied for the job ##{@message.id} !"
                 )
                 .broadcast_replace(@message) # broadcast due to counter-cache update
 
@@ -51,7 +51,8 @@ class ApplyingsController < ApplicationController
               sender_id: current_user.id,
               type: Reply::APPLY_TYPE, 
               partial: "replies/close_applying_reply", 
-              locals: { timezone: current_user.curr_timezone }
+              locals: { timezone: current_user.curr_timezone },
+              flash: "The Applying##{@applying.id} is closed !"
             )
 
             render layout: false

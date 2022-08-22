@@ -13,8 +13,8 @@ class MessagesController < ApplicationController
 
     @template = "messages/index"
 
-    @tags = params[:tag].split(",")
-    case @tags.first
+    @tags = (params[:tag] || "").split(",")
+    case @tag = @tags.first
     when "#inbox"
       @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
       @jobids, @users = PrivateMessageRepo.filter by_user: current_user

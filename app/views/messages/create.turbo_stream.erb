@@ -1,0 +1,5 @@
+<% if @message.errors.any? %>
+    <%= turbo_stream.replace "modal" do %>
+        <%= render template: "messages/new", formats: [:html] %>
+    <% end %>
+<% end %>
