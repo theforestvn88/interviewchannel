@@ -3,7 +3,7 @@
 class Messager
     module Flash
         def send_flash(channel:, content:, **options)
-            Turbo::StreamsChannel.broadcast_replace_to(
+            Turbo::StreamsChannel.broadcast_replace_later_to(
                 channel,
                 target: "flash", 
                 partial: "shared/flash",

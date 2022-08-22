@@ -15,17 +15,17 @@ class Messager
             private_channel_format(uid, email)
         end
 
-        def send_private_message(to_user_id:, partial:, locals:, flash: nil)
+        def send_private_message(to_user_id:, partial:, locals:, flash: nil, **options)
             toChannels = [private_channel, private_channel_from_user_id(to_user_id)].uniq
             toChannels.each do |toChannel|
-                Turbo::StreamsChannel.broadcast_replace_to(
+                Turbo::StreamsChannel.broadcast_replace_later_to(
                     toChannel,
                     target: "tag_inbox_content", 
                     partial: "messages/tag",
-                    locals: {tag: "#inbox", count: 1, unread: true}
+                    locals: {tag: "inbox", count: 1, unread: true}
                 )
 
-                Turbo::StreamsChannel.broadcast_prepend_to(
+                Turbo::StreamsChannel.broadcast_prepend_later_to(
                     toChannel,
                     target: "messages_inbox", 
                     partial: partial,
@@ -33,7 +33,7 @@ class Messager
                 )
             end
 
-            send_private_flash(channel: toChannels.last, content: flash) if flash
+            send_private_flash(channel: toChannels.last, content: flash, **options) if flash
 
             self
         end
@@ -45,18 +45,18 @@ class Messager
             }
             .concat([private_channel(applying.candidate), private_channel(applying.interviewer)])
             .uniq.each do |toChannel|
-                Turbo::StreamsChannel.broadcast_append_to(
+                Turbo::StreamsChannel.broadcast_append_later_to(
                     toChannel,
                     target: "replies-#{applying.id}", 
                     partial: partial,
                     locals: {reply: reply}.merge(locals)
                 )
 
-                Turbo::StreamsChannel.broadcast_replace_to(
+                Turbo::StreamsChannel.broadcast_replace_later_to(
                   toChannel,
                   target: "tag_inbox_content", 
                   partial: "messages/tag",
-                  locals: {tag: "#inbox", count: 1, unread: true}
+                  locals: {tag: "inbox", count: 1, unread: true}
                 )
                 
                 if toChannel != owner_channel
