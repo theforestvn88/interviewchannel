@@ -76,6 +76,8 @@ class Interview < ApplicationRecord
     end
 
     def started?
+        return false if self.errors.any?
+
         !self.canceled? && (self.finish? || (self.in_process? || try_start!))
     end
 
@@ -89,6 +91,8 @@ class Interview < ApplicationRecord
     end
 
     def finished?
+        return false if self.errors.any?
+        
         !self.canceled? && (self.finish? || set_finish!)
     end
 

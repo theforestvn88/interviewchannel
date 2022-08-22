@@ -11,16 +11,12 @@
           <span><%= message.title %> </span>
         </p>
         <div class="text-sm flex justify-start">
-          <span class="text-gray-900 font-light">#<%= message.id %></span>
           <% message.split_tags.each do |t| %>
-            <span class="mx-1"><%= tag_link t %></span>
+            <span class="mr-1"><%= tag_link t %></span>
           <% end %>
         </div>
         <div class="flex justify-start text-xs">
-          <span class="text-blue-700">
-            <%= "by #{message.owner.name}" %> 
-          </span>
-          <span class="mx-1">
+          <span class="mr-1">
             <%= "#{distance_of_time_in_words(message.created_at, Time.now.utc)} ago |" %> 
           </span>
           <% if message.applyings_count && message.applyings_count > 0 %>

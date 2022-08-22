@@ -28,7 +28,7 @@
 .Js, .js, .Javascript, .javascript,
 .node, .nodejs,
 .nextjs, .Nextjs {
-  color: yellow;
+  color: rgba(252, 223, 5, 0.982);
 }
 
 .Typescript, .typescript,
