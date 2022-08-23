@@ -1,0 +1,15 @@
+<%= turbo_frame_tag "inbox-filter" do %>
+    <div class="flex justify-end">
+        <%= filter_dropdown_tag "Job", 
+            query_messages_path(tag: "#inbox"), 
+            @jobids.map {|j| ["Job##{j}", j]}.unshift(["Job#all", "all"]), 
+            @filter_jobid ? "##{@filter_jobid}" : "#all",
+            @filter_userid ? { user: {id: @filter_userid} } : {} %>
+        <span class="mx-1"></span>
+        <%= filter_dropdown_tag "User",
+            query_messages_path(tag: "#inbox"), 
+            @users.map {|id, name, email| ["User@#{name}", {id: id, name: name}]}.unshift(["User@all", {id: "all"}]), 
+            @filter_username ? "@#{@filter_username}" : "@all",
+            @filter_jobid ? { job: @filter_jobid } : {} %>
+    </div>
+<% end %>

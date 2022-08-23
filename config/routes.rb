@@ -63,6 +63,7 @@ Rails.application.routes.draw do
       get 'by_tag'
       get 'by_me'
       post 'by_me'
+      get 'filter_inbox'
       get 'new_filter'
       post 'filter'
       get 'similar'

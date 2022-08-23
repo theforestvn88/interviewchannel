@@ -16,11 +16,10 @@ class MessagesController < ApplicationController
     @tags = (params[:tag] || "").split(",")
     case @tag = @tags.first
     when "#inbox"
-      @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
-      @jobids, @users = PrivateMessageRepo.filter by_user: current_user
       @filter_jobid = params.dig(:filter, :job)
       @filter_userid = params.dig(:filter, :user, :id)
       @filter_username = params.dig(:filter, :user, :name)
+      @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
       @template = "messages/inbox"
     when "#sent"
       @messages = @messager.own_by_me(offset_time: offset_time, limit: limit)
@@ -54,6 +53,13 @@ class MessagesController < ApplicationController
       offset: @next_offset, 
       timezone: current_user&.curr_timezone || "UTC"
     }
+  end
+
+  def filter_inbox
+    @jobids, @users = PrivateMessageRepo.inbox_filter by_user: current_user
+    @filter_jobid = params.dig(:job)
+    @filter_userid = params.dig(:user_id)
+    @filter_username = params.dig(:user_name)
   end
 
   def new_filter
