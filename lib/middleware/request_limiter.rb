@@ -8,7 +8,7 @@ class RequestLimiter
   def call(env)
     request = Rack::Request.new(env)
     ip = request.ip
-    rate_limiter = RateLimiter.new(nil, "request-#{ip}", 200, nil, expires_in: 10.minutes)
+    rate_limiter = RateLimiter.new(nil, "request_#{ip}", 1000, nil, expires_in: 10.minutes)
     
     begin
       rate_limiter.check!

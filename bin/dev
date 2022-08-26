@@ -6,4 +6,7 @@ then
   gem install foreman
 fi
 
+echo "Start redis server ..."
+sudo service redis-server start
+
 foreman start -f Procfile.dev

@@ -7,6 +7,12 @@ class SessionsController < ApplicationController
   end
 
   def create
+    begin
+      RateLimiter.new(nil, "request_#{request&.ip}_login", 2, nil, expires_in: 1.minute).check!
+    rescue RateLimiter::LimitExceeded => e
+      head :too_many_requests and return
+    end
+
     if request && auth = request.env['omniauth.auth']
       user = User.find_or_create_by_omniauth(auth)
       unless user.banned?
