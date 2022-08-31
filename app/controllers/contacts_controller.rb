@@ -1,11 +1,12 @@
 # frozen_string_literal:true
 
 class ContactsController < ApplicationController
-  before_action :require_user_signed_in
+  before_action :ensure_user_signed_in
   before_action :set_contact, only: %i[ edit update destroy ]
 
   def paging
-    @contacts = current_user.recently_contacts.offset(params[:offset].to_i).limit(params[:limit] || PAGE)
+    @contacts, @next_offset = BookMark.recently_contacts(current_user, params[:offset], params[:limit])
+    current_user.recently_contacts.offset(params[:offset].to_i).limit(params[:limit] || PAGE)
     @next_offset = @contacts.size >= PAGE ? params[:offset].to_i + PAGE : nil
 
     respond_to do |format|
@@ -14,9 +15,7 @@ class ContactsController < ApplicationController
   end
 
   def search
-    @contacts = current_user.recently_contacts
-    @contacts = @contacts.where("custom_name ILIKE ?", "%#{params[:key]}%") if params[:key].present?
-    @contacts = @contacts.offset(0).limit(PAGE)
+    @contacts = BookMark.search_contacts(current_user, params[:key])
 
     render layout: false
   end
@@ -68,9 +67,9 @@ class ContactsController < ApplicationController
     end
   end
 
-  private
+  PAGE = 10
 
-    PAGE = 10
+  private
 
     def contact_params
       params.require(:contact).permit(:custom_name, :user_id, :friend_id)

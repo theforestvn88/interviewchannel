@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_21_072314) do
-
+ActiveRecord::Schema[7.0].define(version: 2022_08_11_093705) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   # Custom types defined in this database.
@@ -25,8 +25,8 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
     t.bigint "candidate_id", null: false
     t.bigint "interviewer_id", null: false
     t.text "intro"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "open", default: true
     t.index ["candidate_id"], name: "index_applyings_on_candidate_id"
     t.index ["interviewer_id"], name: "index_applyings_on_interviewer_id"
@@ -37,8 +37,8 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
   create_table "assignments", force: :cascade do |t|
     t.bigint "interview_id", null: false
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["interview_id", "user_id"], name: "index_assignments_on_interview_id_and_user_id", unique: true
     t.index ["interview_id"], name: "index_assignments_on_interview_id"
     t.index ["user_id"], name: "index_assignments_on_user_id"
@@ -47,8 +47,8 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
   create_table "contacts", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "friend_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "custom_name", null: false
     t.index ["user_id", "friend_id"], name: "index_contacts_on_user_id_and_friend_id", unique: true
     t.index ["user_id"], name: "index_contacts_on_user_id"
@@ -57,18 +57,18 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
   create_table "engagings", force: :cascade do |t|
     t.bigint "applying_id", null: false
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["applying_id", "user_id"], name: "index_engagings_on_applying_id_and_user_id", unique: true
     t.index ["applying_id"], name: "index_engagings_on_applying_id"
     t.index ["user_id"], name: "index_engagings_on_user_id"
   end
 
   create_table "interviews", force: :cascade do |t|
-    t.datetime "start_time", precision: 6
-    t.datetime "end_time", precision: 6
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "candidate_id", null: false
     t.bigint "applying_id"
     t.bigint "owner_id", null: false
@@ -85,15 +85,16 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
   create_table "messages", force: :cascade do |t|
     t.string "channel"
     t.text "content"
-    t.datetime "expired_at", precision: 6
+    t.datetime "expired_at"
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "views", default: 0
     t.integer "applyings_count"
     t.string "title"
     t.boolean "auto_reply_enable", default: false
     t.text "auto_reply"
+    t.index ["channel"], name: "index_messages_on_channel", opclass: :gist_trgm_ops, using: :gist
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
@@ -102,8 +103,8 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
     t.string "cc"
     t.bigint "user_id", null: false
     t.bigint "interview_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["interview_id"], name: "index_notes_on_interview_id"
     t.index ["user_id"], name: "index_notes_on_user_id"
   end
@@ -112,27 +113,36 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
     t.bigint "applying_id", null: false
     t.bigint "user_id", null: false
     t.text "content"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.enum "milestone", default: "comment", null: false, enum_type: "stone_type"
     t.index ["applying_id"], name: "index_replies_on_applying_id"
     t.index ["user_id"], name: "index_replies_on_user_id"
   end
 
+  create_table "settings", force: :cascade do |t|
+    t.string "key", null: false
+    t.json "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_settings_on_key", unique: true
+  end
+
   create_table "tags", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "category", default: "others", null: false
+    t.integer "pos", default: 1, null: false
   end
 
   create_table "users", force: :cascade do |t|
     t.string "uid"
     t.string "name"
     t.string "email"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "image"
-    t.string "github"
     t.text "cv"
     t.text "watch_tags"
     t.json "social"
@@ -140,7 +150,9 @@ ActiveRecord::Schema.define(version: 2022_07_21_072314) do
     t.integer "messages_count", default: 0, null: false
     t.integer "interviews_count", default: 0, null: false
     t.string "curr_timezone", default: "UTC", null: false
+    t.string "suggest_trgm", default: "", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["suggest_trgm"], name: "index_users_on_suggest_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   add_foreign_key "applyings", "messages"

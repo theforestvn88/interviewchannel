@@ -24,5 +24,5 @@ class Reply < ApplicationRecord
     !comment_milestone?
   end
 
-  LIMIT_PER_DAY = 1000
+  # LIMIT_PER_DAY = 1000
 end

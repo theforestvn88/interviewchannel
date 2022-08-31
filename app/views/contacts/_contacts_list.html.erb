@@ -1,9 +1,11 @@
 <%= turbo_frame_tag contacts_list_frame_id(user) do %>
-  <%= render contacts %>
+  <% if contacts.size > 0 %>
+    <%= render contacts %>
 
-  <% if loadmore && contacts.size > 0 %>
-    <%= turbo_frame_tag "load_more_contacts" do %>
-      <%= button_to "load more", paging_contacts_path(offset: contacts.size), class: "text-xs text-blue-600" %>
+    <% if next_offset %>
+      <%= render partial: "contacts/loadmore", locals: {next_offset: next_offset} %>
     <% end %>
+  <% else %>
+    <p>No contacts.</p>
   <% end %>
 <% end %>

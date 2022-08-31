@@ -6,7 +6,7 @@ class Messager
         PAGE = 20
 
         def fetch(by_time:, by_tags: nil, by_user: nil, sort_by: nil, order: nil)
-            _tags = by_tags&.filter {|t| t.to_s != "#all"}
+            _tags = by_tags&.filter {|t| t.to_s != "all"}
             MessageRepo.fetch(by_tags: _tags, by_time: by_time, by_user: by_user, sort_by: sort_by)
         end
 

@@ -11,7 +11,13 @@ module UsersHelper
       "data-action": "mouseenter->card#show mouseleave->card#delayHide mousedown->card#hide",
       "data-card-url-value": card_user_path(id: user_id)
     ) { |_|
-      link_to user_name, profile_user_path(id: user_id), data: {turbo: false}
+      link_to profile_user_path(id: user_id), data: {turbo: false} do
+        if block_given?
+          yield
+        else
+          format % user_name
+        end
+      end
     }
   end
 

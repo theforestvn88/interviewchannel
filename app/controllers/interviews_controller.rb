@@ -61,18 +61,19 @@ class InterviewsController < ApplicationController
 
   # POST /interviews or /interviews.json
   def create
-    RateLimiter.new(current_user, :created_interviews, Interview::LIMIT_PER_DAY, :day_exceeded, expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc)
-      .check!
+    RateLimiter.new(
+      current_user, 
+      :created_interviews, 
+      SettingRepo.fetch("rate_limiter.interview_limit_per_day"), 
+      :day_exceeded, 
+      expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc
+    ).check!
 
     @interview = Interview.new(interview_params)
     @interview.owner = current_user
 
     respond_to do |format|
       if @interview.save
-        format.html { redirect_to interview_url(@interview), notice: "Interview was successfully created." }
-        format.json { render :show, status: :created, location: @interview }
-        format.turbo_stream { }
-
         if applying = @interview.applying
           @messager.create_and_send_private_reply(
             applying: applying, 
@@ -136,12 +137,10 @@ class InterviewsController < ApplicationController
           Contact.hit(current_user.id, user_id)
         end
       else
-        @messager.send_error_flash(error: @interview.errors.first.full_message)
-
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @interview.errors, status: :unprocessable_entity }
-        format.turbo_stream { }
+        # @messager.send_error_flash(error: @interview.errors.first.full_message)
       end
+
+      format.turbo_stream { }
     end
   end
 
@@ -284,12 +283,10 @@ class InterviewsController < ApplicationController
           Contact.hit(current_user.id, user_id)
         end
       else
-        @messager.send_error_flash(error: @interview.errors.first.full_message)
-        @interview.reload
+        # @messager.send_error_flash(error: @interview.errors.first.full_message)
+        # @interview.reload
       end
 
-      format.html { redirect_to interview_url(@interview), notice: "Interview was successfully updated." }
-      format.json { render :show, status: :ok, location: @interview }
       format.turbo_stream { }
     end
   end

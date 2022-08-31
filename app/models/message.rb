@@ -8,23 +8,28 @@ class Message < ApplicationRecord
 
   has_many :applyings, :dependent => :destroy
 
+  validates_presence_of :channel
+
   after_create_commit  -> { broadcast_prepend_later_to :messages, target: nil, targets: targets }
   after_update_commit  -> { broadcast_replace_later_to self }
   after_destroy_commit -> { broadcast_remove_to self }
 
   after_save -> { owner.increment!(:messages_count) }
 
-  LIMIT_PER_DAY = 10
+  # LIMIT_PER_DAY = 10
 
   scope :by_updated_time, ->(time_range) {
     where(updated_at: time_range)
   }
 
   scope :by_tags, ->(tags) {
-    where(
-      (["channel ILIKE ?"] * tags.size).join(" OR "), 
-      *tags.map { |t| "%#{t}%" }
-    )
+    _tags = tags.map { |t| "'%#{t}%'" }.join(',')
+    where("channel ILIKE ANY (array[#{_tags}])")
+  }
+
+  scope :similarity_tags, ->(tags) {
+    by_tags(tags)
+      .order(Arel.sql("similarity(channel, '#{ActiveRecord::Base.connection.quote_string(tags.join(' '))}') DESC"))
   }
 
   scope :by_owner, ->(owner_id) {
@@ -36,7 +41,11 @@ class Message < ApplicationRecord
   end
 
   def tags=(_tags)
-    self.channel = _tags.map {|t| t.gsub("#", "")}.map {|t| "##{t}"}.uniq.join(" ")
+    self.channel = _tags.map {|t| t.strip.gsub("#", "").downcase}.map {|t| "##{t}"}.uniq.join(" ")
+  end
+
+  def split_tags
+    self.channel.blank? ? [] : self.channel.split("#").map(&:strip).reject(&:blank?)
   end
 
   def own_by?(user)

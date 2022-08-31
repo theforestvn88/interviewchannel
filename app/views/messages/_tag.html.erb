@@ -1,6 +1,6 @@
-<% _tag = tag.gsub("#", "").downcase %>
+<% _tag = format_tag(tag) %>
 <p id='<%= "tag_#{_tag}_content" %>' class=<%= unread ? "font-bold" : "" %>>
   <span class="<%= _tag %>">#</span>
-  <span><%= _tag %></span>
-  <span><%= count.to_i > 0 ? "(#{ number_to_human(count, units: {thousand: 'K', million: 'M'}) })" : '' %></span>
+  <span><%= tag %></span>
+  <span><%= count.to_i > 0 ? "(#{ number_to_human(count, units: {million: 'M'}) })" : '' %></span>
 </p>

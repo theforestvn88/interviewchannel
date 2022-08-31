@@ -1,15 +1,15 @@
 <%= turbo_frame_tag "home-content", class: "w-full" do %>
-  <div class="w-full p-5">
+  <div class="w-full p-2 sm:p-5">
     <% if notice.present? %>
       <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
     <% end %>
 
     <div class="flex justify-between">
       <div class="flex justify-start items-center">
-        <h1 class="text-base font-bold">Recently Messages</h1>
+        <h1 class="text-base font-bold">Recently Jobs</h1>
       </div>
       <% if user_signed_in? %>
-        <%= link_to "Post Job Message", new_message_path(tag: @tags.first), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-sm" %>
+        <%= link_to "Post Job", new_message_path(tag: @tags.first), data: {"turbo-frame": "modal"}, class: "border-2 border-gray-900 rounded-md py-1 px-2 text-sm z-10 shadow-lg" %>
       <% end %>
     </div>
     

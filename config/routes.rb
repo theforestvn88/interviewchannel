@@ -61,9 +61,12 @@ Rails.application.routes.draw do
     collection do
       post 'query'
       get 'by_tag'
+      get 'by_me'
       post 'by_me'
+      get 'filter_inbox'
       get 'new_filter'
       post 'filter'
+      get 'similar'
     end
   end
 
@@ -80,9 +83,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :settings, only: [:edit, :update]
+
   namespace :admin do
     get "" => "dashboard#index"
     get "paging" => "dashboard#paging"
     post "action" => "dashboard#action"
+    get "enter_pass" => "admin#enter_pass"
+    post "confirm_pass" => "admin#confirm_pass"
   end
 end

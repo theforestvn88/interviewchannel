@@ -1,13 +1,13 @@
 <%= turbo_frame_tag "profile" do %>
-  <div class="flex justify-start px-5 pt-5 relative">
+  <div class="flex justify-start p-2 sm:px-5 sm:pt-5 relative">
     <img src="<%= user.image %>" class="object-cover h-24 w-24" />
     <div class="ml-2">
-      <p class="text-lg font-bold"><%= user.name %></p>
-      <p class="font-light"><%= user.email %></p>
+      <p class="text-lg text-blue-300 font-bold"><%= user.name %></p>
+      <p class="text-blue-300 font-light"><%= user.email %></p>
       <div class="my-1 flex justify-start">
 
-        <% unless user.github.blank? %>
-        <a href="<%= user.github %>" class="flex items-center mx-1" target="blank">
+        <% unless (github = user.social_links['github']).blank? %>
+        <a href="<%= github %>" class="flex items-center mx-1" target="blank">
           <span><?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <svg width="16px" height="16px" viewBox="0 0 256 250" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
               <title>Github</title>
@@ -149,10 +149,9 @@
         <% if user.afk? && editable %>
           <%= "Your watch-tags section is currently blank. Would you like to add one?" %>
         <% else %>
-          <% user.watch_tags&.split(" ")&.each do |tag| %>
-            <% _tag = tag.gsub('#', '').downcase %>
-            <span class="<%= _tag %>">#</span>
-            <span class="-ml-1"><%= _tag %></span>
+          <% user.split_tags.each do |tag| %>
+            <span class="<%= format(tag) %>">#</span>
+            <span class="-ml-1"><%= tag %></span>
           <% end %>
         <% end %>
       </p>
@@ -178,14 +177,14 @@
 
   <p class="text-xs px-5 py-2"><%= user.brief_intro %></p>
 
-  <div class="flex justify-between px-4">
+  <div class="flex justify-between pb-1 px-4">
     <p class="inline-block align-middle text-xs font-light">
         <% if user.messages_count > 0 %>
-        <span class="text-orange-600" title="#jobs">#<%= number_to_human(user.messages_count, units: {thousand: 'K', million: 'M'}) %></span>
+        <span class="text-orange-600" title="#jobs">#<%= number_to_human(user.messages_count, units: {thousand: 'K', million: 'M'}) %><%= "job".pluralize(user.messages_count) %></span>
         <% end %>
 
         <% if user.interviews_count > 0 %>
-        <span class="text-purple-700" title="#interviews">#<%= number_to_human(user.interviews_count, units: {thousand: 'K', million: 'M'}) %></span>
+        <span class="text-purple-700" title="#interviews">#<%= number_to_human(user.interviews_count, units: {thousand: 'K', million: 'M'}) %><%= "interview".pluralize(user.interviews_count) %></span>
         <% end %>
     </p>
     
@@ -194,12 +193,12 @@
         new_contact_path(friend_id: user.id),
         data: {turbo_frame: :modal},
         "data-action": "click->card#forceHide", 
-        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1 text-blue-300" %>
 
       <%= link_to "chat", 
         private_chat_user_path(user), 
         data: {turbo_frame: "chat-form", action: "click->card#forceHide"}, 
-        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1" %>
+        class: "border border-gray-300 rounded-md hover:bg-gray-200 mx-1 px-1 text-blue-300" %>
     </div>
   </div>
 <% end %>

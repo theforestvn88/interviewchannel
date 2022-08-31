@@ -1,6 +1,6 @@
 <%= turbo_frame_tag "interviews" do %>
     <% if @interviews.empty? && params[:offset].nil? %>
-        <div class="w-full h-full p-10 m-10 bg-gray-50 text-center"><span class="font-bold">No Result</span></div>
+        <div class="w-full h-full sm:p-10 mt-10 sm:m-10 bg-gray-50 text-center"><span class="font-bold">No Result</span></div>
     <% else %>
         <% @interviews.each do |interview| %>
             <div class="mt-10 mb-3 mx-5 text-xs">

@@ -1,4 +1,4 @@
-<%= turbo_stream.append messages_by_me_id(current_user), class: "w-full" do %>
+<%= turbo_stream.append messages_by_me_id(@user), class: "w-full" do %>
     <%= render(partial: @partial, collection: @messages, locals: @locals) if @messages %>
 <% end %>
 

@@ -2,4 +2,8 @@
   <%= turbo_stream.append("rounds-of-#{@interview.head_id}") do %>
       <%= render partial: "interviews/round", locals: {round: @interview, user: current_user, timezone: current_user.curr_timezone} %>
   <% end %>
+<% else %>
+  <%= turbo_stream.replace "modal" do %>
+      <%= render template: "interviews/new", formats: [:html] %>
+  <% end %>
 <% end %>

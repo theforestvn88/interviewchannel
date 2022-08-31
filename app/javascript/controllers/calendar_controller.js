@@ -12,8 +12,6 @@ export default class extends Controller {
   showDisplayHeader() {
     this.displayHeaderTarget.classList.remove("invisible", "w-1");
     this.displayHeaderTarget.classList.add("visible");
-    this.displaySelectorTarget.classList.remove("invisible", "w-1");
-    this.displaySelectorTarget.classList.add("visible");
     this.openSearchTarget.classList.remove("invisible");
     this.openSearchTarget.classList.add("visible");
   }
@@ -21,8 +19,6 @@ export default class extends Controller {
   hideDisplayHeader() {
     this.displayHeaderTarget.classList.remove("visible");
     this.displayHeaderTarget.classList.add("invisible", "w-1");
-    this.displaySelectorTarget.classList.remove("visible");
-    this.displaySelectorTarget.classList.add("invisible", "w-1");
     this.openSearchTarget.classList.remove("visible");
     this.openSearchTarget.classList.add("invisible");
   }

@@ -13,14 +13,15 @@
     <% end %>
 
     <div class="my-5 px-2">
-      <%= form.label :your_profile %>
+      <%= form.label :your_profile, class: "underline" %>
       <input id="x" type="hidden" name="user[cv]" value="<%= current_user.cv %>">
       <trix-editor input="x"></trix-editor>
     </div>
 
     <input type="hidden" id="partial" name="partial" value="cv" />
     <div class="flex justify-end mr-5 mb-2">
-      <%= form.submit "Update", class: "rounded-sm border p-2 inline-block font-medium cursor-pointer hover:border-gray-900" %>
+      <%= link_to "Cancel", profile_user_path(current_user), class: "rounded-sm border p-2 inline-block font-medium cursor-pointer hover:border-gray-900 mx-1" %>
+      <%= form.submit "Update", class: "rounded-sm border p-2 inline-block font-medium cursor-pointer bg-green-600 hover:border-gray-900" %>
     </div>
   <% end %>
 <% end %>

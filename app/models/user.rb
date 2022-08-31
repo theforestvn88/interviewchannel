@@ -15,20 +15,32 @@ class User < ApplicationRecord
 
   validate :validate_social_links
 
+  before_save :upd_suggest_trgm
+
+  attr_accessor :custom_name
+
   scope :suggest, ->(keyword) {
-    keywords = ["%#{keyword.strip}%"] * 2
-    where("name ILIKE ? OR email ILIKE ?", *keywords)
+    where("suggest_trgm ILIKE ?", "%#{keyword.strip}%")
   }
 
   def self.find_or_create_by_omniauth(auth)
     # exist user ?
-    user = where(email: parse_user_emails(auth)).first
+    _provider = parse_provider(auth)
+    _social_link = parse_social_link(auth)
+    _image = parse_user_image(auth) || ""
+    _email = parse_user_emails(auth)
+
+    user = where(email: _email).first
     if user.present?
       # update merge infomation
-      if user.github.nil? && (gihub = parse_github(auth)).present?
-        user.github = gihub
-        user.save
+      if user.image.blank?
+        user.image = _image
       end
+
+      user.social ||= {}
+      user.social[_provider] = _social_link unless _social_link.nil?
+
+      user.save if user.changed?
       return user
     end
 
@@ -37,13 +49,17 @@ class User < ApplicationRecord
       user.uid = parse_user_uid(auth)
       user.name = parse_user_name(auth)
       user.email = parse_user_primary_email(auth)
-      user.image = parse_user_image(auth)
-      user.github = parse_github(auth)
+      user.image = _image
+      user.social = {}.tap {|s| s[_provider] = _social_link}
     end
   end
 
   def tags=(tags_input)
-    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip}" : ""}.join(" ").strip
+    self.watch_tags = tags_input.map {|t| t.present? ? "##{t.strip.downcase}" : ""}.join(" ").strip
+  end
+
+  def split_tags
+    self.watch_tags.blank? ? [] : self.watch_tags.split("#").map(&:strip).reject(&:blank?)
   end
 
   def afk?
@@ -83,6 +99,14 @@ class User < ApplicationRecord
   
   def unban
     self.update(updated_at: Time.now.utc)
+  end
+
+  def need_setup?
+    self.afk? # or something ...
+  end
+
+  private def upd_suggest_trgm
+    self.suggest_trgm = "#{self.name} #{self.email}"
   end
 end
 

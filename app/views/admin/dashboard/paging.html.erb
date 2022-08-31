@@ -7,6 +7,16 @@
         </nav>
 
         <div class="w-full pr-5">
+            <div class="mx-5 flex justify-start">
+                <% @curr_global_actions&.each do |action| %>
+                    <% if !action[:if] || action[:if].call %>
+                        <% if action[:link_to] %>
+                            <%= link_to action[:name], send(action[:link_to]), data: {turbo_frame: action[:turbo_frame]}, class: "text-blue-300 hover:underline" %>
+                        <% end %>
+                    <% end %>
+                <% end %>
+            </div>
+
             <%= form_with(url: admin_action_path(r: @curr_resource), class: "mb-5 text-xs w-full") do |f| %>
                 <div class="flex justify-start h-5 mx-5 w-full">
                     <% @curr_fields.each do |field| %>

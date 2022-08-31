@@ -11,7 +11,7 @@ class Messager
         end
 
         def count_all
-            count_by_tag "#all"
+            count_by_tag "all"
         end
 
         def increase_then_broadcast_counter(message)
@@ -27,7 +27,7 @@ class Messager
             tags_with_count.each do |(tag, count)|
                 Turbo::StreamsChannel.broadcast_replace_to(
                     :tags,
-                    target: "tag_#{tag.gsub("#", "").downcase}_content", 
+                    target: "tag_#{tag.gsub(" ", "-").downcase}_content", 
                     partial: "messages/tag",
                     locals: {tag: tag, count: count, unread: true}
                 )

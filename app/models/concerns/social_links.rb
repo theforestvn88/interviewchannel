@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 module SocialLinks
-  SOCIAL = [
-    "blog", "hackerrank", "leetcode", "dev.to", "stackoverflow", "codeforces", "medium", "linkedin", "twitter"
-  ]
 
   def social_support
-    SOCIAL
+    Setting[:social]
   end
 
   def social_link_valid?(social, link)

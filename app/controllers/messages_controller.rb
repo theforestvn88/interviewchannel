@@ -13,14 +13,13 @@ class MessagesController < ApplicationController
 
     @template = "messages/index"
 
-    @tags = params[:tag].split("&")
-    case @tags.first
+    @tags = (params[:tag] || "").split(",")
+    case @tag = @tags.first
     when "#inbox"
-      @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
-      @jobids, @users = PrivateMessageRepo.filter by_user: current_user
       @filter_jobid = params.dig(:filter, :job)
       @filter_userid = params.dig(:filter, :user, :id)
       @filter_username = params.dig(:filter, :user, :name)
+      @messages = @messager.inbox_messages(current_user, filter: params[:filter] || {}, offset_time: offset_time, limit: limit)
       @template = "messages/inbox"
     when "#sent"
       @messages = @messager.own_by_me(offset_time: offset_time, limit: limit)
@@ -56,6 +55,13 @@ class MessagesController < ApplicationController
     }
   end
 
+  def filter_inbox
+    @jobids, @users = PrivateMessageRepo.inbox_filter by_user: current_user
+    @filter_jobid = params.dig(:job)
+    @filter_userid = params.dig(:user_id)
+    @filter_username = params.dig(:user_name)
+  end
+
   def new_filter
     render layout: false
   end
@@ -77,11 +83,22 @@ class MessagesController < ApplicationController
     end
   end
 
+  def similar
+    @channel = params[:channel]
+    @messages = Message.similarity_tags(@channel.split(' ')).order(views: :desc).first(7).reject {|m| m.id == params[:id].to_i}
+
+    if @messages.blank?
+      head :no_content
+    else
+      render layout: false
+    end
+  end
+
   def by_me
     head :no_content unless @user = User.find_by(id: params[:user])
 
     offset = params[:offset].to_i
-    @messages = @user.sent_messages.offset(offset).limit(Messager::Query::PAGE)
+    @messages = @user.sent_messages.order(updated_at: :desc).offset(offset).limit(Messager::Query::PAGE)
     @next_offset = @messages.size >= Messager::Query::PAGE ? (offset + @messages.size) : nil
     @locals = {
       messages: @messages, 
@@ -110,8 +127,13 @@ class MessagesController < ApplicationController
 
   # POST /messages or /messages.json
   def create
-    RateLimiter.new(current_user, :created_messages, Message::LIMIT_PER_DAY, :day_exceeded, expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc)
-      .check!
+    RateLimiter.new(
+      current_user, 
+      :created_messages, 
+      SettingRepo.fetch("rate_limiter.message_limit_per_day"), 
+      :day_exceeded, 
+      expires_at: today_in_curr_timezone.next_day.beginning_of_day.utc
+    ).check!
 
     respond_to do |format|
       @message = @messager.create_message(message_params)
@@ -156,6 +178,6 @@ class MessagesController < ApplicationController
     end
 
     def join_tags
-      @tags&.join("&")
+      @tags&.join(",")
     end
 end

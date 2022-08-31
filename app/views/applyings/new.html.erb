@@ -1,5 +1,5 @@
-<%= turbo_frame_tag "home-content", class: "w-full p-5" do %>
-  <div class="w-2/3 rounded-md border border-gray-200 m-5 p-5 text-xs">
+<%= turbo_frame_tag "home-content", class: "w-full sm:p-5" do %>
+  <div class="w-full sm:w-2/3 rounded-md border border-gray-200 m-2 sm:m-5 p-1 sm:p-5 text-xs">
     <%= link_to "<-Back", message_path(@message), data: {"turbo-frame": "home-content"} %>
 
     <%= form_with(model: [@message, @applying], class: "w-full text-xs") do |form| %>
@@ -8,7 +8,7 @@
         </div>
 
         <div class="flex justify-end inline">
-            <%= form.submit "Submit", class: "rounded-lg py-1 px-3 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+            <%= form.submit "Submit", class: "rounded-lg py-2 sm:py-1 px-3 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
         </div>
     <% end %>
 

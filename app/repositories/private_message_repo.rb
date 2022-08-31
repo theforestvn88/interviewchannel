@@ -10,11 +10,12 @@ class PrivateMessageRepo
           query_applyings.limit(limit)
         end
 
-        def filter(by_user:)
-          Rails.cache.fetch("filter-#{by_user.id}", expires_in: 1.minute) {
-            applyings = Applying.by_user_id(by_user.id).pluck(:message_id, :interviewer_id, :candidate_id)
-            job_ids = applyings.map {|a| a[0]}.uniq
-            user_ids = applyings.map {|a| [a[1], a[2]]}.flatten.uniq
+        def inbox_filter(by_user:)
+          Rails.cache.fetch("inbox-filter-#{by_user.id}", expires_in: 1.minute) {
+            applying_ids = Applying.joins(:engagings).where(engagings: {user_id: by_user.id}).pluck(:applying_id)
+            filterings = Applying.joins(:engagings).where(applyings: {id: applying_ids}).pluck(:message_id, :user_id)
+            job_ids = filterings.map(&:first).uniq
+            user_ids = filterings.map(&:last).uniq
             users = User.where(id: user_ids).pluck(:id, :name, :email)
             
             [ job_ids, users ]

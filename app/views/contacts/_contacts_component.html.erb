@@ -5,6 +5,6 @@
           <%= searching_tag search_contacts_path, contacts_list_frame_id(user), class: "absolute right-0 top-0" %>
         </div>
 
-        <%= render partial: "contacts/contacts_list", locals: {user: user, contacts: contacts, loadmore: true} %>
+        <%= render partial: "contacts/contacts_list", locals: {user: user, contacts: contacts, next_offset: next_offset} %>
     </div>
 </div>
