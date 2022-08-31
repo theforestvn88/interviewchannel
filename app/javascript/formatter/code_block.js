@@ -18,9 +18,7 @@ function codeBlock(params) {
   const endBlockRegex = function(lang) {
     if (EndBlockSymbols.hasOwnProperty(lang)) {
       let endSymbols = EndBlockSymbols[lang];
-      if (endSymbols) {
-        return new RegExp(`\\t+${endSymbols}$`);
-      }
+      return endSymbols ? new RegExp(`\\t+${endSymbols}$`) : undefined;
     } else {
       return new RegExp(`\\t+${EndBlockSymbols["default"]}$`);
     }
@@ -35,7 +33,7 @@ function codeBlock(params) {
 
   const isBlockEnd = function(lang, lineOfCode) {
     let endIndentRegex = endBlockRegex(lang);
-    return lineOfCode.match(endIndentRegex);
+    return endIndentRegex ? lineOfCode.match(endIndentRegex) : undefined;
   }
 
   return {

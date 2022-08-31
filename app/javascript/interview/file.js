@@ -35,7 +35,6 @@ CodeFileManagement.prototype.saveCodeFile = function(codeFile) {
 
 CodeFileManagement.prototype.loadCodeFile = function(filePath) {
     let cachedFileContent = localStorage.getItem(filePath);
-    console.log(cachedFileContent);
     if (cachedFileContent !== null) {
         this.currentFile = filePath;
         this.saveSession();

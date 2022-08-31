@@ -51,7 +51,7 @@ export const BeginBlockSymbols = {
 export const EndBlockSymbols = {
   "default": "\}",
   "ruby": "\}|end",
-  "python": undefined,
+  // "python": undefined,
   "scala": undefined,
   "clojure": undefined,
   "erlang": "end"
