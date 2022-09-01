@@ -33,11 +33,13 @@ module CodeHelper
     ].freeze
     
     def interview_stream(*interviews, **attributes)
+      curr_interview = interviews.first
+      return if curr_interview.nil?
+
       attributes[:channel] = attributes[:channel]&.to_s || "InterviewStreamsChannel"
       attributes[:"signed-stream-name"] = Turbo::StreamsChannel.signed_stream_name(interviews)
-      attributes[:"interview-id"] = interviews.first.id # TODO: uuid -> short link
-      attributes[:"user_id"] = SecureRandom.hex(6) # TODO:   replace by User model
-      attributes[:"user_name"] = attributes[:"user_id"]
+      attributes[:"interview-id"] = curr_interview.id
+      # attributes[:"token"] = SecureRandom.hex(6)
       attributes[:"theme"] = 'blues-rock'
 
       # styles
@@ -47,8 +49,7 @@ module CodeHelper
       editor_lock_style = %W( w-full sticky bottom-0 #{attributes[:"theme"]}-lock border-0 text-xs pl-2 invisible )
       interview_intro_style = %W( #{attributes[:"theme"]}-intro text-xs row-7 )
       result_view_style = %W( #{attributes[:"theme"]}-result sticky bottom-0 pb-20 pl-2 w-full text-xs text-white invisible )
-
-      curr_interview = interviews.first
+      
       candidate = curr_interview.candidate
       interviewers = curr_interview.interviewers
 

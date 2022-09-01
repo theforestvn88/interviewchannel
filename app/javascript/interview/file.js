@@ -4,11 +4,12 @@ const LangExts = {
     "py": "python"
 }
 
-function CodeFile(path, content = "") {
+function CodeFile(path, content = "", version = 0) {
     [this.name, this.ext] = path.split(".");
     this.path = path;
     this.lang = LangExts[this.ext];
     this.content = content;
+    this.version = version;
 }
 
 const FileRegex = /.+\.\w+/
@@ -30,15 +31,18 @@ CodeFileManagement.prototype.createCodeFile = function(filePath) {
 }
 
 CodeFileManagement.prototype.saveCodeFile = function(codeFile) {
-    localStorage.setItem(codeFile.path, codeFile.content);
+    sessionStorage.setItem(codeFile.path, JSON.stringify({
+        content: codeFile.content,
+        version: codeFile.version
+    }));
 }
 
 CodeFileManagement.prototype.loadCodeFile = function(filePath) {
-    let cachedFileContent = localStorage.getItem(filePath);
-    if (cachedFileContent !== null) {
+    let cachedFile = JSON.parse(sessionStorage.getItem(filePath));
+    if (cachedFile !== null) {
         this.currentFile = filePath;
         this.saveSession();
-        return new CodeFile(filePath, cachedFileContent);
+        return new CodeFile(filePath, cachedFile.content, cachedFile.version);
     }
 }
 
@@ -52,14 +56,14 @@ CodeFileManagement.prototype.searchCodeFile = function(searchKey, limit = undefi
 }
 
 CodeFileManagement.prototype.saveSession = function() {
-    localStorage.setItem(this.session, JSON.stringify({
+    sessionStorage.setItem(this.session, JSON.stringify({
         paths: this.filePaths, 
         current: this.currentFile
     }));
 }
 
 CodeFileManagement.prototype.loadSession = function() {
-    let session = JSON.parse(localStorage.getItem(this.session));
+    let session = JSON.parse(sessionStorage.getItem(this.session));
     if (!session) return;
 
     this.filePaths = session.paths;

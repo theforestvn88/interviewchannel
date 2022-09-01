@@ -60,13 +60,8 @@ export default class CodeEditor {
 			if (this.lockTime && this.lockTime > Date.now()) return;
 
 			this.lockTime = null;
-			this.interview.sync(this.component, {
-        file: {
-          path: this.currentFile.path,
-          code: formattedCode,
-          selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd]
-        }
-			})
+      this.currentFile.content = formattedCode;
+      this.syncCode();
 		});
 
     // files
@@ -146,11 +141,13 @@ export default class CodeEditor {
       if (data.file) {
         if (data.file.path && data.file.path !== this.currentFile.path) {
           this.setLock(`${data.user_id} open ${data.file.path}`, CodeEditor.LOCKTIME);
-          this.syncFile(data.file.path, data.file.code);
+          this.syncFile(data.file.path, data.file.code, data.file.version);
         } else {
-          if (data.file.code) {
+          if (data.file.code && data.file.version && data.file.version > this.currentFile.version) {
             this.setCode(data.file.code);
-            this.saveCurrentFile(data.file.code);
+            this.saveCurrentFile(data.file.code, data.file.version);
+          } else if (data.file.version == 0) {
+            this.syncCode(true);
           }
 
           if (data.file.selection) {
@@ -223,6 +220,18 @@ export default class CodeEditor {
     this.highlightCode(code);
     this.updateCodeOverlay();
     this.history.push(code);
+  }
+
+  syncCode(force = false) {
+    this.interview.sync(this.component, {
+      force: force,
+      file: {
+        path: this.currentFile.path,
+        code: this.currentFile.content,
+        selection: [this.codeInput.selectionStart, this.codeInput.selectionEnd],
+        version: this.currentFile.version
+      }
+    });
   }
 
   revertInputCode() {
@@ -603,13 +612,9 @@ export default class CodeEditor {
     this.setCode(this.currentFile.content);
     this.codeInput.setSelectionRange(0, 0);
 
-    this.interview.sync(this.component, {
-      file: {
-        path: this.currentFile.path,
-        code: this.currentFile.content,
-        selection: [0,0]
-      }
-    });
+    setTimeout(() => {
+      this.syncCode();
+    }, 50); // TODO: show loading or lock
   }
 
   static SearchPageSize = 7;
@@ -622,18 +627,19 @@ export default class CodeEditor {
     this.showResultSearch(offset);
   }
 
-  syncFile(path, code = "") {
+  syncFile(path, code = "", version) {
     this.currentFile = this.fileManagement.loadCodeFile(path);
     if (!this.currentFile) {
       this.currentFile = this.fileManagement.createCodeFile(path);
     }
 
-    this.saveCurrentFile(code);
+    this.saveCurrentFile(code, version);
     this.openFile(this.currentFile);
   }
 
-  saveCurrentFile(code) {
+  saveCurrentFile(code, version = Date.now()) {
     this.currentFile.content = code;
+    this.currentFile.version = version;
     this.fileManagement.saveCodeFile(this.currentFile);
   }
 
