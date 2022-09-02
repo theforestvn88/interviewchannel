@@ -684,7 +684,11 @@ export default class CodeEditor {
       // send command to server
       // get result from server at the onReceive method
       this.interview.sync(this.component, {
-        command: `run ${this.currentFile.path} ${start} ${end}`
+        command: {
+          action: 'run',
+          file: this.currentFile.path,
+          code: end > -1 ? this.codeInput.value.substring(start, end) : this.codeInput.value
+        }
       }) 
       // timeout in 2 minutes
       setTimeout(() => {
