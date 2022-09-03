@@ -140,7 +140,7 @@ export default class CodeEditor {
 
       if (data.file) {
         if (data.file.path && data.file.path !== this.currentFile.path) {
-          this.setLock(`${data.user_id} open ${data.file.path}`, CodeEditor.LOCKTIME);
+          this.setLock(`${data.lock} open ${data.file.path}`, CodeEditor.LOCKTIME);
           this.syncFile(data.file.path, data.file.code, data.file.version);
         } else {
           if (data.file.code && data.file.version && data.file.version > this.currentFile.version) {
@@ -166,7 +166,9 @@ export default class CodeEditor {
       }
 
       if (data.command) {
-        this.setLock(`${data.user_id} ${data.command}`, 2000*60);
+        if (data.command.action == 'run') {
+          this.setLock(`${data.lock} is running code`, 2000*60);
+        }
         this.keyInputHandler.syncState(InteractionStates.Cmd);
       }
 

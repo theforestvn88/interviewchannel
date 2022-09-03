@@ -12,7 +12,7 @@ class InterviewElement extends HTMLElement {
     const subscription = await cable.subscribeTo(this.channel, {
       received: this.dispatchMessageEvent.bind(this)
     });
-		const upStream = new Sync(this.id, this.user_id, subscription);
+		const upStream = new Sync(this.id, this.user_id, this.user_name, subscription);
 
 		this.sync = (component, data) => {
 			upStream.sync(component, data);
