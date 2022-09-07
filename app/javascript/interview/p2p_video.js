@@ -21,8 +21,14 @@ export default class P2pVideo {
     this.interview = interview;
     this.component = component;
 
-    this.#localVideo = this.interview.querySelector("#local-video");
+    this.#localVideo = this.interview.querySelector(`#local-video-${this.interview.user_id}`);
     this.#remoteVideoContainer = this.interview.querySelector("#remote-video-container");
+    this.interview.querySelector(`#show-video-${this.interview.user_id}`).addEventListener("click", () => {
+      this.showVideo(this.interview.user_id);
+    }, false);
+    this.interview.querySelector(`#hide-video-${this.interview.user_id}`).addEventListener("click", () => {
+      this.hideVideo(this.interview.user_id);
+    }, false);
 
     this.openVideos();
   }
@@ -46,18 +52,18 @@ export default class P2pVideo {
   requestRemoteVideo() {
     this.interview.sync(this.component, {
       type: OPEN_VIDEO,
-      from: this.interview.user
+      from: this.interview.user_id
     });
   }
 
   receive(data) {
-    if (data.from === this.interview.user) return;
+    if (data.from === this.interview.user_id) return;
 
     switch (data.type) {
       case OPEN_VIDEO:
         return this.createPC(data.from, true);
       case EXCHANGE:
-        if (data.to !== this.interview.user) return;
+        if (data.to !== this.interview.user_id) return;
         return this.exchange(data);
       case CLOSE_VIDEO:
         return this.removeUser(data);
@@ -76,8 +82,10 @@ export default class P2pVideo {
 
     this.#pcPeers[userId] = pc;
 
-    for (const track of this.#localstream.getTracks()) {
-      pc.addTrack(track, this.#localstream);
+    if (this.#localstream) {
+      for (const track of this.#localstream.getTracks()) {
+        pc.addTrack(track, this.#localstream);
+      }
     }
 
     isOffer &&
@@ -89,7 +97,7 @@ export default class P2pVideo {
         .then(() => {
           this.interview.sync(this.component, {
             type: EXCHANGE,
-            from: this.interview.user,
+            from: this.interview.user_id,
             to: userId,
             sdp: JSON.stringify(pc.localDescription)
           });
@@ -100,7 +108,7 @@ export default class P2pVideo {
       event.candidate &&
         this.interview.sync(this.component, {
           type: EXCHANGE,
-          from: this.interview.user,
+          from: this.interview.user_id,
           to: userId,
           candidate: JSON.stringify(event.candidate)
         });
@@ -154,7 +162,7 @@ export default class P2pVideo {
               .then(() => {
                 this.interview.sync(this.component, {
                   type: EXCHANGE,
-                  from: this.interview.user,
+                  from: this.interview.user_id,
                   to: data.from,
                   sdp: JSON.stringify(pc.localDescription)
                 });
@@ -162,6 +170,22 @@ export default class P2pVideo {
           }
         })
         .catch(logError);
+    }
+  }
+
+  showVideo(userId) {
+    let vdView = this.interview.querySelector(`#local-video-${this.interview.user_id}`);
+    if (vdView) {
+      vdView.classList.remove("hidden");
+      this.interview.querySelector(`#hide-video-${this.interview.user_id}`).classList.remove("hidden");
+    }
+  }
+
+  hideVideo(userId) {
+    let vdView = this.interview.querySelector(`#local-video-${this.interview.user_id}`);
+    if (vdView) {
+      vdView.classList.add("hidden");
+      this.interview.querySelector(`#hide-video-${this.interview.user_id}`).classList.add("hidden");
     }
   }
 
@@ -176,7 +200,7 @@ export default class P2pVideo {
 
     this.interview.sync(this.component, {
       type: CLOSE_VIDEO,
-      from: this.interview.user
+      from: this.interview.user_id
     });
   }
 

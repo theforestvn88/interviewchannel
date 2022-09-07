@@ -129,8 +129,10 @@ module CodeHelper
     def p2p_videos(attributes)
       tag.div(class: "w-full flex justify-end sticky bottom-0 right-10") { |tag|
           tag.div { |tag|
-          tag.div(id: "remote-video-container")
-              .concat(tag.video(id: "local-video", class: "p2p-video", autoplay: true))
+            tag.div(id: "remote-video-container", class: "relative w-36 h-32")
+              .concat(tag.video(id: "local-video-#{attributes[:user_id]}", class: "p2p-video border border-green-600 absolute top-0 right-1", autoplay: true))
+              .concat(tag.p(attributes[:user_name], id: "show-video-#{attributes[:user_id]}", class: "w-36 px-5 text-xs text-white bg-green-600 hover:cursor-pointer absolute bottom-0 right-1"))
+              .concat(tag.button("-", id: "hide-video-#{attributes[:user_id]}", class: "text-xl text-red-600 bg-red-200 w-5 h-5 absolute top-0 right-1"))
           }
       }
     end
